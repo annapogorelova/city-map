@@ -8,7 +8,7 @@ module.exports = {
     verifyToken: function(req, res, next) {
         const accessToken = req.headers[config.security.jwt.headerName];
         if (!accessToken) {
-            return res.status(constants.statusCodes.BAD_REQUEST)
+            return res.status(constants.statusCodes.UNAUTHORIZED)
                 .send({ auth: false, message: constants.messages.ACCESS_TOKEN_INCORRECT_FORMAT });
         }
         

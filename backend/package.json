@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node $NODE_DEBUG_OPTION ./bin/www --arguments",
-    "test": "export NODE_ENV=test && ./node_modules/.bin/nyc ./node_modules/.bin/mocha \"./src/tests\" --exit"
+    "test": "export NODE_ENV=test && ./node_modules/.bin/nyc ./node_modules/.bin/mocha \"./src/tests/**/*.js\" --exit"
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
     "mocha": "^5.0.1",

@@ -14,9 +14,9 @@ module.exports = {
         return db.user.findOne({ where: { email: email } });
     },
 
-    create: function(email, password) {
-        const hashedPassword = encryptionHelper.generateHash(password);
-        return db.user.create({email: email, password: hashedPassword});
+    create: function(user) {
+        const hashedPassword = encryptionHelper.generateHash(user.password);
+        return db.user.create({email: user.email, password: hashedPassword});
     },
 
     isPasswordValid: function(password, hashedPassword) {

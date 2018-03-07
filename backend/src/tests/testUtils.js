@@ -1,19 +1,20 @@
-"use strict"
+"use strict";
 
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = "test";
 
-const db = require('../data/models/index');
-const apiRoutes = require('./apiRoutes');
-const config = require('config');
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const db = require("../data/models/index");
+const apiRoutes = require("./apiRoutes");
+const config = require("config");
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 
 chai.use(chaiHttp);
 
 module.exports = {
     cleanDB() {
         return Promise.all([
-            db.user.destroy({where: {}, truncate: false})
+            db.user.destroy({where: {}, truncate: false}),
+            db.city.destroy({where: {}, truncate: false})
         ]);
     },
 

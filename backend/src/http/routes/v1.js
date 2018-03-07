@@ -1,14 +1,21 @@
-var express = require('express');
-var router = express.Router();
-var auth = require('../middleware/auth');
+const express = require("express");
+const router = express.Router();
+const auth = require("../middleware/auth");
 
-var authController = require('../controllers/authController');
-var usersController = require('../controllers/usersController');
+const authController = require("../controllers/authController");
+const usersController = require("../controllers/usersController");
+const citiesController = require("../controllers/citiesController");
 
-router.post('/auth/token', authController.getAuthToken);
+router.post("/auth/token", authController.getAuthToken);
 
-router.post('/auth/register', authController.createUser);
+router.post("/auth/register", authController.createUser);
 
-router.get('/users/:id', auth.verifyToken, usersController.getUser);
+router.get("/users/:id", auth.verifyToken, usersController.getUser);
+
+router.get("/cities/:id", auth.verifyToken, citiesController.getCity);
+
+router.get("/cities", citiesController.searchCities);
+
+router.post("/cities", auth.verifyToken, citiesController.createCity);
 
 module.exports = router;

@@ -4,9 +4,11 @@
             <div class="row">
                 <div class="col-12">
                     <div class="search-container">
-                        <input v-model="search" title="Search" type="text" placeholder="Search" class="form-control"/>
-                        <div class="search-results" v-if="searchResults">
-                            <span v-for="result in searchResults">
+                        <input v-model="search"
+                               v-on:blur="hideAutocomplete()"
+                               title="Search" type="text" placeholder="Search" class="form-control"/>
+                        <div class="search-results" v-if="isAutocompleteShown">
+                            <span class="search-result" v-for="result in searchResults">
                                 {{result.label}}
                             </span>
                         </div>
@@ -25,6 +27,7 @@
 </template>
 <script>
     import {mapService} from "../../services";
+    import _ from "lodash";
 
     export default {
         name: 'city-map',
@@ -34,7 +37,8 @@
                 cityMap: null,
                 geoProvider: null,
                 search: null,
-                searchResults: null
+                searchResults: null,
+                isAutocompleteShown: false
             }
         },
 
@@ -55,11 +59,12 @@
                 this.cityMap = await mapService.createMap("cityMap", 13, "OpenStreetMap.Mapnik");
             },
 
-            searchAddress: function(searchPhrase) {
+            searchAddress: _.debounce(function(searchPhrase) {
                 mapService.search(searchPhrase).then(results => {
                     this.searchResults = this.mapSearchResults(results);
+                    this.isAutocompleteShown = results.length > 0;
                 });
-            },
+            }, 500),
 
             mapSearchResults(results) {
                 return results.map(r => {
@@ -71,6 +76,10 @@
                       }
                     };
                 });
+            },
+
+            hideAutocomplete() {
+                this.isAutocompleteShown = false;
             }
         }
     }
@@ -96,5 +105,11 @@
         background: #ffffff;
         z-index: 99999;
         width: 100%;
+        padding: 5px 10px;
+    }
+
+    .search-result {
+        display: block;
+        padding: 5px 0;
     }
 </style>

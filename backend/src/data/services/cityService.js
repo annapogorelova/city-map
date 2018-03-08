@@ -1,4 +1,5 @@
 const db = require("../models/index");
+const op = db.Sequelize.Op;
 
 module.exports = {
     getAll() {
@@ -16,7 +17,7 @@ module.exports = {
     search(search, offset = 0, limit = 5) {
         const selectParams = {offset: offset, limit: limit, order: db.sequelize.col('name')};
         if(search) {
-            selectParams['where'] = {name: { [db.Sequelize.Op.like]: `${search}%` }};
+            selectParams['where'] = {name: { [op.like]: `${search}%` }};
         }
         return db.city.findAll(selectParams);
     },
@@ -33,4 +34,12 @@ module.exports = {
 
         return db.city.create(city);
     },
+
+    async addStreet(city, street) {
+        return city.addStreet(street);
+    },
+
+    async addStreets(city, streets) {
+        return city.addStreets(streets);
+    }
 };

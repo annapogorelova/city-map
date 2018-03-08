@@ -14,7 +14,9 @@ module.exports = {
     cleanDB() {
         return Promise.all([
             db.user.destroy({where: {}, truncate: false}),
-            db.city.destroy({where: {}, truncate: false})
+            db.city.destroy({where: {}, truncate: false}),
+            db.street.destroy({where: {}, truncate: false}),
+            db.cityStreet.destroy({where: {}, truncate: false}),
         ]);
     },
 

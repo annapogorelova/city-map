@@ -12,7 +12,7 @@ module.exports = {
     },
 
     mapCitiesToModels(cities) {
-        return cities.map(c => {return this.mapCityToModel(c); });
+        return cities.map(c => {return this.mapCityToModel(c);});
     },
 
     mapModelToCity(model) {
@@ -23,5 +23,19 @@ module.exports = {
                 coordinates: [model.coords[0], model.coords[1]]
             }
         };
+    },
+
+    mapStreetToModel(street) {
+        return {
+            id: street.id,
+            name: street.name,
+            description: street.description,
+            imageUrl: street.imageUrl,
+            wikiLink: street.wikiLink,
+        };
+    },
+
+    mapStreetsToModels(streets) {
+        return streets.map(s => {return this.mapStreetToModel(s);});
     }
 };

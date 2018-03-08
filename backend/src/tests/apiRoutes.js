@@ -3,5 +3,6 @@ module.exports = Object.freeze({
     AUTH: "/auth/token",
     REGISTER: "/auth/register",
     GET_USER: "/users",
-    CITIES: "/cities"
+    CITIES: "/cities",
+    STREETS: "streets"
 });

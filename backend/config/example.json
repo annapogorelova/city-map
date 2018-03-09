@@ -1,0 +1,24 @@
+{
+  "app": "example",
+  "port": 3000,
+  "db": {
+    "username": "example",
+    "password": "example",
+    "database": "example",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "security": {
+    "jwt": {
+      "headerName": "access-token-header-name",
+      "secret": "example",
+      "expirationTimeSeconds": 86400
+    }
+  },
+  "defaults": {
+    "pageLimit": 5
+  },
+  "thirdPartyApi": {
+    "googleMapsApiKey": "example"
+  }
+}

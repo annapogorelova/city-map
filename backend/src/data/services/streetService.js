@@ -42,5 +42,9 @@ module.exports = {
         }
 
         return db.street.create(street);
+    },
+
+    async bulkCreate(streets) {
+        return db.street.bulkCreate(streets);
     }
 };

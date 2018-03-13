@@ -7,6 +7,7 @@ module.exports = {
         return {
             id: city.id,
             name: city.name,
+            nameEn: city.nameEn,
             coords: city.coords.coordinates
         };
     },
@@ -18,6 +19,7 @@ module.exports = {
     mapModelToCity(model) {
         return {
             name: model.name,
+            nameEn: model.name,
             coords: {
                 type: "Point",
                 coordinates: [model.coords[0], model.coords[1]]

@@ -10,6 +10,14 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(100),
             allowNull: false
         },
+        nameEn: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
+        oldName: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
         description: {
             type: DataTypes.TEXT,
             allowNull: true

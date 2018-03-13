@@ -19,6 +19,9 @@
     "pageLimit": 5
   },
   "thirdPartyApi": {
-    "googleMapsApiKey": "example"
+    "google": {
+      "mapsApiKey": "example",
+      "mapsGeocodingApiUrl": "https://maps.googleapis.com/maps/api/geocode/json"
+    }
   }
 }

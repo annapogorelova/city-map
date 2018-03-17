@@ -10,7 +10,7 @@ const jsonGeoParser = new GeoParser(
 const GeoDataService = require("../../lib/geo/geoDataService");
 const geoDataService = new GeoDataService(jsonGeoParser);
 const db = require("../../data/models/index");
-const testData = require("../testData");
+const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
 
 const chai = require("chai");

@@ -4,7 +4,14 @@
   "private": true,
   "scripts": {
     "start": "node $NODE_DEBUG_OPTION ./bin/www --arguments",
-    "test": "export NODE_ENV=test && ./node_modules/.bin/nyc ./node_modules/.bin/mocha \"./src/tests/**/*.js\" --exit"
+    "test": "export NODE_ENV=test && ./node_modules/.bin/nyc ./node_modules/.bin/mocha \"./src/tests/**/*.js\" --exit",
+    "parse-city-dev": "export NODE_ENV=dev && node ./src/lib/geo/parser.js",
+    "parse-city-test": "export NODE_ENV=test && node ./src/lib/geo/parser.js"
+  },
+  "nyc": {
+    "exclude": [
+      "src/tests/**/*.js"
+    ]
   },
   "dependencies": {
     "JSONStream": "^1.3.2",

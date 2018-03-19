@@ -3,7 +3,7 @@
 module.exports = Object.freeze({
     categories: {
         uk: {
-            PEOPLE_STREETS_NAMED_AFTER: "Люди, на честь яких названі вулиці"
+            PEOPLE_STREETS_NAMED_AFTER: "Категорія:Люди, на честь яких названі вулиці"
         }
     },
     regexp: {

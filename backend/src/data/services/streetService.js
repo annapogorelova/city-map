@@ -10,23 +10,33 @@ module.exports = {
         return db.street.findOne({where: {name: name}});
     },
 
+    getByCity(cityId) {
+        return db.street.findAll({
+            include: {
+                model: db.city,
+                through: {where: {id: cityId}},
+                attributes: ["id"]
+            }
+        });
+    },
+
     search(search, cityId = null, offset = 0, limit = 5) {
         let selectParams = {
             offset: offset,
             limit: limit,
-            order: db.sequelize.col('name')
+            order: db.sequelize.col("name")
         };
 
-        if(cityId) {
-            selectParams['include'] = [{
+        if (cityId) {
+            selectParams["include"] = [{
                 model: db.city,
-                through: { where: {id: cityId}},
-                attributes: ['id']
+                through: {where: {id: cityId}},
+                attributes: ["id"]
             }];
         }
 
-        if(search) {
-            selectParams['where'] = {name: { [op.like]: `${search}%` }};
+        if (search) {
+            selectParams["where"] = {name: {[op.like]: `${search}%`}};
         }
         return db.street.findAll(selectParams);
     },

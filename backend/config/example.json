@@ -6,7 +6,10 @@
     "password": "example",
     "database": "example",
     "host": "localhost",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "define": {
+      "timestamps": false
+    }
   },
   "security": {
     "jwt": {

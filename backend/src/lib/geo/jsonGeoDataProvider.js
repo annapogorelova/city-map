@@ -12,14 +12,22 @@ class JsonGeoDataProvider {
     }
 
     async getGeoData(cityName) {
+        const fileName = `${cityName}.json`;
+        const filePath = path.join(this.dataPath, fileName);
+
         return new Promise((resolve, reject) => {
-            const fileName = `${cityName}.json`;
-            const stream = fs.createReadStream(path.join(this.dataPath, fileName), {encoding: "utf8"});
-            const parser = JSONStream.parse(this.formatProvider.fileFormat);
-            stream.pipe(parser).pipe(es.mapSync(function (data) {
-                resolve(data);
-            })).on("error", (error) => {
-                reject(error);
+            fs.exists(filePath, (exists) => {
+                if (exists) {
+                    const stream = fs.createReadStream(filePath, {encoding: "utf8"});
+                    const parser = JSONStream.parse(this.formatProvider.fileFormat);
+                    stream.pipe(parser).pipe(es.mapSync(function (data) {
+                        resolve(data);
+                    })).on("error", (error) => {
+                        reject(error);
+                    });
+                } else {
+                    reject(`${fileName} does not exist.`);
+                }
             });
         });
     }

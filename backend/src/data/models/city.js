@@ -17,14 +17,6 @@ module.exports = function(sequelize, DataTypes) {
         coords: {
             type: DataTypes.GEOMETRY('POINT'),
             allowNull: false
-        },
-        createdAt: {
-            type: DataTypes.DATE,
-            allowNull: false
-        },
-        updatedAt: {
-            type: DataTypes.DATE,
-            allowNull: false
         }
     }, {
         tableName: 'city'

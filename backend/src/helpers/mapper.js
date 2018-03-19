@@ -19,7 +19,7 @@ module.exports = {
     mapModelToCity(model) {
         return {
             name: model.name,
-            nameEn: model.name,
+            nameEn: model.nameEn,
             coords: {
                 type: "Point",
                 coordinates: [model.coords[0], model.coords[1]]
@@ -31,9 +31,13 @@ module.exports = {
         return {
             id: street.id,
             name: street.name,
+            nameEn: street.name,
+            oldName: street.oldName,
             description: street.description,
+            namedAfterDescription: street.namedAfterDescription,
             imageUrl: street.imageUrl,
-            wikiLink: street.wikiLink,
+            wikiUrl: street.wikiUrl,
+            namedAfterWikiUrl: street.namedAfterWikiUrl
         };
     },
 

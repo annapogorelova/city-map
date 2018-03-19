@@ -19,18 +19,66 @@ module.exports = {
         {name: "Львів", bounds: [[49.7678305, 23.9051028], [49.9037122, 24.1334136]]}
     ],
     streets: [
-        {name: "Максима Кривоноса вулиця", description: "Максима Кривоноса вулиця"},
-        {name: "Підвальна вулиця", description: "Підвальна вулиця"},
-        {name: "Миколи Миклухо-Маклая вулиця", description: "Миколи Миклухо-Маклая вулиця"},
-        {name: "Памви Беринди вулиця", description: "Памви Беринди вулиця"},
-        {name: "Сербська вулиця", description: "Сербська вулиця"},
-        {name: "Братів Рогатинців", description: "Братів Рогатинців"},
-        {name: "Краківська вулиця", description: "Краківська вулиця"},
-        {name: "Ставропігійська вулиця", description: "Ставропігійська вулиця"},
-        {name: "Корнякта вулиця", description: "Корнякта вулиця"},
-        {name: "Івана Франка вулиця", description: "Івана Франка вулиця"},
-        {name: "Городоцька вулиця", description: "Городоцька вулиця"},
-        {name: "Тараса Шевченка вулиця", description: "Тараса Шевченка вулиця"},
+        {
+            name: "Максима Кривоноса вулиця",
+            description: "Максима Кривоноса вулиця",
+            namedAfterDescription: "Максим Кривоніс"
+        },
+        {
+            name: "Підвальна вулиця",
+            description: "Підвальна вулиця",
+            namedAfterDescription: null
+        },
+        {
+            name: "Миколи Миклухо-Маклая вулиця",
+            description: "Миколи Миклухо-Маклая вулиця",
+            namedAfterDescription: "Микола Миклухо-Маклай"
+        },
+        {
+            name: "Памви Беринди вулиця",
+            description: "Памви Беринди вулиця",
+            namedAfterDescription: "Памво Беринда"
+        },
+        {
+            name: "Сербська вулиця",
+            description: "Сербська вулиця",
+            namedAfterDescription: null
+        },
+        {
+            name: "Братів Рогатинців",
+            description: "Братів Рогатинців",
+            namedAfterDescription: "Брати Рогатинці"
+        },
+        {
+            name: "Краківська вулиця",
+            description: "Краківська вулиця",
+            namedAfterDescription: null
+        },
+        {
+            name: "Ставропігійська вулиця",
+            description: "Ставропігійська вулиця",
+            namedAfterDescription: null
+        },
+        {
+            name: "Корнякта вулиця",
+            description: "Корнякта вулиця",
+            namedAfterDescription: "Корнякт Костянтин"
+        },
+        {
+            name: "Івана Франка вулиця",
+            description: "Івана Франка вулиця",
+            namedAfterDescription: "Іван Франко"
+        },
+        {
+            name: "Городоцька вулиця",
+            description: "Городоцька вулиця",
+            namedAfterDescription: null
+        },
+        {
+            name: "Тараса Шевченка вулиця",
+            description: "Тараса Шевченка вулиця",
+            namedAfterDescription: "Тарас Шевченко"
+        },
     ],
     user: {email: "test@gmail.com", password: "testpass"}
 };

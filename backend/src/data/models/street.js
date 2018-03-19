@@ -22,21 +22,21 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.TEXT,
             allowNull: true
         },
-        wikiLink: {
+        namedAfterDescription: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        wikiUrl: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        namedAfterWikiUrl: {
             type: DataTypes.STRING(255),
             allowNull: true
         },
         imageUrl: {
             type: DataTypes.STRING(255),
             allowNull: true
-        },
-        createdAt: {
-            type: DataTypes.DATE,
-            allowNull: false
-        },
-        updatedAt: {
-            type: DataTypes.DATE,
-            allowNull: false
         }
     }, {
         tableName: "street"

@@ -5,28 +5,45 @@ class StreetWikiService {
         this.wikiService = wikiService;
     }
 
-    async getStreetDescription(streetName, cityName, lang) {
-        let description = await this.getStreetNamedAfterWikiDescription(streetName, lang);
-        if (description) {
-            return description;
+    async getStreetInfo(streetName, cityName, maxLength = 500, lang = "uk") {
+        const [streetInfo, namedAfterInfo] = await Promise.all([
+            this.getWikiInfo(streetName, cityName, lang),
+            this.getNamedAfterWikiInfo(streetName, lang)
+        ]);
+
+        let result = {
+            description: (streetInfo && streetInfo.content) ?
+                this.formatText(streetInfo.content, maxLength) : null,
+            namedAfterDescription: null,
+            imageUrl: streetInfo ? streetInfo.imageUrl : null,
+            wikiUrl: streetInfo ? streetInfo.wikiUrl : null
+        };
+
+        if(!namedAfterInfo) {
+            return result;
         }
 
-        return this.getStreetWikiDescription(streetName, cityName, lang);
+        const categories = namedAfterInfo.categories;
+        if(this.isPersonCategory(categories, lang)) {
+            result.namedAfterDescription = namedAfterInfo.content ?
+                this.formatText(namedAfterInfo.content, maxLength) : null;
+            result.namedAfterWikiUrl = namedAfterInfo.wikiUrl;
+
+            if(namedAfterInfo.imageUrl) {
+                result.imageUrl = namedAfterInfo.imageUrl;
+            }
+        }
+
+        return result;
     }
 
-    async getStreetWikiDescription(streetName, cityName, lang = "uk") {
-        const streetInfo = await this.searchArticle(`${streetName} (${cityName})`, lang);
-        return streetInfo ? streetInfo.content : null;
+    async getWikiInfo(streetName, cityName, lang = "uk") {
+        return this.searchArticle(`${streetName} (${cityName})`, lang);
     }
 
-    async getStreetNamedAfterWikiDescription(streetName, lang = "uk") {
+    async getNamedAfterWikiInfo(streetName, lang = "uk") {
         const title = this.extractStreetName(streetName, lang);
-        const namedByInfo = await this.searchArticle(title, lang);
-        if (namedByInfo && this.isPersonCategory(namedByInfo.categories, lang)) {
-            return namedByInfo.content;
-        }
-
-        return null;
+        return this.searchArticle(title, lang);
     }
 
     async searchArticle(articleName, lang) {
@@ -42,11 +59,16 @@ class StreetWikiService {
     async getPageContent(title) {
         try {
             const page = await this.wikiService.getPage(title);
-            const pageContent = await Promise.all([page.content(), page.categories(), page.mainImage()]);
+            const pageContent = await Promise.all([
+                page.summary(),
+                page.categories(),
+                page.mainImage()
+            ]);
             return {
                 content: pageContent[0],
                 categories: pageContent[1],
-                mainImage: pageContent[2]
+                imageUrl: pageContent[2],
+                wikiUrl: page.raw.fullurl
             };
         } catch (err) {
             throw err;
@@ -59,6 +81,11 @@ class StreetWikiService {
 
     isPersonCategory(categories, lang = "uk") {
         return categories.indexOf(constants.categories[lang].PEOPLE_STREETS_NAMED_AFTER) !== -1;
+    }
+
+    formatText(text, maxLength) {
+        const formattedText = text.replace(/\n|\t/g, "");
+        return formattedText.length < maxLength - 3 ? formattedText : formattedText.substring(0, maxLength - 3) + "...";
     }
 }
 

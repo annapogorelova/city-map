@@ -18,6 +18,12 @@ const mapper = require("../../helpers/mapper");
 chai.use(chaiHttp);
 
 describe("cities route", function () {
+    before((done) => {
+        testUtils.cleanDB().then(() => {
+            done();
+        });
+    });
+
     afterEach((done) => {
         testUtils.cleanDB().then(() => {
             done();

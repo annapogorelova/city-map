@@ -20,7 +20,14 @@ const assert = chai.assert;
 const sinon = require("sinon");
 
 describe("geoDataService test", () => {
-    afterEach((done) => {
+    before((done) => {
+        testUtils.cleanDB().then(() => {
+            done();
+        });
+    });
+
+    afterEach(function (done) {
+        this.timeout(10000);
         testUtils.cleanDB().then(() => {
             done();
         });
@@ -64,8 +71,9 @@ describe("geoDataService test", () => {
                 assert.equal(addedStreets[i].imageUrl, testImageUrl);
                 assert.equal(addedStreets[i].wikiUrl, testWikiUrl);
                 assert.equal(addedStreets[i].namedAfterWikiUrl, testWikiNamedAfterWikiUrl);
+                assert.exists(addedStreets[i].coords);
             }
             done();
         })();
-    }).timeout(50000);
+    }).timeout(90000);
 });

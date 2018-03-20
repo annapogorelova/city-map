@@ -14,6 +14,10 @@ module.exports = {
         return db.city.findOne({where: {name: name}});
     },
 
+    getByNameEn(nameEn) {
+        return db.city.findOne({where: {nameEn: nameEn}});
+    },
+
     search(search, offset = 0, limit = 5) {
         const selectParams = {offset: offset, limit: limit, order: db.sequelize.col('name')};
         if(search) {

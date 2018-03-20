@@ -19,17 +19,17 @@ class StreetWikiService {
             wikiUrl: streetInfo ? streetInfo.wikiUrl : null
         };
 
-        if(!namedAfterInfo) {
+        if (!namedAfterInfo) {
             return result;
         }
 
         const categories = namedAfterInfo.categories;
-        if(this.isPersonCategory(categories, lang)) {
+        if (this.isPersonCategory(categories, lang)) {
             result.namedAfterDescription = namedAfterInfo.content ?
                 this.formatText(namedAfterInfo.content, maxLength) : null;
             result.namedAfterWikiUrl = namedAfterInfo.wikiUrl;
 
-            if(namedAfterInfo.imageUrl) {
+            if (namedAfterInfo.imageUrl) {
                 result.imageUrl = namedAfterInfo.imageUrl;
             }
         }
@@ -48,7 +48,7 @@ class StreetWikiService {
 
     async searchArticle(articleName, lang) {
         const searchResult = await this.wikiService.search(articleName, lang, 1);
-        if (!searchResult || !searchResult.results.length) {
+        if (!searchResult || !searchResult.results || !searchResult.results.length) {
             return null;
         }
 
@@ -61,17 +61,25 @@ class StreetWikiService {
             const page = await this.wikiService.getPage(title);
             const pageContent = await Promise.all([
                 page.summary(),
-                page.categories(),
-                page.mainImage()
+                page.categories()
             ]);
             return {
                 content: pageContent[0],
                 categories: pageContent[1],
-                imageUrl: pageContent[2],
+                imageUrl: await this.extractImage(page),
                 wikiUrl: page.raw.fullurl
             };
         } catch (err) {
             throw err;
+        }
+    }
+
+    async extractImage(page) {
+        try {
+            const imageUrl = await page.mainImage();
+            return imageUrl;
+        } catch(err) {
+            return null;
         }
     }
 

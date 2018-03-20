@@ -37,11 +37,27 @@ module.exports = {
             namedAfterDescription: street.namedAfterDescription,
             imageUrl: street.imageUrl,
             wikiUrl: street.wikiUrl,
-            namedAfterWikiUrl: street.namedAfterWikiUrl
+            namedAfterWikiUrl: street.namedAfterWikiUrl,
+            coords: street.coords
         };
     },
 
     mapStreetsToModels(streets) {
         return streets.map(s => {return this.mapStreetToModel(s);});
+    },
+
+    mapModelToStreet(model) {
+        return {
+            id: model.id,
+            name: model.name,
+            nameEn: model.nameEn,
+            oldName: model.oldName,
+            description: model.description,
+            namedAfterDescription: model.namedAfterDescription,
+            imageUrl: model.imageUrl,
+            wikiUrl: model.wikiUrl,
+            namedAfterWikiUrl: model.namedAfterWikiUrl,
+            coords: {type: "LineString", coordinates: model.coords}
+        }
     }
 };

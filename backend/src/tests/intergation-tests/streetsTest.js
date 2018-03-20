@@ -8,7 +8,6 @@ const apiRoutes = require("../apiRoutes");
 const constants = require("../../http/constants/constants");
 const testData = require("../data/dbTestData");
 const db = require("../../data/models/index");
-const config = require("config");
 const _ = require("lodash");
 const streetService = require("../../data/services/streetService");
 const cityService = require("../../data/services/cityService");
@@ -16,6 +15,12 @@ const cityService = require("../../data/services/cityService");
 chai.use(chaiHttp);
 
 describe("streets route", () => {
+    before((done) => {
+        testUtils.cleanDB().then(() => {
+            done();
+        });
+    });
+
     afterEach((done) => {
         testUtils.cleanDB().then(() => {
             done();

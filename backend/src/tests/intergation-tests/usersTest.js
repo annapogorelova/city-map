@@ -12,6 +12,12 @@ const testUser = require("../data/dbTestData").user;
 chai.use(chaiHttp);
 
 describe("users route", function () {
+    before((done) => {
+        testUtils.cleanDB().then(() => {
+            done();
+        });
+    });
+
     afterEach(function (done) {
         testUtils.cleanDB().then(() => {
             done();

@@ -27,15 +27,19 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true
         },
         wikiUrl: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.TEXT,
             allowNull: true
         },
         namedAfterWikiUrl: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.TEXT,
             allowNull: true
         },
         imageUrl: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        coords: {
+            type: DataTypes.GEOMETRY("LINESTRING"),
             allowNull: true
         }
     }, {

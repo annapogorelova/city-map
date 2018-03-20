@@ -92,7 +92,7 @@ class StreetWikiService {
     }
 
     formatText(text, maxLength) {
-        const formattedText = text.replace(/\n|\t/g, "");
+        const formattedText = text.replace(/\n|\t/g, " ");
         return formattedText.length < maxLength - 3 ? formattedText : formattedText.substring(0, maxLength - 3) + "...";
     }
 }

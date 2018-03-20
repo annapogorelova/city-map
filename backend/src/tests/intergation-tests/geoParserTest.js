@@ -5,7 +5,7 @@ const JsonGeoDataProvider = require("../../lib/geo/jsonGeoDataProvider");
 const GeoParser = require("../../lib/geo/geoParser");
 const geoDataFormatter = new OverpassGeoDataFormatter();
 const jsonGeoParser = new GeoParser(
-    new JsonGeoDataProvider("./data", geoDataFormatter),
+    new JsonGeoDataProvider("../../tests/data", geoDataFormatter),
     geoDataFormatter);
 const GeoDataService = require("../../lib/geo/geoDataService");
 const StreetWikiService = require("../../lib/wiki/streetWikiService");
@@ -59,7 +59,7 @@ describe("geoDataService test", () => {
             }));
             const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
 
-            const city = await db.city.create(testData.cities[0]);
+            const city = await db.city.create(testData.cities[1]); // Zhovkva
             const loadedStreets = await jsonGeoParser.parse(city.nameEn);
             await geoDataService.processCity(city);
             const addedStreets = await streetService.getByCity(city.id);

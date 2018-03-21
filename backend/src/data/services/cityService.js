@@ -1,5 +1,4 @@
 const db = require("../models/index");
-const op = db.Sequelize.Op;
 
 module.exports = {
     getAll() {
@@ -21,7 +20,7 @@ module.exports = {
     search(search, offset = 0, limit = 5) {
         const selectParams = {offset: offset, limit: limit, order: db.sequelize.col('name')};
         if(search) {
-            selectParams['where'] = {name: { [op.like]: `${search}%` }};
+            selectParams['where'] = {name: { $like: `${search}%` }};
         }
         return db.city.findAll(selectParams);
     },

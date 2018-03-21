@@ -38,7 +38,7 @@ module.exports = {
             imageUrl: street.imageUrl,
             wikiUrl: street.wikiUrl,
             namedAfterWikiUrl: street.namedAfterWikiUrl,
-            coords: street.coords
+            coords: street.coords.coordinates
         };
     },
 

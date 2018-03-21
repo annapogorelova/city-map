@@ -1,5 +1,4 @@
 const db = require("../models/index");
-const op = db.Sequelize.Op;
 
 module.exports = {
     getById(id) {
@@ -20,6 +19,26 @@ module.exports = {
         });
     },
 
+    async searchByCoordinates(coords, cityId, threshold = 0.000025, limit = 1) {
+        const location = db.sequelize.literal(`ST_GeomFromText('POINT(${coords[0]} ${coords[1]})')`);
+        const attributes = Object.keys(db.street.attributes);
+        const distance = db.sequelize.fn('ST_Distance', db.sequelize.literal('street.coords'), location);
+        attributes.push([distance,'distance']);
+
+        return db.street.findAll({
+            attributes: attributes,
+            order: distance,
+            include: {
+                model: db.city,
+                through: {where: {id: cityId}},
+                attributes: ["id"]
+            },
+            having: {distance: {$lte: threshold}},
+            limit: limit,
+            logging: console.log
+        });
+    },
+
     search(search, cityId = null, offset = 0, limit = 5) {
         let selectParams = {
             offset: offset,
@@ -36,7 +55,7 @@ module.exports = {
         }
 
         if (search) {
-            selectParams["where"] = {name: {[op.like]: `${search}%`}};
+            selectParams["where"] = {name: {$like: `${search}%`}};
         }
         return db.street.findAll(selectParams);
     },

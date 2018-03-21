@@ -15,6 +15,8 @@ router.get("/users/:id", auth.verifyToken, usersController.getUser);
 
 router.get("/cities/:cityId/streets", streetsController.searchCityStreets);
 
+router.get("/streets", streetsController.searchStreetsByCoordinates);
+
 router.get("/cities/:id", auth.verifyToken, citiesController.getCity);
 
 router.get("/cities", citiesController.searchCities);

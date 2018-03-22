@@ -36,13 +36,5 @@ module.exports = {
         }
 
         return db.city.create(city);
-    },
-
-    async addStreet(city, street) {
-        return city.addStreet(street);
-    },
-
-    async addStreets(city, streets) {
-        return city.addStreets(streets);
     }
 };

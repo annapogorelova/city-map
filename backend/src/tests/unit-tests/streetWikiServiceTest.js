@@ -43,19 +43,19 @@ describe("wiki service test", () => {
             const testStreet = getStreets()[0];
             const streetPage = getPage(getStreetSearchKey(testStreet));
             const namedAfterTitle = streetWikiService.extractStreetName(testStreet.streetName);
-            const namedAfterPage = getPage(namedAfterTitle);
+            const personPage = getPage(namedAfterTitle);
 
             sinon.stub(wikiService, "search")
                 .onFirstCall().returns({results: streetPage.searchResults})
-                .onSecondCall().returns({results: namedAfterPage.searchResults});
+                .onSecondCall().returns({results: personPage.searchResults});
 
-            let namedAfterPageStub = {
+            let personPageStub = {
                 raw: {
-                    fullurl: namedAfterPage.page.fullUrl
+                    fullurl: personPage.page.fullUrl
                 },
-                summary: sinon.stub().returns(Promise.resolve(namedAfterPage.page.content)),
-                categories: sinon.stub().returns(Promise.resolve(namedAfterPage.page.categories)),
-                mainImage: sinon.stub().returns(Promise.resolve(namedAfterPage.page.imageUrl)),
+                summary: sinon.stub().returns(Promise.resolve(personPage.page.content)),
+                categories: sinon.stub().returns(Promise.resolve(personPage.page.categories)),
+                mainImage: sinon.stub().returns(Promise.resolve(personPage.page.imageUrl)),
             };
 
             let streetPageStub = {
@@ -69,79 +69,14 @@ describe("wiki service test", () => {
 
             sinon.stub(wikiService, 'getPage')
                 .onFirstCall().returns(streetPageStub)
-                .onSecondCall().returns(namedAfterPageStub);
+                .onSecondCall().returns(personPageStub);
 
             const result = await streetWikiService.getStreetInfo(streetPage.searchKey);
 
             assert.exists(result);
-            assert.equal(streetPage.page.content, result.description);
-            assert.equal(streetPage.page.imageUrl, result.imageUrl);
-            assert.isNull(result.namedAfterDescription);
-            done();
-        })();
-    });
-
-    it("should return street description with image taken from the street article, because person article has no image",
-        (done) => {
-        (async () => {
-            const wikiService = new WikiService();
-            const streetWikiService = new StreetWikiService(wikiService);
-            const testStreet = getStreets(true)[0];
-            const streetPage = getPage(getStreetSearchKey(testStreet));
-            const namedAfterTitle = streetWikiService.extractStreetName(testStreet.streetName);
-            const namedAfterPage = getPage(namedAfterTitle);
-
-            sinon.stub(wikiService, "search")
-                .onFirstCall().returns({results: streetPage.searchResults})
-                .onSecondCall().returns({results: namedAfterPage.searchResults});
-
-            let namedAfterPageStub = {
-                raw: {
-                    fullurl: namedAfterPage.page.fullUrl
-                },
-                summary: sinon.stub().returns(Promise.resolve(namedAfterPage.page.content)),
-                categories: sinon.stub().returns(Promise.resolve(namedAfterPage.page.categories)),
-                mainImage: sinon.stub().returns(Promise.resolve("")),
-            };
-
-            let streetPageStub = {
-                raw: {
-                    fullurl: streetPage.page.fullUrl
-                },
-                summary: sinon.stub().returns(Promise.resolve(streetPage.page.content)),
-                categories: sinon.stub().returns(Promise.resolve(streetPage.page.categories)),
-                mainImage: sinon.stub().returns(Promise.resolve(streetPage.page.imageUrl)),
-            };
-
-            sinon.stub(wikiService, 'getPage')
-                .onFirstCall().returns(streetPageStub)
-                .onSecondCall().returns(namedAfterPageStub);
-
-            const result = await streetWikiService.getStreetInfo(streetPage.searchKey);
-
-            assert.exists(result);
-            assert.equal(streetPage.page.content, result.description);
-            assert.equal(streetPage.page.imageUrl, result.imageUrl);
-            assert.equal(namedAfterPage.page.content, result.namedAfterDescription);
-            done();
-        })();
-    });
-
-    it("should return street named after person wiki page description", (done) => {
-        (async () => {
-            const wikiService = new WikiService();
-            const streetWikiService = new StreetWikiService(wikiService);
-
-            const testStreet = getStreets(true)[0];
-            const title = streetWikiService.extractStreetName(testStreet.streetName);
-            const testPage = stubWikiService(wikiService, title);
-
-            const result = await streetWikiService.getNamedAfterWikiInfo(title);
-
-            assert.exists(result);
-            assert.equal(testPage.page.content, result.content);
-            assert.equal(testPage.page.categories, result.categories);
-            assert.equal(testPage.page.imageUrl, result.imageUrl);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.content, result.street.description);
+            assert.notExists(result.person);
             done();
         })();
     });
@@ -169,8 +104,9 @@ describe("wiki service test", () => {
             const result = await streetWikiService.getStreetInfo(testPage.searchKey);
 
             assert.exists(result);
-            assert.equal(testPage.page.content, result.description);
-            assert.isNull(result.namedAfterDescription);
+            assert.exists(result.street);
+            assert.equal(testPage.page.content, result.street.description);
+            assert.notExists(result.person);
             done();
         })();
     });
@@ -214,8 +150,10 @@ describe("wiki service test", () => {
             const result = await streetWikiService.getStreetInfo(streetPage.searchKey);
 
             assert.exists(result);
-            assert.equal(streetPage.page.content, result.description);
-            assert.equal(personPage.page.content, result.namedAfterDescription);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.content, result.street.description);
+            assert.exists(result.person);
+            assert.equal(personPage.page.content, result.person.description);
             done();
         })();
     });
@@ -228,9 +166,10 @@ describe("wiki service test", () => {
             sinon.stub(wikiService, 'search').returns({results: []});
 
             const result = await streetWikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
-            assert(result);
-            assert.isNull(result.description);
-            assert.isNull(result.namedAfterDescription);
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.isNull(result.street.description);
+            assert.notExists(result.person);
             done();
         })();
     });
@@ -242,5 +181,80 @@ describe("wiki service test", () => {
             assert(error);
             done();
         });
+    });
+
+    it("should return null in place of imageUrl when images from wiki throw error (a wikijs bug)", (done) => {
+        (async () => {
+            const wikiService = new WikiService();
+            const streetWikiService = new StreetWikiService(wikiService);
+
+            const testStreet = getStreets(true)[0];
+            const streetPage = getPage(getStreetSearchKey(testStreet));
+            const title = streetWikiService.extractStreetName(testStreet.streetName);
+            const personPage = getPage(title);
+
+            sinon.stub(wikiService, 'search')
+                .onFirstCall().returns({results: streetPage.searchResults})
+                .onSecondCall().returns({results: personPage.searchResults});
+
+            let personPageStub = {
+                raw: {
+                    fullurl: personPage.page.fullUrl
+                },
+                summary: sinon.stub().returns(Promise.resolve(personPage.page.content)),
+                categories: sinon.stub().returns(Promise.resolve(personPage.page.categories)),
+                mainImage: sinon.stub().throws(),
+            };
+
+            let streetPageStub = {
+                raw: {
+                    fullurl: streetPage.imageUrl
+                },
+                summary: sinon.stub().returns(Promise.resolve(streetPage.page.content)),
+                categories: sinon.stub().returns(Promise.resolve(streetPage.page.categories)),
+                mainImage: sinon.stub().returns(Promise.resolve(streetPage.page.imageUrl)),
+            };
+
+            sinon.stub(wikiService, 'getPage')
+                .onFirstCall().returns(streetPageStub)
+                .onSecondCall().returns(personPageStub);
+
+            const result = await streetWikiService.getStreetInfo(streetPage.searchKey);
+
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.content, result.street.description);
+            assert.exists(result.person);
+            assert.equal(personPage.page.content, result.person.description);
+            assert.equal(result.person.imageUrl, null);
+            done();
+        })();
+    });
+
+    it("should return text value when text is empty or null", (done) => {
+        const wikiService = new WikiService();
+        const streetWikiService = new StreetWikiService(wikiService);
+
+        const maxLength = 50;
+        let formattedText = streetWikiService.formatText("", maxLength);
+        assert.equal(formattedText, "");
+        formattedText = streetWikiService.formatText(null, maxLength);
+        assert.equal(formattedText, null);
+        done();
+    });
+
+    it("should crop the wiki content text", (done) => {
+        const wikiService = new WikiService();
+        const streetWikiService = new StreetWikiService(wikiService);
+
+        const maxLength = 50;
+        let text = "koko\n\t";
+        for(let i = 0; i < 20; i++) {
+            text += "koko\n\t";
+        }
+        const formattedText = streetWikiService.formatText(text, maxLength);
+        assert.equal(formattedText.length, maxLength);
+        assert.equal(formattedText.indexOf("\n"), -1);
+        done();
     });
 });

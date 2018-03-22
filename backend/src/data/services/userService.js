@@ -2,10 +2,6 @@ const db = require('../models/index');
 const encryptionHelper = require('../../helpers/encryptionHelper');
 
 module.exports = {
-    getAll: function () {
-        return db.user.all();
-    },
-
     getById: function (id) {
         return db.user.findById(id);
     },

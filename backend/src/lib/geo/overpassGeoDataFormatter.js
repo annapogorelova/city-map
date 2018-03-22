@@ -19,13 +19,13 @@ class OverpassGeoDataFormatter {
             name: geoDataItem["tags"]["name"] || geoDataItem["tags"]["name:en"] || null,
             nameEn: geoDataItem["tags"]["name:en"] || null,
             oldName: geoDataItem["tags"]["old_name"] || null,
-            coords: geoDataItem["coords"]
+            coordinates: geoDataItem["coords"]
         };
     }
 
     filterNamedStreets(geoData) {
         return geoData.filter(g => {
-            return g["tags"] && (g["tags"]["name"] && g["type"] === "way");
+            return g["tags"] && (g["tags"]["name"] && g["type"] === "way" && g["tags"]["highway"]);
         });
     }
 

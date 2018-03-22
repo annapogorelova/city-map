@@ -40,22 +40,40 @@ describe("geoDataService test", () => {
         });
     });
 
+    it("should reject Promise when city exists but json file does not exist", (done) => {
+        (async () => {
+            const testCity = Object.assign({}, testData.cities[0]);
+            testCity.name = "Atlantida";
+            const createdCity = await db.city.create(testCity);
+            jsonGeoParser.parse(createdCity.name).catch(err => {
+                assert(err);
+                done();
+            });
+        })();
+    });
+
     it("should correctly parse the json file with geo data and add streets to db", (done) => {
         (async () => {
+            const testPersonName = "Person Person";
             const testDescription = "Street description";
-            const testNamedAfterDescription = "Named after description";
+            const testPersonDescription = "Named after description";
             const testImageUrl = "https://uk.wikipedia.org/image.jpg";
             const testWikiUrl = "https://uk.wikipedia.org/articte";
-            const testWikiNamedAfterWikiUrl = "https://uk.wikipedia.org/named_after";
+            const testWikiPersonWikiUrl = "https://uk.wikipedia.org/named_after";
 
             const streetWikiService = new StreetWikiService(new WikiService());
 
             sinon.stub(streetWikiService, "getStreetInfo").returns(Promise.resolve({
-                description: testDescription,
-                namedAfterDescription: testNamedAfterDescription,
-                imageUrl: testImageUrl,
-                wikiUrl: testWikiUrl,
-                namedAfterWikiUrl: testWikiNamedAfterWikiUrl
+                street: {
+                    description: testDescription,
+                    wikiUrl: testWikiUrl
+                },
+                person: {
+                    name: testPersonName,
+                    description: testPersonDescription,
+                    wikiUrl: testWikiPersonWikiUrl,
+                    imageUrl: testImageUrl
+                }
             }));
             const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
 
@@ -67,11 +85,12 @@ describe("geoDataService test", () => {
             for(let i = 0; i < addedStreets.length; i++) {
                 assert.equal(loadedStreets[i].name, addedStreets[i].name);
                 assert.equal(addedStreets[i].description, testDescription);
-                assert.equal(addedStreets[i].namedAfterDescription, testNamedAfterDescription);
-                assert.equal(addedStreets[i].imageUrl, testImageUrl);
+                assert.equal(addedStreets[i].person.description, testPersonDescription);
                 assert.equal(addedStreets[i].wikiUrl, testWikiUrl);
-                assert.equal(addedStreets[i].namedAfterWikiUrl, testWikiNamedAfterWikiUrl);
-                assert.exists(addedStreets[i].coords);
+                assert.equal(addedStreets[i].person.wikiUrl, testWikiPersonWikiUrl);
+                assert.equal(addedStreets[i].person.name, testPersonName);
+                assert.equal(addedStreets[i].person.imageUrl, testImageUrl);
+                assert.exists(addedStreets[i].coordinates);
             }
             done();
         })();

@@ -1,20 +1,20 @@
 module.exports = {
     cities: [
-        {name: "Львів", nameEn: "Lviv", coords: {type: "Point", coordinates: [49.839683, 24.029717]}},
-        {name: "Жовква", nameEn: "Zhovkva", coords: {type: "Point", coordinates: [50.0549132, 23.9415806]}},
-        {name: "Івано-Франківськ", nameEn: "Ivano-Frankivsk", coords: {type: "Point", coordinates: [48.9217099, 24.7020728]}},
-        {name: "Володимир-Волинський", nameEn: "Volodymyr-Volynsky", coords: {type: "Point", coordinates: [50.8482214, 24.2869926]}},
-        {name: "Тернопіль", nameEn: "Ternopil", coords: {type: "Point", coordinates: [49.5484447, 25.5274572]}},
-        {name: "Київ", nameEn: "Kyiv", coords: {type: "Point", coordinates: [50.394981, 30.3322158]}},
-        {name: "Житомир", nameEn: "Zhytomyr", coords: {type: "Point", coordinates: [50.2609606, 28.6637444]}},
-        {name: "Хмельницький", nameEn: "Khmelnytsky", coords: {type: "Point", coordinates: [49.4106424, 26.9250467]}},
-        {name: "Чернівці", nameEn: "Chernivtsi", coords: {type: "Point", coordinates: [48.3214908, 25.7934901]}},
-        {name: "Мукачево", nameEn: "Mukachevo", coords: {type: "Point", coordinates: [48.4409537, 22.6776106]}},
-        {name: "Ужгород", nameEn: "Uzhgorod", coords: {type: "Point", coordinates: [48.6194739, 22.2094258]}},
-        {name: "Стрий", nameEn: "Stryi", coords: {type: "Point", coordinates: [49.259062, 23.8053984]}},
-        {name: "Рівне", nameEn: "Rivne", coords: {type: "Point", coordinates: [50.6111563, 26.1743715]}},
-        {name: "Луцьк", nameEn: "Lutsk", coords: {type: "Point", coordinates: [50.7398785, 25.263793]}},
-        {name: "Ковель", nameEn: "Kovel", coords: {type: "Point", coordinates: [51.2192135, 24.6807714]}},
+        {name: "Львів", nameEn: "Lviv", coordinates: {type: "Point", coordinates: [49.839683, 24.029717]}},
+        {name: "Жовква", nameEn: "Zhovkva", coordinates: {type: "Point", coordinates: [50.0549132, 23.9415806]}},
+        {name: "Івано-Франківськ", nameEn: "Ivano-Frankivsk", coordinates: {type: "Point", coordinates: [48.9217099, 24.7020728]}},
+        {name: "Володимир-Волинський", nameEn: "Volodymyr-Volynsky", coordinates: {type: "Point", coordinates: [50.8482214, 24.2869926]}},
+        {name: "Тернопіль", nameEn: "Ternopil", coordinates: {type: "Point", coordinates: [49.5484447, 25.5274572]}},
+        {name: "Київ", nameEn: "Kyiv", coordinates: {type: "Point", coordinates: [50.394981, 30.3322158]}},
+        {name: "Житомир", nameEn: "Zhytomyr", coordinates: {type: "Point", coordinates: [50.2609606, 28.6637444]}},
+        {name: "Хмельницький", nameEn: "Khmelnytsky", coordinates: {type: "Point", coordinates: [49.4106424, 26.9250467]}},
+        {name: "Чернівці", nameEn: "Chernivtsi", coordinates: {type: "Point", coordinates: [48.3214908, 25.7934901]}},
+        {name: "Мукачево", nameEn: "Mukachevo", coordinates: {type: "Point", coordinates: [48.4409537, 22.6776106]}},
+        {name: "Ужгород", nameEn: "Uzhgorod", coordinates: {type: "Point", coordinates: [48.6194739, 22.2094258]}},
+        {name: "Стрий", nameEn: "Stryi", coordinates: {type: "Point", coordinates: [49.259062, 23.8053984]}},
+        {name: "Рівне", nameEn: "Rivne", coordinates: {type: "Point", coordinates: [50.6111563, 26.1743715]}},
+        {name: "Луцьк", nameEn: "Lutsk", coordinates: {type: "Point", coordinates: [50.7398785, 25.263793]}},
+        {name: "Ковель", nameEn: "Kovel", coordinates: {type: "Point", coordinates: [51.2192135, 24.6807714]}},
     ],
     citiesBounds: [
         {name: "Львів", bounds: [[49.7678305, 23.9051028], [49.9037122, 24.1334136]]}
@@ -23,8 +23,7 @@ module.exports = {
         {
             name: "Максима Кривоноса вулиця",
             description: "Максима Кривоноса вулиця",
-            namedAfterDescription: "Максим Кривоніс",
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8450587, 24.0358534],
@@ -38,8 +37,7 @@ module.exports = {
         {
             name: "Підвальна вулиця",
             description: "Підвальна вулиця",
-            namedAfterDescription: null,
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8420337, 24.0353032],
@@ -60,8 +58,7 @@ module.exports = {
         {
             name: "Миколи Миклухо-Маклая вулиця",
             description: "Миколи Миклухо-Маклая вулиця",
-            namedAfterDescription: "Микола Миклухо-Маклай",
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8432623, 24.0393903],
@@ -73,8 +70,7 @@ module.exports = {
         {
             name: "Памви Беринди вулиця",
             description: "Памви Беринди вулиця",
-            namedAfterDescription: "Памво Беринда",
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8407214, 24.02873],
@@ -89,8 +85,7 @@ module.exports = {
         {
             name: "Сербська вулиця",
             description: "Сербська вулиця",
-            namedAfterDescription: null,
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8400659, 24.0336288],
@@ -106,8 +101,7 @@ module.exports = {
         {
             name: "Братів Рогатинців вулиця",
             description: "Братів Рогатинців",
-            namedAfterDescription: "Брати Рогатинці",
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8397358, 24.0302488],
@@ -126,8 +120,7 @@ module.exports = {
         {
             name: "Краківська вулиця",
             description: "Краківська вулиця",
-            namedAfterDescription: null,
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8422346, 24.0304806],
@@ -141,8 +134,7 @@ module.exports = {
         {
             name: "Ставропігійська вулиця",
             description: "Ставропігійська вулиця",
-            namedAfterDescription: null,
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8428323, 24.0332819],
@@ -153,8 +145,7 @@ module.exports = {
         {
             name: "Корнякта вулиця",
             description: "Корнякта вулиця",
-            namedAfterDescription: "Корнякт Костянтин",
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8435662, 24.0297924],
@@ -166,8 +157,7 @@ module.exports = {
         {
             name: "Івана Франка вулиця",
             description: "Івана Франка вулиця",
-            namedAfterDescription: "Іван Франко",
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8302409, 24.0317359],
@@ -188,8 +178,7 @@ module.exports = {
         {
             name: "Городоцька вулиця",
             description: "Городоцька вулиця",
-            namedAfterDescription: null,
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8432505, 24.0227675],
@@ -202,8 +191,7 @@ module.exports = {
         {
             name: "Тараса Шевченка вулиця",
             description: "Тараса Шевченка вулиця",
-            namedAfterDescription: "Тарас Шевченко",
-            coords: {
+            coordinates: {
                 type: "LineString",
                 coordinates: [
                     [49.8533876, 23.986935],
@@ -211,6 +199,44 @@ module.exports = {
                 ]
             }
         },
+    ],
+    people: [
+        {
+            name: "Максим Кривоніс",
+            description: "Макси́м Кривоні́с (Кривонос, або Перебійніс також Перейбийніс; близько 1600 — 1648)  — український військовий діяч періоду Хмельниччини, лисянський полковник, один з керівників козацько-селянських повстань в Україні під час Хмельниччини. Учасник Корсунської битви, літньої подільської та осінньої волинсько-галицької кампаній 1648 року. Уперше в історії Львова взяв штурмом Високий замок.",
+            wikiUrl: "https://uk.wikipedia.org/wiki/%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC_%D0%9A%D1%80%D0%B8%D0%B2%D0%BE%D0%BD%D1%96%D1%81",
+            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/af/Kozak.gif"
+        },
+        {
+            name: "Микола Миклухо-Маклай",
+            description: "Миклу́хо-Макла́й Мико́ла Микола́йович (5 (17) липня 1846, село Язикове, Новгородська губернія — 2 (14) квітня 1888, Санкт-Петербург) — відомий мандрівник, антрополог, етнограф, географ; дослідник народів Південно-Східної Азії, Австралії й Океанії; автор близько 160 наукових праць; українського походження з козацького роду Миклух. Був підданим Російської імперії, але майже все своє свідоме життя провів поза її межами, де й зробив свої знакові дослідження та відкриття.",
+            wikiUrl: "https://uk.wikipedia.org/wiki/%D0%9C%D0%B8%D0%BA%D0%BB%D1%83%D1%85%D0%BE-%D0%9C%D0%B0%D0%BA%D0%BB%D0%B0%D0%B9_%D0%9C%D0%B8%D0%BA%D0%BE%D0%BB%D0%B0_%D0%9C%D0%B8%D0%BA%D0%BE%D0%BB%D0%B0%D0%B9%D0%BE%D0%B2%D0%B8%D1%87",
+            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/6/67/Miklukho-Maklai.jpg"
+        },
+        {
+            name: "Іван Франко",
+            description: "Іва́н Я́кович Фра́нко́ (27 серпня 1856, с. Нагуєвичі — 28 травня 1916, Львів, Австро-Угорщина) — видатний український письменник, поет, публіцист, перекладач, учений, громадський і політичний діяч. Доктор філософії (1893), дійсний член Наукового товариства імені Шевченка (1899), почесний доктор Харківського університету (1906)[1][2].",
+            wikiUrl: "https://uk.wikipedia.org/wiki/%D0%A4%D1%80%D0%B0%D0%BD%D0%BA%D0%BE_%D0%86%D0%B2%D0%B0%D0%BD_%D0%AF%D0%BA%D0%BE%D0%B2%D0%B8%D1%87",
+            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/ab/%D0%A4%D1%80%D0%B0%D0%BD%D0%BA%D0%BE_%D0%86%D0%B2%D0%B0%D0%BD.jpg"
+        },
+        {
+            name: "Памво Беринда",
+            description: "Па́мво Бери́нда (між 1550 та 1570 — 13 (23) липня 1632) — діяч української культури, енциклопедист, мовознавець, лексикограф, письменник, поет, друкар і гравер, православний чернець, великий українець, видатна постать культурно-освітнього руху Галичини та України першої половини ХVII століття.",
+            wikiUrl: "https://uk.wikipedia.org/wiki/%D0%91%D0%B5%D1%80%D0%B8%D0%BD%D0%B4%D0%B0_%D0%9F%D0%B0%D0%BC%D0%B2%D0%BE",
+            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/3/37/%D0%9F%D0%B0%D0%BC%D0%B2%D0%B0_%D0%91%D1%8F%D1%80%D1%8B%D0%BD%D0%B4%D0%B0.jpg"
+        },
+        {
+            name: "Тарас Шевченко",
+            description: "Тара́с Григо́рович Шевче́нко (відомий також як Кобза́р; 25 лютого (9 березня) 1814, с. Моринці, Київська губернія, Російська імперія (нині Звенигородський район, Черкаська область, Україна) — 26 лютого (10 березня) 1861, Санкт-Петербург, Російська імперія) — український поет, письменник (драматург, прозаїк), художник (живописець, гравер), громадський та політичний діяч. Національний герой і символ України.",
+            wikiUrl: "https://uk.wikipedia.org/wiki/%D0%A8%D0%B5%D0%B2%D1%87%D0%B5%D0%BD%D0%BA%D0%BE_%D0%A2%D0%B0%D1%80%D0%B0%D1%81_%D0%93%D1%80%D0%B8%D0%B3%D0%BE%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
+            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Taras_Shevchenko_selfportrait_oil_1840_%28crop%29.png/800px-Taras_Shevchenko_selfportrait_oil_1840_%28crop%29.png"
+        },
+        {
+            name: "Костянтин Корнякт",
+            description: "Корнякт Костянтин (грец. Κωνσταντίνος Κορνιακτός, пол. Konstanty Korniakt; 1517/1520 — 1603) — грецький купець, шляхтич, громадянин Львова. Один з найбагатших міщан в історії міста, фундатор будівель, що носять його ім'я.",
+            wikiUrl: "https://uk.wikipedia.org/wiki/%D0%9A%D0%BE%D1%80%D0%BD%D1%8F%D0%BA%D1%82_%D0%9A%D0%BE%D1%81%D1%82%D1%8F%D0%BD%D1%82%D0%B8%D0%BD",
+            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Konstanty_Korniakt_%281517-1603%29.jpg/320px-Konstanty_Korniakt_%281517-1603%29.jpg"
+        }
     ],
     user: {email: "test@gmail.com", password: "testpass"}
 };

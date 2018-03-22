@@ -11,12 +11,12 @@ const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 module.exports = {
-    cleanDB() {
+    async cleanDB() {
         return Promise.all([
-            db.user.destroy({where: {}, truncate: false}),
-            db.city.destroy({where: {}, truncate: false}),
-            db.street.destroy({where: {}, truncate: false}),
-            db.cityStreet.destroy({where: {}, truncate: false}),
+            await db.user.destroy({where: {}, truncate: false}),
+            await db.street.destroy({where: {}, truncate: false}),
+            await db.person.destroy({where: {}, truncate: false}),
+            await db.city.destroy({where: {}, truncate: false}),
         ]);
     },
 

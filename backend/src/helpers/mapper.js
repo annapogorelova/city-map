@@ -8,7 +8,7 @@ module.exports = {
             id: city.id,
             name: city.name,
             nameEn: city.nameEn,
-            coords: city.coords.coordinates
+            coordinates: city.coordinates.coordinates
         };
     },
 
@@ -20,9 +20,9 @@ module.exports = {
         return {
             name: model.name,
             nameEn: model.nameEn,
-            coords: {
+            coordinates: {
                 type: "Point",
-                coordinates: [model.coords[0], model.coords[1]]
+                coordinates: [model.coordinates[0], model.coordinates[1]]
             }
         };
     },
@@ -30,15 +30,15 @@ module.exports = {
     mapStreetToModel(street) {
         return {
             id: street.id,
+            cityId: street.cityId,
+            personId: street.personId,
             name: street.name,
-            nameEn: street.name,
+            nameEn: street.nameEn,
             oldName: street.oldName,
             description: street.description,
-            namedAfterDescription: street.namedAfterDescription,
-            imageUrl: street.imageUrl,
+            person: street.person,
             wikiUrl: street.wikiUrl,
-            namedAfterWikiUrl: street.namedAfterWikiUrl,
-            coords: street.coords.coordinates
+            coordinates: street.coordinates.coordinates
         };
     },
 
@@ -53,11 +53,8 @@ module.exports = {
             nameEn: model.nameEn,
             oldName: model.oldName,
             description: model.description,
-            namedAfterDescription: model.namedAfterDescription,
-            imageUrl: model.imageUrl,
             wikiUrl: model.wikiUrl,
-            namedAfterWikiUrl: model.namedAfterWikiUrl,
-            coords: {type: "LineString", coordinates: model.coords}
+            coordinates: {type: "LineString", coordinates: model.coordinates}
         }
     }
 };

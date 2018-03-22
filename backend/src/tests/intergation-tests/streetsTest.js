@@ -8,9 +8,7 @@ const apiRoutes = require("../apiRoutes");
 const constants = require("../../http/constants/constants");
 const testData = require("../data/dbTestData");
 const db = require("../../data/models/index");
-const _ = require("lodash");
 const streetService = require("../../data/services/streetService");
-const cityService = require("../../data/services/cityService");
 
 chai.use(chaiHttp);
 
@@ -31,8 +29,8 @@ describe("streets route", () => {
         (async () => {
             const testCity = testData.cities[0];
             const createdCity = await db.city.create(testCity);
-            const createdStreet = await streetService.create(testData.streets[0]);
-            await cityService.addStreet(createdCity, createdStreet);
+            const testStreet = Object.assign({cityId: createdCity.id}, testData.streets[0]);
+            const createdStreet = await streetService.create(testStreet);
             const requestUrl = `${apiRoutes.CITIES}/${createdCity.id}/${apiRoutes.STREETS}`;
 
             chai.request(server)
@@ -70,8 +68,11 @@ describe("streets route", () => {
         (async () => {
             const testCity = testData.cities[0];
             const createdCity = await db.city.create(testCity);
-            const createdStreets = await db.street.bulkCreate(testData.streets);
-            await cityService.addStreets(createdCity, createdStreets);
+            const streets = testData.streets.slice();
+            for(let street of streets) {
+                street.cityId = createdCity.id;
+            }
+            await db.street.bulkCreate(streets);
 
             const requestUrl = `${apiRoutes.CITIES}/${createdCity.id}/${apiRoutes.STREETS}`;
             const limit = 6;
@@ -92,14 +93,17 @@ describe("streets route", () => {
         (async () => {
             const testCity = testData.cities[0];
             const createdCity = await db.city.create(testCity);
-            const createdStreets = await db.street.bulkCreate(testData.streets);
-            await cityService.addStreets(createdCity, createdStreets);
+            const streets = testData.streets.slice();
+            for(let street of streets) {
+                street.cityId = createdCity.id;
+            }
+            await db.street.bulkCreate(streets);
             const closestStreet = testData.streets[0];
 
             const requestUrl = `/${apiRoutes.STREETS}`;
             const testCoordinates = [
-                closestStreet.coords.coordinates[0][0] - 0.00001,
-                closestStreet.coords.coordinates[0][1] - 0.00001,
+                closestStreet.coordinates.coordinates[0][0] - 0.00001,
+                closestStreet.coordinates.coordinates[0][1] - 0.00001,
             ];
 
             chai.request(server)
@@ -112,10 +116,10 @@ describe("streets route", () => {
 
                     const foundStreet = res.body.data[0];
                     assert.equal(foundStreet.name, closestStreet.name);
-                    assert.equal(foundStreet.coords.length, closestStreet.coords.coordinates.length);
-                    for(let i = 0; i < closestStreet.coords.coordinates.length; i++) {
-                        assert.equal(foundStreet.coords[i][0], closestStreet.coords.coordinates[i][0]);
-                        assert.equal(foundStreet.coords[i][1], closestStreet.coords.coordinates[i][1]);
+                    assert.equal(foundStreet.coordinates.length, closestStreet.coordinates.coordinates.length);
+                    for(let i = 0; i < closestStreet.coordinates.coordinates.length; i++) {
+                        assert.equal(foundStreet.coordinates[i][0], closestStreet.coordinates.coordinates[i][0]);
+                        assert.equal(foundStreet.coordinates[i][1], closestStreet.coordinates.coordinates[i][1]);
                     }
                     done();
                 });
@@ -126,14 +130,17 @@ describe("streets route", () => {
         (async () => {
             const testCity = testData.cities[0];
             const createdCity = await db.city.create(testCity);
-            const createdStreets = await db.street.bulkCreate(testData.streets);
-            await cityService.addStreets(createdCity, createdStreets);
-            const closestStreet = testData.streets[0];
+            const streets = testData.streets.slice();
+            for(let street of streets) {
+                street.cityId = createdCity.id;
+            }
+            await db.street.bulkCreate(streets);
 
+            const closestStreet = testData.streets[0];
             const requestUrl = `/${apiRoutes.STREETS}`;
             const testCoordinates = [
-                closestStreet.coords.coordinates[0][0] + 0.0002,
-                closestStreet.coords.coordinates[0][1] - 0.0002,
+                closestStreet.coordinates.coordinates[0][0] + 0.0002,
+                closestStreet.coordinates.coordinates[0][1] - 0.0002,
             ];
 
             chai.request(server)

@@ -11,10 +11,13 @@ module.exports = {
 
     getByCity(cityId) {
         return db.street.findAll({
-            include: {
-                model: db.city,
-                through: {where: {id: cityId}},
-                attributes: ["id"]
+            include: [{
+                model: db.city
+            }, {
+                model: db.person
+            }],
+            where: {
+                cityId: cityId
             }
         });
     },
@@ -22,20 +25,18 @@ module.exports = {
     async searchByCoordinates(coords, cityId, threshold = 0.000025, limit = 1) {
         const location = db.sequelize.literal(`ST_GeomFromText('POINT(${coords[0]} ${coords[1]})')`);
         const attributes = Object.keys(db.street.attributes);
-        const distance = db.sequelize.fn('ST_Distance', db.sequelize.literal('street.coords'), location);
+        const distance = db.sequelize.fn('ST_Distance', db.sequelize.literal('street.coordinates'), location);
         attributes.push([distance,'distance']);
 
         return db.street.findAll({
             attributes: attributes,
             order: distance,
-            include: {
-                model: db.city,
-                through: {where: {id: cityId}},
-                attributes: ["id"]
-            },
+            include: [{
+                model: db.person
+            }],
+            where: {cityId: cityId},
             having: {distance: {$lte: threshold}},
-            limit: limit,
-            logging: console.log
+            limit: limit
         });
     },
 
@@ -43,37 +44,29 @@ module.exports = {
         let selectParams = {
             offset: offset,
             limit: limit,
-            order: db.sequelize.col("name")
+            order: db.sequelize.col("name"),
+            include: [{
+                model: db.person
+            }]
         };
 
         if (cityId) {
-            selectParams["include"] = [{
-                model: db.city,
-                through: {where: {id: cityId}},
-                attributes: ["id"]
-            }];
+            selectParams["where"] = {cityId: cityId};
         }
 
         if (search) {
-            selectParams["where"] = {name: {$like: `${search}%`}};
+            selectParams["where"] = Object.assign(selectParams["where"] || {},
+                {name: {$like: `${search}%`}});
         }
         return db.street.findAll(selectParams);
     },
 
     async create(street) {
-        if (!street.name) {
-            throw new Error("'name' cannot be empty");
-        }
-
         const existingStreet = await db.street.findOne({where: {name: street.name}});
         if (existingStreet) {
             throw new Error("Street already exists");
         }
 
         return db.street.create(street);
-    },
-
-    async bulkCreate(streets) {
-        return db.street.bulkCreate(streets);
     }
 };

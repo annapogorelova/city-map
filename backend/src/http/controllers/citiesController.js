@@ -29,28 +29,20 @@ module.exports = {
         let model = req.body;
 
         // Move this to the validation middleware
-        if (!model.name || !model.coords || model.coords.length < 2) {
+        if (!model.name || !model.coordinates || model.coordinates.length < 2) {
             return res.status(constants.statusCodes.BAD_REQUEST).send({message: "Invalid params."});
         }
 
         const city = mapper.mapModelToCity(model);
         const createdCity = await cityService.create(city);
-
-        if (createdCity) {
-            let model = mapper.mapCityToModel(createdCity);
-            return res.json({data: model});
-        }
+        const createdCityModel = mapper.mapCityToModel(createdCity);
+        return res.json({data: createdCityModel});
     },
 
     async searchCities(req, res) {
         const limit = parseInt(req.query.limit) || config.defaults.pageLimit;
         const cities = await cityService.search(req.query.search, req.query.offset || 0, limit);
-
-        let models = [];
-        if(cities) {
-            models = mapper.mapCitiesToModels(cities);
-        }
-
+        const models = mapper.mapCitiesToModels(cities);
         return res.json({data: models});
     }
 };

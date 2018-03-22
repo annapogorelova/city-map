@@ -192,7 +192,7 @@ describe("cities route", function () {
             const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
 
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
-            const cityModel = mapper.mapCityToModel({name: null, coords: []});
+            const cityModel = mapper.mapCityToModel({name: null, coordinates: []});
 
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
@@ -266,7 +266,7 @@ describe("cities route", function () {
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.id, createdCity.id);
                     assert.equal(res.body.data.name, createdCity.name);
-                    assert.exists(res.body.data.coords);
+                    assert.exists(res.body.data.coordinates);
                     done();
                 });
         })();

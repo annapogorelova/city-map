@@ -31,10 +31,9 @@ db.Sequelize = Sequelize;
 db.user = require("./user")(sequelize, Sequelize);
 db.city = require("./city")(sequelize, Sequelize);
 db.street = require("./street")(sequelize, Sequelize);
-db.cityStreet = require("./cityStreet")(sequelize, Sequelize);
-
-db.street.belongsToMany(db.city, {through: db.cityStreet, foreignKey: 'streetId', otherKey: 'cityId'});
-db.city.belongsToMany(db.street, {through: db.cityStreet, foreignKey: 'cityId', otherKey: 'streetId'});
+db.person = require("./person")(sequelize, Sequelize);
+db.street.belongsTo(db.city);
+db.street.belongsTo(db.person);
 
 db.sequelize.sync();
 

@@ -1,10 +1,18 @@
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define("street", {
         id: {
-            type: DataTypes.INTEGER(11),
+            type: DataTypes.INTEGER,
             allowNull: false,
             primaryKey: true,
             autoIncrement: true
+        },
+        cityId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        personId: {
+            type: DataTypes.INTEGER,
+            allowNull: true
         },
         name: {
             type: DataTypes.STRING(100),
@@ -22,25 +30,13 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.TEXT,
             allowNull: true
         },
-        namedAfterDescription: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
         wikiUrl: {
             type: DataTypes.TEXT,
             allowNull: true
         },
-        namedAfterWikiUrl: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
-        imageUrl: {
-            type: DataTypes.TEXT,
-            allowNull: true
-        },
-        coords: {
+        coordinates: {
             type: DataTypes.GEOMETRY("LINESTRING"),
-            allowNull: true
+            allowNull: false
         }
     }, {
         tableName: "street"

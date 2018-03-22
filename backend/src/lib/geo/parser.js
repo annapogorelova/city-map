@@ -15,7 +15,7 @@ if(args.length < 3) {
 }
 
 (async () => {
-    const city = await cityService.getByNameEn(parseInt(args[2]));
+    const city = await cityService.getByNameEn(args[2]);
 
     if (city) {
         const geoDataFormatter = new OverpassGeoDataFormatter();
@@ -29,5 +29,5 @@ if(args.length < 3) {
         throw new Error("City does not exist");
     }
 
-    console.log("Finished processing the city.");
+    console.log(`Finished processing ${city.nameEn}.`);
 })();

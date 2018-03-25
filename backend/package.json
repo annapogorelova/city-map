@@ -31,6 +31,7 @@
     "pug": "2.0.0-beta11",
     "sequelize": "^4.33.4",
     "serve-favicon": "~2.4.5",
+    "tooleks": "^0.1.4",
     "wikijs": "^4.5.2"
   },
   "devDependencies": {

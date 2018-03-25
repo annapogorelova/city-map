@@ -1,4 +1,5 @@
 const constants = require("./constants");
+const {optional} = require("tooleks");
 
 class StreetWikiService {
     constructor(wikiService) {
@@ -13,8 +14,7 @@ class StreetWikiService {
 
         let result = {
             street: {
-                description: (streetInfo && streetInfo.content) ?
-                    this.formatText(streetInfo.content, maxLength) : null,
+                description: optional(() => this.formatText(streetInfo.content, maxLength), ""),
                 wikiUrl: streetInfo ? streetInfo.wikiUrl : null
             }
         };
@@ -28,8 +28,7 @@ class StreetWikiService {
         if (this.isPersonCategory(categories, lang)) {
             result["person"] = {
                 name: personInfo.title,
-                description: personInfo.content ?
-                    this.formatText(personInfo.content, maxLength) : null,
+                description: optional(() => this.formatText(personInfo.content, maxLength), ""),
                 imageUrl: personInfo.imageUrl,
                 wikiUrl: personInfo.wikiUrl
             };
@@ -44,7 +43,7 @@ class StreetWikiService {
 
     async getPersonWikiInfo(streetName, lang = "uk") {
         const title = this.extractStreetName(streetName, lang);
-        return this.searchArticle(title, lang);
+        return this.searhPersonArticle(title, lang);
     }
 
     async searchArticle(articleName, lang) {
@@ -53,33 +52,41 @@ class StreetWikiService {
             return null;
         }
 
-        const articleTitle = searchResult.results[0];
-        return this.getPageContent(articleTitle);
+        return this.getPage(searchResult.results[0])
     }
 
-    async getPageContent(title) {
+    async searhPersonArticle(articleName, lang) {
+        const searchResult = await this.wikiService.search(articleName, lang, 20);
+        if (!searchResult || !searchResult.results || !searchResult.results.length) {
+            return null;
+        }
+
+        for(let result of searchResult.results) {
+            let page = await this.getPage(result);
+            if(page && page.categories && this.isPersonCategory(page.categories)) {
+                return page;
+            }
+        }
+
+        return null;
+    }
+
+    async getPage(title) {
         try {
             const page = await this.wikiService.getPage(title);
             const pageContent = await Promise.all([
-                page.summary(),
-                page.categories()
+                optional(() => page.summary(), ""),
+                optional(() => page.categories(), []),
+                optional(() => page.mainImage(), null)
             ]);
             return {
                 title: title,
                 content: pageContent[0],
                 categories: pageContent[1],
-                imageUrl: await this.extractImage(page),
-                wikiUrl: page.raw.fullurl
+                imageUrl: pageContent[2],
+                wikiUrl: optional(() => page.raw.fullurl, "")
             };
         } catch (err) {
-            throw err;
-        }
-    }
-
-    async extractImage(page) {
-        try {
-            return page.mainImage();
-        } catch(err) {
             return null;
         }
     }
@@ -89,7 +96,8 @@ class StreetWikiService {
     }
 
     isPersonCategory(categories, lang = "uk") {
-        return categories.indexOf(constants.categories[lang].PEOPLE_STREETS_NAMED_AFTER) !== -1;
+        const localizedCategories = constants.categories[lang];
+        return categories.indexOf(localizedCategories.PEOPLE_STREETS_NAMED_AFTER) !== -1;
     }
 
     formatText(text, maxLength = 50) {

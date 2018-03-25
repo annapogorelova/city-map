@@ -24,7 +24,7 @@ class GeoDataService {
         const existingStreet = await streetService.getByName((streetGeoData.name));
 
         if (!existingStreet) {
-            const streetInfo = await this.streetWikiService.getStreetInfo(streetGeoData.name, streetGeoData.name);
+            const streetInfo = await this.streetWikiService.getStreetInfo(streetGeoData.name, city.name);
             const streetModel = Object.assign({}, streetGeoData, streetInfo.street);
 
             let street = mapper.mapModelToStreet(streetModel);
@@ -43,9 +43,10 @@ class GeoDataService {
 
             const createdStreet = await streetService.create(street);
             console.log(`Created ${createdStreet.name}`);
+            return createdStreet;
         } else {
             console.log(`${streetGeoData.name} already exists.`);
-            return Promise.resolve({});
+            return existingStreet;
         }
     }
 }

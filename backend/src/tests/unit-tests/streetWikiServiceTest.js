@@ -168,19 +168,20 @@ describe("wiki service test", () => {
             const result = await streetWikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
             assert.exists(result);
             assert.exists(result.street);
-            assert.isNull(result.street.description);
+            assert.isEmpty(result.street.description);
             assert.notExists(result.person);
             done();
         })();
     });
 
     it("should not return the content of the non existing page (getPageContent method)", (done) => {
-        const wikiService = new WikiService();
-        const streetWikiService = new StreetWikiService(wikiService);
-        streetWikiService.getPageContent("Not Found").catch((error) => {
-            assert(error);
+        (async () => {
+            const wikiService = new WikiService();
+            const streetWikiService = new StreetWikiService(wikiService);
+            const result = await streetWikiService.getPage("Not Found");
+            assert.isNull(result);
             done();
-        });
+        })();
     });
 
     it("should return null in place of imageUrl when images from wiki throw error (a wikijs bug)", (done) => {

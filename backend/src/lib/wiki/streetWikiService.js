@@ -14,8 +14,9 @@ class StreetWikiService {
 
         let result = {
             street: {
-                description: optional(() => this.formatText(streetInfo.content, maxLength), ""),
-                wikiUrl: streetInfo ? streetInfo.wikiUrl : null
+                wikiUrl: optional(() => streetInfo.wikiUrl, null),
+                description: optional(() => this.isStreetCategory(streetInfo.categories) ?
+                    this.formatText(streetInfo.content, maxLength) : null, null)
             }
         };
 
@@ -98,6 +99,13 @@ class StreetWikiService {
     isPersonCategory(categories, lang = "uk") {
         const localizedCategories = constants.categories[lang];
         return categories.indexOf(localizedCategories.PEOPLE_STREETS_NAMED_AFTER) !== -1;
+    }
+
+    isStreetCategory(categories, lang = "uk") {
+        const localizedCategories = constants.categories[lang];
+        return categories.filter(c => {
+            return c.startsWith(localizedCategories.STREET_CATEGORY_PREFIX);
+        }).length > 0;
     }
 
     formatText(text, maxLength = 50) {

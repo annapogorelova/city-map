@@ -6,6 +6,7 @@ const testData = require("../data/wikiTestData");
 const sinon = require("sinon");
 const WikiService = require("../../lib/wiki/wikiService");
 const StreetWikiService = require("../../lib/wiki/streetWikiService");
+const constants = require("../../lib/wiki/constants");
 
 function getPage(key) {
     return testData.pages.filter(p => {return p.searchKey === key})[0];
@@ -17,22 +18,6 @@ function getStreets(isNamedAfterPerson = false) {
 
 function getStreetSearchKey(street) {
     return `${street.streetName} (${street.cityName})`;
-}
-
-function stubWikiService(wikiService, key) {
-    const testPage = getPage(key);
-    sinon.stub(wikiService, 'search').returns({results: testPage.searchResults});
-
-    let pageStub = {
-        raw: {
-            fullurl: testPage.page.fullUrl
-        },
-        summary: sinon.stub().returns(Promise.resolve(testPage.page.content)),
-        categories: sinon.stub().returns(Promise.resolve(testPage.page.categories)),
-        mainImage: sinon.stub().returns(Promise.resolve(testPage.page.imageUrl))
-    };
-    sinon.stub(wikiService, 'getPage').returns(pageStub);
-    return testPage;
 }
 
 describe("wiki service test", () => {
@@ -168,7 +153,7 @@ describe("wiki service test", () => {
             const result = await streetWikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
             assert.exists(result);
             assert.exists(result.street);
-            assert.isEmpty(result.street.description);
+            assert.equal(result.street.description, null);
             assert.notExists(result.person);
             done();
         })();
@@ -228,6 +213,40 @@ describe("wiki service test", () => {
             assert.exists(result.person);
             assert.equal(personPage.page.content, result.person.description);
             assert.equal(result.person.imageUrl, null);
+            done();
+        })();
+    });
+
+    it("should not use the street description if the page is no of street category", (done) => {
+        (async () => {
+            const wikiService = new WikiService();
+            const streetWikiService = new StreetWikiService(wikiService);
+            const testStreet = getStreets(true)[0];
+            let streetPage = Object.assign({}, getPage(getStreetSearchKey(testStreet)));
+            // Remove street category
+            streetPage.page.categories = streetPage.page.categories.filter(c => {
+                return !c.startsWith(constants.categories["uk"].STREET_CATEGORY_PREFIX);
+            });
+
+            sinon.stub(wikiService, 'search')
+                .onFirstCall().returns({results: streetPage.searchResults})
+                .onSecondCall().returns({results: []});
+
+            let streetPageStub = {
+                raw: {
+                    fullurl: streetPage.imageUrl
+                },
+                summary: sinon.stub().returns(Promise.resolve(streetPage.page.content)),
+                categories: sinon.stub().returns(Promise.resolve(streetPage.page.categories)),
+                mainImage: sinon.stub().returns(Promise.resolve(streetPage.page.imageUrl)),
+            };
+
+            sinon.stub(wikiService, 'getPage').returns(streetPageStub);
+            const result = await streetWikiService.getStreetInfo(streetPage.searchKey);
+
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.equal(result.street.description, null);
             done();
         })();
     });

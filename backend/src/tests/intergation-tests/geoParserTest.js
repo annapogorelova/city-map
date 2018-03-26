@@ -63,36 +63,84 @@ describe("geoDataService test", () => {
 
             const streetWikiService = new StreetWikiService(new WikiService());
 
-            sinon.stub(streetWikiService, "getStreetInfo").returns(Promise.resolve({
-                street: {
-                    description: testDescription,
-                    wikiUrl: testWikiUrl
-                },
-                person: {
-                    name: testPersonName,
-                    description: testPersonDescription,
-                    wikiUrl: testWikiPersonWikiUrl,
-                    imageUrl: testImageUrl
-                }
-            }));
-            const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
-
             const city = await db.city.create(testData.cities[1]); // Zhovkva
             const loadedStreets = await jsonGeoParser.parse(city.nameEn);
+
+            const stub = sinon.stub(streetWikiService, "getStreetInfo");
+            for(let i = 0; i < loadedStreets.length; i++) {
+                let returnValue = {
+                    street: {
+                        description: testDescription,
+                        wikiUrl: testWikiUrl
+                    }
+                };
+                if(i % 2 === 0) {
+                    returnValue["person"] = {
+                        name: testPersonName,
+                        description: testPersonDescription,
+                        wikiUrl: testWikiPersonWikiUrl,
+                        imageUrl: testImageUrl
+                    };
+                }
+
+                stub.onCall(i).returns(Promise.resolve(returnValue));
+            }
+
+            const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
             await geoDataService.processCity(city);
             const addedStreets = await streetService.getByCity(city.id);
 
             for(let i = 0; i < addedStreets.length; i++) {
                 assert.equal(loadedStreets[i].name, addedStreets[i].name);
                 assert.equal(addedStreets[i].description, testDescription);
-                assert.equal(addedStreets[i].person.description, testPersonDescription);
                 assert.equal(addedStreets[i].wikiUrl, testWikiUrl);
-                assert.equal(addedStreets[i].person.wikiUrl, testWikiPersonWikiUrl);
-                assert.equal(addedStreets[i].person.name, testPersonName);
-                assert.equal(addedStreets[i].person.imageUrl, testImageUrl);
                 assert.exists(addedStreets[i].coordinates);
+
+                if(i % 2 === 0) {
+                    assert.equal(addedStreets[i].person.name, testPersonName);
+                    assert.equal(addedStreets[i].person.wikiUrl, testWikiPersonWikiUrl);
+                    assert.equal(addedStreets[i].person.description, testPersonDescription);
+                    assert.equal(addedStreets[i].person.imageUrl, testImageUrl);
+                } else {
+                    assert.isNull(addedStreets[i].person);
+                }
             }
             done();
         })();
     }).timeout(90000);
+
+    it("should throw error when createStreet method fails", (done) => {
+        (async () => {
+            const city = await db.city.create(testData.cities[1]);
+            const streetWikiService = new StreetWikiService(new WikiService());
+            const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
+            const errorMessage = "Failed!";
+            sinon.stub(jsonGeoParser, "parse").throws(errorMessage);
+
+            try {
+                await geoDataService.processCity(city);
+            } catch(err) {
+                assert.exists(err);
+                assert.equal(errorMessage, err.message);
+                done();
+            }
+        })();
+    });
+
+    it("should not create the existing street", (done) => {
+        (async () => {
+            const city = await db.city.create(testData.cities[1]);
+            const testStreet = Object.assign({}, testData.streets[0]);
+            testStreet.cityId = city.id;
+            await db.street.create(testStreet);
+            const streetWikiService = new StreetWikiService(new WikiService());
+            const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
+            try {
+                const createdStreet = await geoDataService.createStreet({name: testStreet.name});
+            } catch(err) {
+                assert.exists(err);
+                done();
+            }
+        })();
+    });
 });

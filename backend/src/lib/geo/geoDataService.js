@@ -13,7 +13,12 @@ class GeoDataService {
         try {
             const streetsGeoData = await this.geoParser.parse(city.nameEn);
             for (let geoData of streetsGeoData) {
-                await this.createStreet(geoData, city);
+                try {
+                    const street = await this.createStreet(geoData, city);
+                    console.log(`Created ${street.name}.`);
+                } catch(err) {
+                    console.log(err.message);
+                }
             }
         } catch (err) {
             throw Error(err);
@@ -41,12 +46,9 @@ class GeoDataService {
                 street.personId = null;
             }
 
-            const createdStreet = await streetService.create(street);
-            console.log(`Created ${createdStreet.name}`);
-            return createdStreet;
+            return streetService.create(street);
         } else {
-            console.log(`${streetGeoData.name} already exists.`);
-            return existingStreet;
+            throw new Error(`Street ${existingStreet.name} already exists.`);
         }
     }
 }

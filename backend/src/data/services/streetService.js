@@ -9,7 +9,7 @@ module.exports = {
         return db.street.findOne({where: {name: name}});
     },
 
-    getByCity(cityId) {
+    getByCity(cityId, orderByColumn = "id") {
         return db.street.findAll({
             include: [{
                 model: db.city
@@ -18,7 +18,8 @@ module.exports = {
             }],
             where: {
                 cityId: cityId
-            }
+            },
+            order: [[orderByColumn, "ASC"]]
         });
     },
 

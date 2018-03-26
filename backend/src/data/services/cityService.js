@@ -1,10 +1,6 @@
 const db = require("../models/index");
 
 module.exports = {
-    getAll() {
-        return db.city.all();
-    },
-
     getById(id) {
         return db.city.findById(id);
     },

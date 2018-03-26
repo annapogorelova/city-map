@@ -9,7 +9,7 @@ module.exports = {
         let id = parseInt(params.id);
         const user = await userService.getById(id);
         if (user) {
-            let model = mapper.mapUser(user);
+            let model = mapper.map(user, "app.user", "api.v1.user");
             return res.json(model);
         }
 

@@ -164,7 +164,7 @@ describe("cities route", function () {
 
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
             const city = citiesTestData[0];
-            const cityModel = mapper.mapCityToModel(city);
+            const cityModel = mapper.map(city, "app.city", "api.v1.city");
 
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
@@ -192,7 +192,7 @@ describe("cities route", function () {
             const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
 
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
-            const cityModel = mapper.mapCityToModel({name: null, coordinates: []});
+            const cityModel = mapper.map({name: null, coordinates: []}, "app.city", "api.v1.city");
 
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,

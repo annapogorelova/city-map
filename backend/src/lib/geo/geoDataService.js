@@ -32,7 +32,7 @@ class GeoDataService {
             const streetInfo = await this.streetWikiService.getStreetInfo(streetGeoData.name, city.name);
             const streetModel = Object.assign({}, streetGeoData, streetInfo.street);
 
-            let street = mapper.mapModelToStreet(streetModel);
+            let street = mapper.map(streetModel, "api.v1.street", "app.street");
             street.cityId = city.id;
 
             if(streetInfo.person) {

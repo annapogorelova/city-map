@@ -18,7 +18,7 @@ module.exports = {
 
         const city = await cityService.getById(id);
         if (city) {
-            const model = mapper.mapCityToModel(city);
+            const model = mapper.map(city, "app.city", "api.v1.city");
             return res.json({data: model});
         }
 
@@ -33,16 +33,16 @@ module.exports = {
             return res.status(constants.statusCodes.BAD_REQUEST).send({message: "Invalid params."});
         }
 
-        const city = mapper.mapModelToCity(model);
+        const city = mapper.map(model, "api.v1.city", "app.city");
         const createdCity = await cityService.create(city);
-        const createdCityModel = mapper.mapCityToModel(createdCity);
+        const createdCityModel = mapper.map(createdCity, "app.city", "api.v1.city");
         return res.json({data: createdCityModel});
     },
 
     async searchCities(req, res) {
         const limit = parseInt(req.query.limit) || config.defaults.pageLimit;
         const cities = await cityService.search(req.query.search, req.query.offset || 0, limit);
-        const models = mapper.mapCitiesToModels(cities);
+        const models = mapper.map(cities, "app.city.list", "api.v1.city.list");
         return res.json({data: models});
     }
 };

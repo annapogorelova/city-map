@@ -10,7 +10,7 @@ module.exports = {
         const cityId = parseInt(req.params.cityId);
         const limit = parseInt(req.query.limit) || config.defaults.pageLimit;
         const streets = await streetService.search(search, cityId, req.query.offset || 0, limit);
-        const models = mapper.mapStreetsToModels(streets);
+        const models = mapper.map(streets, "app.street.list", "api.v1.street.list");
         return res.json({data: models});
     },
 
@@ -18,7 +18,7 @@ module.exports = {
         const cityId = parseInt(req.query.cityId);
         const coordinates = req.query.coordinates;
         const streets = await streetService.searchByCoordinates(coordinates, cityId);
-        const models = mapper.mapStreetsToModels(streets);
+        const models = mapper.map(streets, "app.street.list", "api.v1.street.list");
         return res.json({data: models});
     }
 };

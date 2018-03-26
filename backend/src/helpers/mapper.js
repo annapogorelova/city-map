@@ -1,60 +1,66 @@
-module.exports = {
-    mapUser(user) {
-        return {id: user.id, email: user.email};
-    },
+const {Mapper} = require("tooleks");
+const mapper = new Mapper();
 
-    mapCityToModel(city) {
-        return {
-            id: city.id,
-            name: city.name,
-            nameEn: city.nameEn,
-            coordinates: city.coordinates.coordinates
-        };
-    },
+mapper.registerResolver("app.user", "api.v1.user", (user) => {
+    return {
+        id: user.id,
+        email: user.email
+    };
+});
 
-    mapCitiesToModels(cities) {
-        return cities.map(c => {return this.mapCityToModel(c);});
-    },
+mapper.registerResolver("app.city", "api.v1.city", (city) => {
+    return {
+        id: city.id,
+        name: city.name,
+        nameEn: city.nameEn,
+        coordinates: city.coordinates.coordinates
+    };
+});
 
-    mapModelToCity(model) {
-        return {
-            name: model.name,
-            nameEn: model.nameEn,
-            coordinates: {
-                type: "Point",
-                coordinates: [model.coordinates[0], model.coordinates[1]]
-            }
-        };
-    },
-
-    mapStreetToModel(street) {
-        return {
-            id: street.id,
-            cityId: street.cityId,
-            personId: street.personId,
-            name: street.name,
-            nameEn: street.nameEn,
-            oldName: street.oldName,
-            description: street.description,
-            person: street.person,
-            wikiUrl: street.wikiUrl,
-            coordinates: street.coordinates.coordinates
-        };
-    },
-
-    mapStreetsToModels(streets) {
-        return streets.map(s => {return this.mapStreetToModel(s);});
-    },
-
-    mapModelToStreet(model) {
-        return {
-            id: model.id,
-            name: model.name,
-            nameEn: model.nameEn,
-            oldName: model.oldName,
-            description: model.description,
-            wikiUrl: model.wikiUrl,
-            coordinates: {type: "LineString", coordinates: model.coordinates}
+mapper.registerResolver("api.v1.city", "app.city", (city) => {
+    return {
+        name: city.name,
+        nameEn: city.nameEn,
+        coordinates: {
+            type: "Point",
+            coordinates: [city.coordinates[0], city.coordinates[1]]
         }
+    };
+});
+
+mapper.registerResolver("app.street", "api.v1.street", (street) => {
+    return {
+        id: street.id,
+        cityId: street.cityId,
+        personId: street.personId,
+        name: street.name,
+        nameEn: street.nameEn,
+        oldName: street.oldName,
+        description: street.description,
+        person: street.person,
+        wikiUrl: street.wikiUrl,
+        coordinates: street.coordinates.coordinates
+    };
+});
+
+mapper.registerResolver("api.v1.street", "app.street", (street) => {
+    return {
+        id: street.id,
+        name: street.name,
+        nameEn: street.nameEn,
+        oldName: street.oldName,
+        description: street.description,
+        wikiUrl: street.wikiUrl,
+        coordinates: {type: "LineString", coordinates: street.coordinates}
     }
-};
+});
+
+mapper.registerResolver("app.city.list", "api.v1.city.list", (cities) => {
+    return cities.map(city => {return mapper.map(city, "app.city", "api.v1.city");})
+});
+
+mapper.registerResolver("app.street.list", "api.v1.street.list", (streets) => {
+    return streets.map(street => {return mapper.map(street, "app.street", "api.v1.street");})
+});
+
+module.exports = mapper;

@@ -1,6 +1,6 @@
 "use strict";
 
-const userService = require("../../data/services/userService");
+const userService = require("../../data/services/dataServicesFactory").userService;
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const constants = require("../constants/constants");

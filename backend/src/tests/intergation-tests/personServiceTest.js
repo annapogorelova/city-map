@@ -3,7 +3,7 @@ const chai = require("chai");
 const assert = chai.assert;
 const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
-const personService = require("../../data/services/personService");
+const personService = require("../../data/services/dataServicesFactory").personService;
 
 describe("person data service test", () => {
     before((done) => {

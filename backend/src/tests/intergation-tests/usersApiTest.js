@@ -6,7 +6,7 @@ const server = require("../../app");
 const testUtils = require("../testUtils");
 const apiRoutes = require("../apiRoutes");
 const constants = require("../../http/constants/constants");
-const userService = require("../../data/services/userService");
+const userService = require("../../data/services/dataServicesFactory").userService;
 const testUser = require("../data/dbTestData").user;
 
 chai.use(chaiHttp);

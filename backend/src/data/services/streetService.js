@@ -1,16 +1,26 @@
-const db = require("../models/index");
+"use strict";
+
 const {optional} = require("tooleks");
 
-module.exports = {
-    getById(id) {
+function makeStreetService(db) {
+    return Object.freeze({
+        getById,
+        getByName,
+        getByCity,
+        searchByCoordinates,
+        search,
+        create
+    });
+
+    function getById(id) {
         return db.street.findById(id);
-    },
+    }
 
-    getByName(name) {
+    function getByName(name) {
         return db.street.findOne({where: {name: name}});
-    },
+    }
 
-    getByCity(cityId, orderByColumn = "id") {
+    function getByCity(cityId, orderByColumn = "id") {
         return db.street.findAll({
             include: [{
                 model: db.city
@@ -24,9 +34,9 @@ module.exports = {
             },
             order: [[orderByColumn, "ASC"]]
         });
-    },
+    }
 
-    async searchByCoordinates(coordinates, cityId, threshold = 0.0001, limit = 1) {
+    async function searchByCoordinates(coordinates, cityId, threshold = 0.0001, limit = 1) {
         const location = db.sequelize.fn("ST_GeomFromText",
             db.sequelize.literal(`'POINT(${coordinates[0]} ${coordinates[1]})'`), 4326);
         const asText = db.sequelize.fn("ST_AsText", db.sequelize.literal("coordinates"));
@@ -40,9 +50,9 @@ module.exports = {
         });
 
         return optional(() => ways[0].getStreets({include: [{model: db.person}, {model: db.way}]}), []);
-    },
+    }
 
-    search(search, cityId = null, offset = 0, limit = 5) {
+    function search(search, cityId = null, offset = 0, limit = 5) {
         let selectParams = {
             offset: offset,
             limit: limit,
@@ -61,9 +71,9 @@ module.exports = {
                 {name: {$like: `${search}%`}});
         }
         return db.street.findAll(selectParams);
-    },
+    }
 
-    async create(street, ways) {
+    async function create(street, ways) {
         const existingStreet = await db.street.findOne({where: {name: street.name}});
         if (existingStreet) {
             throw new Error("Street already exists");
@@ -78,4 +88,6 @@ module.exports = {
 
         return createdStreet;
     }
-};
+}
+
+module.exports = makeStreetService;

@@ -1,6 +1,6 @@
 "use strict";
 
-const streetService = require("../../data/services/streetService");
+const streetService = require("../../data/services/dataServicesFactory").streetService;
 const config = require("config");
 const mapper = require("../../helpers/mapper");
 

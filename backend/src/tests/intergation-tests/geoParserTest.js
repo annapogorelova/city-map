@@ -13,7 +13,7 @@ const WikiService = require("../../lib/wiki/wikiService");
 const db = require("../../data/models/index");
 const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
-const streetService = require("../../data/services/streetService");
+const streetService = require("../../data/services/dataServicesFactory").streetService;
 
 const chai = require("chai");
 const assert = chai.assert;

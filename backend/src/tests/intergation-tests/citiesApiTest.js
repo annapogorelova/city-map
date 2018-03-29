@@ -12,8 +12,9 @@ const testUser = testData.user;
 const db = require("../../data/models/index");
 const config = require("config");
 const _ = require("lodash");
-const userService = require("../../data/services/userService");
+const userService = require("../../data/services/dataServicesFactory").userService;
 const mapper = require("../../helpers/mapper");
+const sinon = require("sinon");
 
 chai.use(chaiHttp);
 

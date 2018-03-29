@@ -1,15 +1,21 @@
-const db = require("../models/index");
+"use strict";
 
-module.exports = {
-    getById(id) {
+function makePersonService(db) {
+    return Object.freeze({
+        getById,
+        getByName,
+        create
+    });
+
+    function getById(id) {
         return db.person.findById(id);
-    },
+    }
 
-    getByName(name) {
+    function getByName(name) {
         return db.person.findOne({where: {name: name}});
-    },
+    }
 
-    async create(person) {
+    async function create(person) {
         const existingPerson = await db.person.findOne({where: {name: person.name}});
         if (existingPerson) {
             throw new Error("Person already exists");
@@ -17,4 +23,6 @@ module.exports = {
 
         return db.person.create(person);
     }
-};
+}
+
+module.exports = makePersonService;

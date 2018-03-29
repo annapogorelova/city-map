@@ -1,27 +1,35 @@
-const db = require("../models/index");
+"use strict";
 
-module.exports = {
-    getById(id) {
+function makeCityService(db) {
+    return Object.freeze({
+        getById,
+        getByName,
+        getByNameEn,
+        search,
+        create
+    });
+
+    function getById(id) {
         return db.city.findById(id);
-    },
+    }
 
-    getByName(name) {
+    function getByName(name) {
         return db.city.findOne({where: {name: name}});
-    },
+    }
 
-    getByNameEn(nameEn) {
+    function getByNameEn(nameEn) {
         return db.city.findOne({where: {nameEn: nameEn}});
-    },
+    }
 
-    search(search, offset = 0, limit = 5) {
+    function search(search, offset = 0, limit = 5) {
         const selectParams = {offset: offset, limit: limit, order: db.sequelize.col('name')};
         if(search) {
             selectParams['where'] = {name: { $like: `${search}%` }};
         }
         return db.city.findAll(selectParams);
-    },
+    }
 
-    async create(city) {
+    async function create(city) {
         if (!city.name) {
             throw new Error("'name' cannot be empty");
         }
@@ -33,4 +41,6 @@ module.exports = {
 
         return db.city.create(city);
     }
-};
+}
+
+module.exports = makeCityService;

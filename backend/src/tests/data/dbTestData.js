@@ -1,35 +1,32 @@
 module.exports = {
     cities: [
-        {name: "Львів", nameEn: "Lviv", coordinates: {type: "Point", coordinates: [49.839683, 24.029717]}},
-        {name: "Жовква", nameEn: "Zhovkva", coordinates: {type: "Point", coordinates: [50.0549132, 23.9415806]}},
+        {name: "Львів", nameEn: "Lviv", coordinates: [49.839683, 24.029717]},
+        {name: "Жовква", nameEn: "Zhovkva", coordinates: [50.0549132, 23.9415806]},
         {
             name: "Івано-Франківськ",
             nameEn: "Ivano-Frankivsk",
-            coordinates: {type: "Point", coordinates: [48.9217099, 24.7020728]}
+            coordinates: [48.9217099, 24.7020728]
         },
         {
             name: "Володимир-Волинський",
             nameEn: "Volodymyr-Volynsky",
-            coordinates: {type: "Point", coordinates: [50.8482214, 24.2869926]}
+            coordinates: [50.8482214, 24.2869926]
         },
-        {name: "Тернопіль", nameEn: "Ternopil", coordinates: {type: "Point", coordinates: [49.5484447, 25.5274572]}},
-        {name: "Київ", nameEn: "Kyiv", coordinates: {type: "Point", coordinates: [50.394981, 30.3322158]}},
-        {name: "Житомир", nameEn: "Zhytomyr", coordinates: {type: "Point", coordinates: [50.2609606, 28.6637444]}},
+        {name: "Тернопіль", nameEn: "Ternopil", coordinates: [49.5484447, 25.5274572]},
+        {name: "Київ", nameEn: "Kyiv", coordinates: [50.394981, 30.3322158]},
+        {name: "Житомир", nameEn: "Zhytomyr", coordinates: [50.2609606, 28.6637444]},
         {
             name: "Хмельницький",
             nameEn: "Khmelnytsky",
-            coordinates: {type: "Point", coordinates: [49.4106424, 26.9250467]}
+            coordinates: [49.4106424, 26.9250467]
         },
-        {name: "Чернівці", nameEn: "Chernivtsi", coordinates: {type: "Point", coordinates: [48.3214908, 25.7934901]}},
-        {name: "Мукачево", nameEn: "Mukachevo", coordinates: {type: "Point", coordinates: [48.4409537, 22.6776106]}},
-        {name: "Ужгород", nameEn: "Uzhgorod", coordinates: {type: "Point", coordinates: [48.6194739, 22.2094258]}},
-        {name: "Стрий", nameEn: "Stryi", coordinates: {type: "Point", coordinates: [49.259062, 23.8053984]}},
-        {name: "Рівне", nameEn: "Rivne", coordinates: {type: "Point", coordinates: [50.6111563, 26.1743715]}},
-        {name: "Луцьк", nameEn: "Lutsk", coordinates: {type: "Point", coordinates: [50.7398785, 25.263793]}},
-        {name: "Ковель", nameEn: "Kovel", coordinates: {type: "Point", coordinates: [51.2192135, 24.6807714]}},
-    ],
-    citiesBounds: [
-        {name: "Львів", bounds: [[49.7678305, 23.9051028], [49.9037122, 24.1334136]]}
+        {name: "Чернівці", nameEn: "Chernivtsi", coordinates: [48.3214908, 25.7934901]},
+        {name: "Мукачево", nameEn: "Mukachevo", coordinates: [48.4409537, 22.6776106]},
+        {name: "Ужгород", nameEn: "Uzhgorod", coordinates: [48.6194739, 22.2094258]},
+        {name: "Стрий", nameEn: "Stryi", coordinates: [49.259062, 23.8053984]},
+        {name: "Рівне", nameEn: "Rivne", coordinates: [50.6111563, 26.1743715]},
+        {name: "Луцьк", nameEn: "Lutsk", coordinates: [50.7398785, 25.263793]},
+        {name: "Ковель", nameEn: "Kovel", coordinates: [51.2192135, 24.6807714]},
     ],
     streets: [
         {

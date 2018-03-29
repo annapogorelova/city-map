@@ -7,6 +7,8 @@ const streetService = require("../../data/services/streetService");
 const db = require("../../data/models");
 
 describe("street data service test", () => {
+    const testCity = testData.cities[0];
+
     before((done) => {
         testUtils.cleanDB().then(() => {
             done();
@@ -21,11 +23,8 @@ describe("street data service test", () => {
 
     it("should return street by id", (done) => {
         (async () => {
-            const testStreet = Object.assign({}, testData.streets[0]);
-            const testCity = testData.cities[0];
             const createdCity = await db.city.create(testCity);
-            testStreet.cityId = createdCity.id;
-            const createdStreet = await db.street.create(testStreet);
+            const createdStreet = await testUtils.createStreet(testData.streets[0], createdCity.id);
             const streetById = await streetService.getById(createdStreet.id);
             assert.exists(streetById);
             assert.equal(streetById.id, createdStreet.id);
@@ -35,16 +34,30 @@ describe("street data service test", () => {
         })();
     });
 
+    it("should create a street with given ways", (done) => {
+        (async () => {
+            const createdCity = await db.city.create(testCity);
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: createdCity.id}, street);
+            const createdStreet = await streetService.create(testStreet, ways);
+            assert(createdStreet);
+            assert.equal(createdStreet.name, testStreet.name);
+            assert.equal(createdStreet.description, testStreet.description);
+            assert.equal(createdStreet.cityId, testStreet.cityId);
+            const streetWays = await createdStreet.getWays();
+            ways.map((w, i) => {
+                assert.deepEqual(w, streetWays[i].coordinates);
+            });
+            done();
+        })();
+    });
+
     it("should throw when trying to create the existing street", (done) => {
         (async () => {
-            const testStreet = Object.assign({}, testData.streets[0]);
-            const testCity = testData.cities[0];
             const createdCity = await db.city.create(testCity);
-            testStreet.cityId = createdCity.id;
-
-            await db.street.create(testStreet);
+            const existingStreet = testUtils.createStreet(testData.streets[0], createdCity.id);
             try {
-                await streetService.create(testStreet);
+                await streetService.create(existingStreet, []);
             } catch(err) {
                 assert.exists(err);
             } finally {

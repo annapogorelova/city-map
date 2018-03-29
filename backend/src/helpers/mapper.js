@@ -1,4 +1,4 @@
-const {Mapper} = require("tooleks");
+const {Mapper, optional} = require("tooleks");
 const mapper = new Mapper();
 
 mapper.registerResolver("app.user", "api.v1.user", (user) => {
@@ -28,6 +28,10 @@ mapper.registerResolver("api.v1.city", "app.city", (city) => {
     };
 });
 
+mapper.registerResolver("app.way", "api.v1.way", (way) => {
+    return way.coordinates;
+});
+
 mapper.registerResolver("app.street", "api.v1.street", (street) => {
     return {
         id: street.id,
@@ -39,7 +43,7 @@ mapper.registerResolver("app.street", "api.v1.street", (street) => {
         description: street.description,
         person: street.person,
         wikiUrl: street.wikiUrl,
-        coordinates: street.coordinates.coordinates
+        ways: optional(() => street.ways.map(w => w.coordinates), [])
     };
 });
 
@@ -50,8 +54,7 @@ mapper.registerResolver("api.v1.street", "app.street", (street) => {
         nameEn: street.nameEn,
         oldName: street.oldName,
         description: street.description,
-        wikiUrl: street.wikiUrl,
-        coordinates: {type: "LineString", coordinates: street.coordinates}
+        wikiUrl: street.wikiUrl
     }
 });
 

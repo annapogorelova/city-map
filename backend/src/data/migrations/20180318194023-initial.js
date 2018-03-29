@@ -134,10 +134,10 @@ module.exports = {
         await queryInterface.addIndex("street", {fields: ["personId"]});
     },
 
-    down: (queryInterface, Sequelize) => {
-        queryInterface.dropTable("user");
-        queryInterface.dropTable("street");
-        queryInterface.dropTable("city");
-        queryInterface.dropTable("person");
+    down: async (queryInterface, Sequelize) => {
+        await queryInterface.dropTable("user");
+        await queryInterface.dropTable("street");
+        await queryInterface.dropTable("city");
+        await queryInterface.dropTable("person");
     }
 };

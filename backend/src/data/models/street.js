@@ -33,10 +33,6 @@ module.exports = function (sequelize, DataTypes) {
         wikiUrl: {
             type: DataTypes.TEXT,
             allowNull: true
-        },
-        coordinates: {
-            type: DataTypes.GEOMETRY("LINESTRING"),
-            allowNull: false
         }
     }, {
         tableName: "street"

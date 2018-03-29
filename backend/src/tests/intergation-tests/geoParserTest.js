@@ -94,7 +94,7 @@ describe("geoDataService test", () => {
                 assert.equal(loadedStreets[i].name, addedStreets[i].name);
                 assert.equal(addedStreets[i].description, testDescription);
                 assert.equal(addedStreets[i].wikiUrl, testWikiUrl);
-                assert.exists(addedStreets[i].coordinates);
+                assert.exists(addedStreets[i].ways);
 
                 if(i % 2 === 0) {
                     assert.equal(addedStreets[i].person.name, testPersonName);
@@ -107,7 +107,7 @@ describe("geoDataService test", () => {
             }
             done();
         })();
-    }).timeout(90000);
+    }).timeout(200000);
 
     it("should throw error when createStreet method fails", (done) => {
         (async () => {

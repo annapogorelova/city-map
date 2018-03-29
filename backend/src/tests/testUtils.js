@@ -14,6 +14,8 @@ module.exports = {
     async cleanDB() {
         return Promise.all([
             await db.user.destroy({where: {}, truncate: false}),
+            await db.streetWay.destroy({where: {}, truncate: false}),
+            await db.way.destroy({where: {}, truncate: false}),
             await db.street.destroy({where: {}, truncate: false}),
             await db.person.destroy({where: {}, truncate: false}),
             await db.city.destroy({where: {}, truncate: false}),
@@ -33,5 +35,18 @@ module.exports = {
 
     getApiUrl(url) {
         return apiRoutes.API + url;
+    },
+
+    async createStreet(testStreet, cityId) {
+        const {ways, ...street} = testStreet;
+        street.cityId = cityId;
+        const createdStreet = await db.street.create(street);
+        const createdWays = await db.way.bulkCreate(ways.map(w => { return {coordinates: w}}));
+        await createdStreet.setWays(createdWays);
+        return createdStreet;
+    },
+
+    async createStreets(testStreets, cityId) {
+        return Promise.all(testStreets.map(testStreet => this.createStreet(testStreet, cityId)));
     }
 };

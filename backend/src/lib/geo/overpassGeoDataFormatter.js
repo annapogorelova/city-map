@@ -1,5 +1,6 @@
 "use strict";
 const _ = require("lodash");
+const {optional} = require("tooleks");
 
 class OverpassGeoDataFormatter {
     get fileFormat() {
@@ -8,45 +9,30 @@ class OverpassGeoDataFormatter {
 
     formatGeoData(geoData) {
         const ways = this.filterNamedStreets(geoData);
-        const nodes = this.filterNodes(geoData);
-        this.assignGeoCoordinates(ways, nodes);
         const wayModels = ways.map(g => {return this.formatItem(g)});
-        return _(wayModels).uniqBy("name").sortBy("name").value();
+        const wayGroups = _(wayModels).groupBy("name").sortBy("name").value();
+        return wayGroups.map(streetParts => {
+           return {
+               name: streetParts[0].name,
+               nameEn: streetParts[0].nameEn,
+               oldName: streetParts[0].oldName,
+               ways:  streetParts.map(g => g.coordinates)
+           };
+        });
     }
 
     formatItem(geoDataItem) {
         return {
             name: geoDataItem["tags"]["name"] || geoDataItem["tags"]["name:en"] || null,
-            nameEn: geoDataItem["tags"]["name:en"] || null,
-            oldName: geoDataItem["tags"]["old_name"] || null,
-            coordinates: geoDataItem["coords"]
+            nameEn: optional(() => geoDataItem["tags"]["name:en"], null),
+            oldName: optional(() => geoDataItem["tags"]["old_name"], null),
+            coordinates: optional(() => geoDataItem["geometry"].map(g => [g["lat"], g["lon"]]), [])
         };
     }
 
     filterNamedStreets(geoData) {
         return geoData.filter(g => {
             return g["tags"] && (g["tags"]["name"] && g["type"] === "way" && g["tags"]["highway"]);
-        });
-    }
-
-    filterNodes(geoData) {
-        return geoData.filter(g => {
-            return g["type"] === "node";
-        });
-    }
-
-    assignGeoCoordinates(ways, nodes) {
-        for (let way of ways) {
-            const wayCoords = (nodes && nodes.length) ? this.findPath(nodes, way.nodes) : null;
-            way.coords = (wayCoords && wayCoords.length) ? wayCoords.map(c => {
-                return [c.lat, c.lon]
-            }) : wayCoords;
-        }
-    }
-
-    findPath(nodes, wayNodes) {
-        return nodes.filter(n => {
-            return wayNodes.indexOf(n.id) !== -1;
         });
     }
 }

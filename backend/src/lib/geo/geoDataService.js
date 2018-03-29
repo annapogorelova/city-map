@@ -46,7 +46,7 @@ class GeoDataService {
                 street.personId = null;
             }
 
-            return streetService.create(street);
+            return streetService.create(street, streetModel.ways);
         } else {
             throw new Error(`Street ${existingStreet.name} already exists.`);
         }

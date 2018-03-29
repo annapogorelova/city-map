@@ -1,4 +1,5 @@
 const db = require("../models/index");
+const {optional} = require("tooleks");
 
 module.exports = {
     getById(id) {
@@ -15,6 +16,8 @@ module.exports = {
                 model: db.city
             }, {
                 model: db.person
+            }, {
+                model: db.way,
             }],
             where: {
                 cityId: cityId
@@ -23,22 +26,20 @@ module.exports = {
         });
     },
 
-    async searchByCoordinates(coords, cityId, threshold = 0.000025, limit = 1) {
-        const location = db.sequelize.literal(`ST_GeomFromText('POINT(${coords[0]} ${coords[1]})')`);
-        const attributes = Object.keys(db.street.attributes);
-        const distance = db.sequelize.fn('ST_Distance', db.sequelize.literal('street.coordinates'), location);
-        attributes.push([distance,'distance']);
+    async searchByCoordinates(coordinates, cityId, threshold = 0.0001, limit = 1) {
+        const location = db.sequelize.fn("ST_GeomFromText",
+            db.sequelize.literal(`'POINT(${coordinates[0]} ${coordinates[1]})'`), 4326);
+        const asText = db.sequelize.fn("ST_AsText", db.sequelize.literal("coordinates"));
+        const geomFromText = db.sequelize.fn("ST_GeomFromText", asText, 4326);
+        const buffer = db.sequelize.fn("ST_Buffer", geomFromText, threshold);
+        const stWithin = db.sequelize.fn("ST_Within", location, buffer);
 
-        return db.street.findAll({
-            attributes: attributes,
-            order: distance,
-            include: [{
-                model: db.person
-            }],
-            where: {cityId: cityId},
-            having: {distance: {$lte: threshold}},
+        const ways = await db.way.findAll({
+            where: db.sequelize.where(stWithin, 1),
             limit: limit
         });
+
+        return optional(() => ways[0].getStreets({include: [{model: db.person}, {model: db.way}]}), []);
     },
 
     search(search, cityId = null, offset = 0, limit = 5) {
@@ -62,12 +63,19 @@ module.exports = {
         return db.street.findAll(selectParams);
     },
 
-    async create(street) {
+    async create(street, ways) {
         const existingStreet = await db.street.findOne({where: {name: street.name}});
         if (existingStreet) {
             throw new Error("Street already exists");
         }
 
-        return db.street.create(street);
+        const createdStreet = await db.street.create(street);
+        if(ways) {
+            const wayModels = ways.map(w => {return {coordinates: w}});
+            const createdWays = await db.way.bulkCreate(wayModels);
+            await createdStreet.setWays(createdWays);
+        }
+
+        return createdStreet;
     }
 };

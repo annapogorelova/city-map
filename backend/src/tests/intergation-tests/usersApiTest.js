@@ -124,4 +124,20 @@ describe("users route", function () {
 
         done();
     });
+
+    it("should not authorize the non existing user", (done) => {
+        (async () => {
+            chai.request(server)
+                .post(testUtils.getApiUrl(apiRoutes.AUTH))
+                .set('Content-Type', 'application/json')
+                .send({email: testUser.email, password: testUser.password})
+                .end((err, res) => {
+                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.isFalse(res.body.auth);
+                    assert.exists(res.body.message);
+                    assert.equal(constants.messages.UNAUTHORIZED, res.body.message);
+                    done();
+                });
+        })();
+    });
 });

@@ -27,7 +27,7 @@ app.use(function (req, res, next) {
     next(err);
 });
 
-app.use(function (err, req, res, next) {
+app.use(async function (err, req, res) {
     res.status(err.status || 500).json({message: err.message});
 });
 

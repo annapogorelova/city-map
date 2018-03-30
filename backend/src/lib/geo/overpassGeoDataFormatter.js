@@ -5,19 +5,19 @@ const {optional} = require("tooleks");
 class OverpassGeoDataFormatter {
     get fileFormat() {
         return ["elements"];
-    };
+    }
 
     formatGeoData(geoData) {
         const ways = this.filterNamedStreets(geoData);
-        const wayModels = ways.map(g => {return this.formatItem(g)});
+        const wayModels = ways.map(g => {return this.formatItem(g);});
         const wayGroups = _(wayModels).groupBy("name").sortBy("name").value();
         return wayGroups.map(streetParts => {
-           return {
-               name: streetParts[0].name,
-               nameEn: streetParts[0].nameEn,
-               oldName: streetParts[0].oldName,
-               ways:  streetParts.map(g => g.coordinates)
-           };
+            return {
+                name: streetParts[0].name,
+                nameEn: streetParts[0].nameEn,
+                oldName: streetParts[0].oldName,
+                ways:  streetParts.map(g => g.coordinates)
+            };
         });
     }
 

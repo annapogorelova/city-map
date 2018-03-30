@@ -10,14 +10,14 @@ module.exports = Object.freeze({
         INTERNAL_SERVER_ERROR: 500
     },
     messages: {
-        NOT_FOUND: 'Not Found.',
-        UNAUTHORIZED: 'Unauthorized.',
-        PROBLEM_AUTHORIZING: 'There was a problem authorizing the user.',
-        ACCESS_TOKEN_INCORRECT_FORMAT: 'Access token is not in the correct format.',
-        FAILED_TO_CREATE_USER: 'Failed to create the user.',
-        USER_ALREADY_EXISTS: 'User already exists.'
+        NOT_FOUND: "Not Found.",
+        UNAUTHORIZED: "Unauthorized.",
+        PROBLEM_AUTHORIZING: "There was a problem authorizing the user.",
+        ACCESS_TOKEN_INCORRECT_FORMAT: "Access token is not in the correct format.",
+        FAILED_TO_CREATE_USER: "Failed to create the user.",
+        USER_ALREADY_EXISTS: "User already exists."
     },
     regex: {
-        ACCESS_TOKEN: /^(Bearer )([A-Za-z0-9\-\._~\+\/]+=*)$/i
+        ACCESS_TOKEN: /^(Bearer )([A-Za-z0-9\-._~+/]+=*)$/i
     }
 });

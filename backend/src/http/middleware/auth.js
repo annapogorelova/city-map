@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-const jwt = require('jsonwebtoken');
-const config = require('config');
-const constants = require('../constants/constants');
+const jwt = require("jsonwebtoken");
+const config = require("config");
+const constants = require("../constants/constants");
 
 module.exports = {
     verifyToken: function(req, res, next) {

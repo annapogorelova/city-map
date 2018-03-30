@@ -81,7 +81,7 @@ function makeStreetService(db) {
 
         const createdStreet = await db.street.create(street);
         if(ways) {
-            const wayModels = ways.map(w => {return {coordinates: w}});
+            const wayModels = ways.map(w => {return {coordinates: w};});
             const createdWays = await db.way.bulkCreate(wayModels);
             await createdStreet.setWays(createdWays);
         }

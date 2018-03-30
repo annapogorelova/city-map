@@ -10,20 +10,20 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.GEOMETRY("LINESTRING"),
             allowNull: false,
             get: function() {
-                const coordinates = this.getDataValue('coordinates');
+                const coordinates = this.getDataValue("coordinates");
                 return (coordinates === null) ? null : coordinates.coordinates;
             },
             set: function(coordinates) {
                 if (coordinates === null) {
-                    this.setDataValue('coordinates', null);
+                    this.setDataValue("coordinates", null);
                 } else {
-                    this.setDataValue('coordinates', { type: 'LineString', coordinates: coordinates });
+                    this.setDataValue("coordinates", { type: "LineString", coordinates: coordinates });
                 }
             },
             validations: {
                 isCoordinateArray: function(value) {
                     if (!Array.isArray(value)) {
-                        throw new Error('Must be an array');
+                        throw new Error("Must be an array");
                     }
                 }
             }

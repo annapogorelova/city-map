@@ -4,7 +4,7 @@ const userService = require("../../data/services/dataServicesFactory").userServi
 const mapper = require("../../helpers/mapper");
 
 module.exports = {
-    async getUser(req, res) {
+    async getUser(req, res, next) {
         let params = req.params;
         let id = parseInt(params.id);
         const user = await userService.getById(id);

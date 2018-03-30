@@ -52,15 +52,15 @@ mapper.registerResolver("api.v1.street", "app.street", (street) => {
         oldName: street.oldName,
         description: street.description,
         wikiUrl: street.wikiUrl
-    }
+    };
 });
 
 mapper.registerResolver("app.city.list", "api.v1.city.list", (cities) => {
-    return cities.map(city => {return mapper.map(city, "app.city", "api.v1.city");})
+    return cities.map(city => {return mapper.map(city, "app.city", "api.v1.city");});
 });
 
 mapper.registerResolver("app.street.list", "api.v1.street.list", (streets) => {
-    return streets.map(street => {return mapper.map(street, "app.street", "api.v1.street");})
+    return streets.map(street => {return mapper.map(street, "app.street", "api.v1.street");});
 });
 
 module.exports = mapper;

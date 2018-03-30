@@ -1,4 +1,4 @@
-var bcrypt = require('bcrypt-nodejs');
+var bcrypt = require("bcrypt-nodejs");
 
 module.exports = {
     generateHash: function(password, saltSize = 8) {

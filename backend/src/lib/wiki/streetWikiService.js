@@ -53,7 +53,7 @@ class StreetWikiService {
             return null;
         }
 
-        return this.getPage(searchResult.results[0])
+        return this.getPage(searchResult.results[0]);
     }
 
     async searhPersonArticle(articleName, lang) {

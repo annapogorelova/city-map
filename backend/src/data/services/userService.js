@@ -1,6 +1,6 @@
 "use strict";
 
-const encryptionHelper = require('../../helpers/encryptionHelper');
+const encryptionHelper = require("../../helpers/encryptionHelper");
 
 function makeUserService(db) {
     return Object.freeze({

@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const JSONStream = require("JSONStream");
-const es = require('event-stream');
+const es = require("event-stream");
 
 class JsonGeoDataProvider {
     constructor(dataPath, formatProvider) {

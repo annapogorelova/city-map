@@ -1,7 +1,14 @@
 import ApiService from "./api-service";
 import axios from "axios";
-import config from "../../../config/app/config";
+
+function dataHandler(response) {
+    return response.data.data;
+}
+
+function errorHandler(response) {
+    return response.data;
+}
 
 export default function() {
-    return new ApiService(axios, config.apiUrl);
+    return new ApiService(axios, process.env.API_URL, dataHandler, errorHandler);
 }

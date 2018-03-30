@@ -3,22 +3,8 @@
         <div class="col-12">
             <div class="row">
                 <div class="col-12">
-                    <div class="search-container">
-                        <input v-model="search"
-                               v-on:blur="hideAutocomplete()"
-                               title="Search" type="text" placeholder="Search" class="form-control"/>
-                        <div class="search-results" v-if="isAutocompleteShown">
-                            <span class="search-result" v-for="result in searchResults">
-                                {{result.label}}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
                     <div class="map-wrapper">
-                        <div id="cityMap" class="map-container"></div>
+                        <basic-map ref="map" v-on:init="onMapInit"></basic-map>
                     </div>
                 </div>
             </div>
@@ -26,60 +12,56 @@
     </div>
 </template>
 <script>
-    import {mapService} from "../../services";
-    import _ from "lodash";
+    import BasicMap from "../map/basic-map";
+    import {streetService} from "../../services";
+    import {optional} from "tooleks";
 
     export default {
-        name: 'city-map',
+        components: {BasicMap},
 
         data: function () {
             return {
-                cityMap: null,
-                geoProvider: null,
-                search: null,
-                searchResults: null,
-                isAutocompleteShown: false
+                search: undefined,
+                marker: undefined,
+                polyLines: []
             }
         },
-
-        watch: {
-            search: function (searchPhrase) {
-                this.searchAddress(searchPhrase);
-            }
+        computed: {
+            map: function () {
+                return this.$refs.map.getMap();
+            },
         },
-
-        mounted: function () {
-            this.$nextTick(function () {
-                this.initMap();
-            })
-        },
-
         methods: {
-            initMap: async function () {
-                this.cityMap = await mapService.createMap("cityMap", 13, "OpenStreetMap.Mapnik");
-            },
-
-            searchAddress: _.debounce(function(searchPhrase) {
-                mapService.search(searchPhrase).then(results => {
-                    this.searchResults = this.mapSearchResults(results);
-                    this.isAutocompleteShown = results.length > 0;
-                });
-            }, 500),
-
-            mapSearchResults(results) {
-                return results.map(r => {
-                    return {
-                      label: r.label,
-                      position: {
-                          latitude: r.raw.lat,
-                          longitude: r.raw.lon
-                      }
-                    };
+            findClosestStreet: (coordinates) => {
+                return streetService.getStreetByCoordinates(coordinates).then(data => {
+                    return optional(() => data[0], null);
                 });
             },
+            setMarker(coordinates) {
+                if (this.marker) {
+                    this.map.removeLayer(this.marker);
+                }
+                this.marker = L.marker(coordinates).addTo(this.map);
+                this.findClosestStreet(coordinates).then(street => {
+                    if(street) {
+                        if(this.polyLines) {
+                            this.polyLines.map(p => this.map.removeLayer(p));
+                        }
 
-            hideAutocomplete() {
-                this.isAutocompleteShown = false;
+                        street.ways.map(way => {
+                            this.polyLines.push(this.drawPolyline(way));
+                        });
+                    }
+                });
+            },
+            drawPolyline(coordinates) {
+                return L.polyline(coordinates, {opacity: 0.4, weight: 5}).addTo(this.map);
+            },
+            onMapInit() {
+                this.map.on("click", function (e) {
+                    this.setMarker([e.latlng.lat, e.latlng.lng], this.map);
+                    this.$emit("init");
+                }.bind(this));
             }
         }
     }
@@ -88,12 +70,6 @@
     .map-wrapper {
         width: 100%;
         height: 100%;
-    }
-
-    .map-container {
-        height: 500px;
-        width: 100%;
-        margin-top: 15px;
     }
 
     .search-container {

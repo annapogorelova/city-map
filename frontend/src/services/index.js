@@ -1,4 +1,4 @@
 import apiService from "./api";
-import mapService from "./map";
+import streetService from "./streets";
 
-export {apiService, mapService};
+export {apiService, streetService};

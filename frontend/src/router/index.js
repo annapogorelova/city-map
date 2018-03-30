@@ -8,14 +8,14 @@ Vue.use(Router);
 export default new Router({
     routes: [
         {
-            path: '/sign-in',
-            name: 'Sign In',
+            path: "/sign-in",
+            name: "Sign In",
             component: SignIn
         },
         {
-            path: '/city-map',
-            name: 'City Map',
+            path: "/",
+            name: "City Map",
             component: CityMap
         }
     ]
-})
+});

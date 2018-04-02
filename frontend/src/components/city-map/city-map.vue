@@ -3,6 +3,12 @@
         <div class="col-12">
             <div class="row">
                 <div class="col-12">
+                    <cities-list ref="cities" v-on:citySelected="onCitySelected"
+                                 v-bind:selected-city-id="cityId"></cities-list>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
                     <div class="map-wrapper">
                         <basic-map ref="map" v-on:init="onMapInit"></basic-map>
                     </div>
@@ -13,23 +19,31 @@
 </template>
 <script>
     import BasicMap from "../map/basic-map";
+    import CitiesList from "./cities-list";
     import {streetService} from "../../services";
     import {optional} from "tooleks";
 
     export default {
-        components: {BasicMap},
+        components: {BasicMap, CitiesList},
 
         data: function () {
             return {
                 search: undefined,
                 marker: undefined,
-                polyLines: []
+                selectedStreet: undefined,
+                polyLines: [],
+                cityId: undefined
             }
         },
         computed: {
             map: function () {
                 return this.$refs.map.getMap();
             },
+        },
+        mounted: function() {
+            if(!isNaN(this.$route.query.cityId)) {
+                this.cityId = parseInt(this.$route.query.cityId);
+            }
         },
         methods: {
             findClosestStreet: (coordinates) => {
@@ -43,8 +57,11 @@
                 }
                 this.marker = L.marker(coordinates).addTo(this.map);
                 this.findClosestStreet(coordinates).then(street => {
-                    if(street) {
-                        if(this.polyLines) {
+                    if (street) {
+                        this.selectedStreet = street;
+                        this.$router.push({query: {...this.$route.query, street: street.id}});
+
+                        if (this.polyLines) {
                             this.polyLines.map(p => this.map.removeLayer(p));
                         }
 
@@ -62,6 +79,12 @@
                     this.setMarker([e.latlng.lat, e.latlng.lng], this.map);
                     this.$emit("init");
                 }.bind(this));
+            },
+            onCitySelected(city) {
+                if (city) {
+                    this.$router.push({query: {cityId: city.id}});
+                    this.$refs.map.setCenter(city.coordinates[0], city.coordinates[1], 15);
+                }
             }
         }
     }

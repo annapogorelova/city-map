@@ -4,7 +4,7 @@ export default class StreetService {
     }
 
     getStreetByCoordinates(coordinates) {
-        // Remove hardcode here
+        // Remove hardcode
         return this.apiService.get("/streets", {cityId: 2, coordinates: coordinates});
     }
 }

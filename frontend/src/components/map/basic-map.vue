@@ -78,6 +78,9 @@
                 this.map = L.map(this.id).setView([this.lat, this.lng], this.zoom);
                 L.tileLayer(this.tileLayerUrl, this.tileLayerOptions).addTo(this.map);
                 this.$emit("init");
+            },
+            setCenter(lat, lon, zoom = null) {
+                this.map.setView(new L.LatLng(lat, lon), zoom || this.zoom);
             }
         }
     }

@@ -7,7 +7,7 @@ export default class ApiService {
     }
 
     get(url, params) {
-        return this.httpClient.get(this.getFullUrl(url), {params: params})
+        return this.httpClient.get(this.getFullUrl(url), params)
             .then(this.dataHandler)
             .catch(this.errorHandler);
     }

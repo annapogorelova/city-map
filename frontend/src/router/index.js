@@ -6,14 +6,16 @@ import CityMap from "../components/city-map/city-map";
 Vue.use(Router);
 
 export default new Router({
+    mode: "history",
     routes: [
         {
             path: "/sign-in",
             name: "Sign In",
+            mode: "history",
             component: SignIn
         },
         {
-            path: "/",
+            path: "/map",
             name: "City Map",
             component: CityMap
         }

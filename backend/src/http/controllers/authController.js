@@ -1,20 +1,24 @@
 "use strict";
 
-const userService = require("../../data/services/dataServicesFactory").userService;
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const constants = require("../constants/constants");
 
-const issueToken = function(payload, secret, expiresIn) {
-    return jwt.sign(payload, secret, { expiresIn: expiresIn });
-};
+function makeAuthController(userService) {
+    return Object.freeze({
+        createUser,
+        getAuthToken
+    });
 
-const getAccessTokenString = function(accessToken) {
-    return `Bearer ${accessToken}`;
-};
+    function _issueToken(payload, secret, expiresIn) {
+        return jwt.sign(payload, secret, { expiresIn: expiresIn });
+    }
 
-module.exports = {
-    async createUser(req, res) {
+    function _getAccessTokenString(accessToken) {
+        return `Bearer ${accessToken}`;
+    }
+
+    async function createUser(req, res) {
         try {
             const email = req.body.email;
             const user = await userService.getByEmail(email);
@@ -25,21 +29,21 @@ module.exports = {
             }
 
             const createdUser = await userService.create({email: email, password: req.body.password});
-            const accessToken = issueToken(
+            const accessToken = _issueToken(
                 {id: createdUser.id},
                 config.security.jwt.secret,
                 config.security.jwt.expirationTimeSeconds);
 
             return res
                 .status(constants.statusCodes.OK)
-                .send({auth: true, access_token: getAccessTokenString(accessToken)});
+                .send({auth: true, access_token: _getAccessTokenString(accessToken)});
         } catch(error) {
             return res.status(constants.statusCodes.INTERNAL_SERVER_ERROR)
                 .send({ auth: false, message: constants.messages.FAILED_TO_CREATE_USER });
         }
-    },
+    }
 
-    async getAuthToken(req, res) {
+    async function getAuthToken(req, res) {
         try {
             const user = await userService.getByEmail(req.body.email);
             if(user == null) {
@@ -50,16 +54,24 @@ module.exports = {
 
             const isPasswordValid = await userService.isPasswordValid(req.body.password, user.password);
             if(isPasswordValid) {
-                const accessToken = issueToken(
+                const accessToken = _issueToken(
                     { id: user.id },
                     config.security.jwt.secret,
                     config.security.jwt.expirationTimeSeconds);
-                return res.status(constants.statusCodes.OK).send({ auth: true, access_token: getAccessTokenString(accessToken) });
+                return res.status(constants.statusCodes.OK).send({
+                    auth: true, access_token: _getAccessTokenString(accessToken)
+                });
             } else {
-                return res.status(constants.statusCodes.UNAUTHORIZED).send({ auth: false, message: constants.messages.UNAUTHORIZED });
+                return res.status(constants.statusCodes.UNAUTHORIZED).send({
+                    auth: false, message: constants.messages.UNAUTHORIZED
+                });
             }
         } catch(error) {
-            return res.status(constants.statusCodes.INTERNAL_SERVER_ERROR).send({ auth: false, message: constants.messages.PROBLEM_AUTHORIZING });
+            return res.status(constants.statusCodes.INTERNAL_SERVER_ERROR).send({
+                auth: false, message: constants.messages.PROBLEM_AUTHORIZING
+            });
         }
     }
-};
+}
+
+module.exports = makeAuthController;

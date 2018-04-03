@@ -3,8 +3,9 @@ const path = require("path");
 const logger = require("morgan");
 const bodyParser = require("body-parser");
 const passport = require("passport");
+const dc = require("./app/dependencyResolver");
 
-const routesV1 = require("./http/routes/v1");
+const routes = dc.get("Router");
 const app = express();
 
 app.use(logger("dev"));
@@ -19,7 +20,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use("/api/v1", routesV1);
+app.use("/api/v1", routes);
 
 app.use(function (req, res, next) {
     const err = new Error("Not Found");

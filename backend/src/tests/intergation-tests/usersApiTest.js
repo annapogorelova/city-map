@@ -6,19 +6,13 @@ const server = require("../../app");
 const testUtils = require("../testUtils");
 const apiRoutes = require("../apiRoutes");
 const constants = require("../../http/constants/constants");
-const userService = require("../../data/services/dataServicesFactory").userService;
+const userService = testUtils.dc.get("UserService");
 const testUser = require("../data/dbTestData").user;
 
 chai.use(chaiHttp);
 
 describe("users route", function () {
-    before((done) => {
-        testUtils.cleanDB().then(() => {
-            done();
-        });
-    });
-
-    afterEach(function (done) {
+    beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();
         });
@@ -140,4 +134,22 @@ describe("users route", function () {
                 });
         })();
     });
+
+    it("should not authorize the user with invalid password", (done) => {
+        (async () => {
+            const user = await userService.create({email: testUser.email, password: testUser.password});
+            chai.request(server)
+                .post(testUtils.getApiUrl(apiRoutes.AUTH))
+                .set("Content-Type", "application/json")
+                .send({email: user.email, password: "invalid"})
+                .end((err, res) => {
+                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
+                    assert.isFalse(res.body.auth);
+                    assert.notExists(res.body.access_token);
+                    done();
+                });
+        })();
+    });
+
 });

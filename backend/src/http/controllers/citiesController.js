@@ -1,12 +1,16 @@
 "use strict";
 
-const cityService = require("../../data/services/dataServicesFactory").cityService;
 const constants = require("../constants/constants");
-const mapper = require("../../helpers/mapper");
 const config = require("config");
 
-module.exports = {
-    async getCity(req, res, next) {
+function makeCitiesController(cityService, mapper) {
+    return Object.freeze({
+        getCity,
+        createCity,
+        searchCities
+    });
+
+    async function getCity(req, res, next) {
         let params = req.params;
         let id = parseInt(params.id);
 
@@ -23,9 +27,9 @@ module.exports = {
         }
 
         next();
-    },
+    }
 
-    async createCity(req, res) {
+    async function createCity(req, res) {
         let model = req.body;
 
         // Move this to the validation middleware
@@ -37,12 +41,14 @@ module.exports = {
         const createdCity = await cityService.create(city);
         const createdCityModel = mapper.map(createdCity, "app.city", "api.v1.city");
         return res.json({data: createdCityModel});
-    },
+    }
 
-    async searchCities(req, res) {
+    async function searchCities(req, res) {
         const limit = parseInt(req.query.limit) || config.defaults.pageLimit;
         const cities = await cityService.search(req.query.search, req.query.offset || 0, limit);
         const models = mapper.map(cities, "app.city.list", "api.v1.city.list");
         return res.json({data: models});
     }
-};
+}
+
+module.exports = makeCitiesController;

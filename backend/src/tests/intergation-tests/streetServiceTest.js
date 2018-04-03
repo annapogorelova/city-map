@@ -3,19 +3,13 @@ const chai = require("chai");
 const assert = chai.assert;
 const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
-const streetService = require("../../data/services/dataServicesFactory").streetService;
+const streetService = testUtils.dc.get("StreetService");
 const db = require("../../data/models");
 
 describe("street data service test", () => {
     const testCity = testData.cities[0];
 
-    before((done) => {
-        testUtils.cleanDB().then(() => {
-            done();
-        });
-    });
-
-    afterEach((done) => {
+    beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();
         });
@@ -60,7 +54,6 @@ describe("street data service test", () => {
                 await streetService.create(existingStreet, []);
             } catch(err) {
                 assert.exists(err);
-            } finally {
                 done();
             }
         })();

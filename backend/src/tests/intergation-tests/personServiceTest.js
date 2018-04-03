@@ -3,16 +3,10 @@ const chai = require("chai");
 const assert = chai.assert;
 const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
-const personService = require("../../data/services/dataServicesFactory").personService;
+const personService = testUtils.dc.get("PersonService");
 
 describe("person data service test", () => {
-    before((done) => {
-        testUtils.cleanDB().then(() => {
-            done();
-        });
-    });
-
-    afterEach((done) => {
+    beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();
         });

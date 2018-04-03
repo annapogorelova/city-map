@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "npm run eslint &&  node $NODE_DEBUG_OPTION ./bin/www --arguments",
-    "test": "npm run eslint &&  export NODE_ENV=test && ./node_modules/.bin/nyc ./node_modules/.bin/mocha \"./src/tests/**/*.js\" --exit",
+    "start": "npm run lint &&  node $NODE_DEBUG_OPTION ./bin/www --arguments",
+    "test": "npm run lint &&  export NODE_ENV=test && ./node_modules/.bin/nyc ./node_modules/.bin/mocha \"./src/tests/**/*.js\" --exit",
     "parse-city-dev": "export NODE_ENV=dev && node ./src/lib/geo/parser.js",
     "parse-city-test": "export NODE_ENV=test && node ./src/lib/geo/parser.js",
-    "eslint": "./node_modules/.bin/eslint --fix ./src"
+    "lint": "./node_modules/.bin/eslint --fix ./src"
   },
   "nyc": {
     "exclude": [
@@ -32,7 +32,7 @@
     "pug": "2.0.0-beta11",
     "sequelize": "^4.33.4",
     "serve-favicon": "~2.4.5",
-    "tooleks": "^0.1.4",
+    "tooleks": "^0.2.1",
     "wikijs": "^4.5.2"
   },
   "devDependencies": {

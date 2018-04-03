@@ -12,20 +12,13 @@ const testUser = testData.user;
 const db = require("../../data/models/index");
 const config = require("config");
 const _ = require("lodash");
-const userService = require("../../data/services/dataServicesFactory").userService;
+const userService = testUtils.dc.get("UserService");
 const mapper = require("../../helpers/mapper");
-const sinon = require("sinon");
 
 chai.use(chaiHttp);
 
 describe("cities route", function () {
-    before((done) => {
-        testUtils.cleanDB().then(() => {
-            done();
-        });
-    });
-
-    afterEach((done) => {
+    beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();
         });

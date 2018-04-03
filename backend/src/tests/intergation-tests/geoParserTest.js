@@ -1,32 +1,34 @@
 "use strict";
 
-const OverpassGeoDataFormatter = require("../../lib/geo/overpassGeoDataFormatter");
 const JsonGeoDataProvider = require("../../lib/geo/jsonGeoDataProvider");
-const GeoParser = require("../../lib/geo/geoParser");
-const geoDataFormatter = new OverpassGeoDataFormatter();
-const jsonGeoParser = new GeoParser(
-    new JsonGeoDataProvider("../../tests/data", geoDataFormatter),
-    geoDataFormatter);
-const GeoDataService = require("../../lib/geo/geoDataService");
 const StreetWikiService = require("../../lib/wiki/streetWikiService");
-const WikiService = require("../../lib/wiki/wikiService");
 const db = require("../../data/models/index");
 const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
-const streetService = require("../../data/services/dataServicesFactory").streetService;
 
 const chai = require("chai");
 const assert = chai.assert;
 const sinon = require("sinon");
 
 describe("geoDataService test", () => {
+    const jsonGeoParser = testUtils.dc.get("GeoParser");
+    const streetService = testUtils.dc.get("StreetService");
+
     before((done) => {
+        // Replacing the data directory path
+        testUtils.dc.registerBinding("GeoDataProvider", JsonGeoDataProvider, {
+            dependencies: [
+                () => "../../tests/data",
+                "GeoDataFormatter"
+            ]
+        });
+
         testUtils.cleanDB().then(() => {
             done();
         });
     });
 
-    afterEach(function (done) {
+    afterEach(function(done) {
         this.timeout(10000);
         testUtils.cleanDB().then(() => {
             done();
@@ -61,10 +63,9 @@ describe("geoDataService test", () => {
             const testWikiUrl = "https://uk.wikipedia.org/articte";
             const testWikiPersonWikiUrl = "https://uk.wikipedia.org/named_after";
 
-            const streetWikiService = new StreetWikiService(new WikiService());
-
             const city = await db.city.create(testData.cities[1]); // Zhovkva
             const loadedStreets = await jsonGeoParser.parse(city.nameEn);
+            const streetWikiService =  new StreetWikiService(testUtils.dc.get("WikiService"));
 
             const stub = sinon.stub(streetWikiService, "getStreetInfo");
             for(let i = 0; i < loadedStreets.length; i++) {
@@ -86,7 +87,9 @@ describe("geoDataService test", () => {
                 stub.onCall(i).returns(Promise.resolve(returnValue));
             }
 
-            const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
+            testUtils.dc.registerInstance("StreetWikiService", streetWikiService);
+
+            const geoDataService = testUtils.dc.get("GeoDataService");
             await geoDataService.processCity(city);
             const addedStreets = await streetService.getByCity(city.id);
 
@@ -107,15 +110,15 @@ describe("geoDataService test", () => {
             }
             done();
         })();
-    }).timeout(200000);
+    }).timeout(10000);
 
     it("should throw error when createStreet method fails", (done) => {
         (async () => {
             const city = await db.city.create(testData.cities[1]);
-            const streetWikiService = new StreetWikiService(new WikiService());
-            const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
             const errorMessage = "Failed!";
             sinon.stub(jsonGeoParser, "parse").throws(errorMessage);
+            testUtils.dc.registerInstance("GeoParser", jsonGeoParser);
+            const geoDataService = testUtils.dc.get("GeoDataService");
 
             try {
                 await geoDataService.processCity(city);
@@ -133,8 +136,8 @@ describe("geoDataService test", () => {
             const testStreet = Object.assign({}, testData.streets[0]);
             testStreet.cityId = city.id;
             await db.street.create(testStreet);
-            const streetWikiService = new StreetWikiService(new WikiService());
-            const geoDataService = new GeoDataService(jsonGeoParser, streetWikiService);
+            const geoDataService = testUtils.dc.get("GeoDataService");
+
             try {
                 const createdStreet = await geoDataService.createStreet({name: testStreet.name});
             } catch(err) {

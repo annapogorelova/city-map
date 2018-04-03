@@ -15,13 +15,7 @@ chai.use(chaiHttp);
 describe("streets route", () => {
     const testCity = testData.cities[0];
 
-    before((done) => {
-        testUtils.cleanDB().then(() => {
-            done();
-        });
-    });
-
-    afterEach((done) => {
+    beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();
         });

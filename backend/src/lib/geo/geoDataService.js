@@ -1,12 +1,12 @@
 "use strict";
-const streetService = require("../../data/services/streetService");
-const personService = require("../../data/services/personService");
-const mapper = require("../../helpers/mapper");
 
 class GeoDataService {
-    constructor(geoParser, streetWikiService) {
+    constructor(geoParser, streetWikiService, streetService, personService, mapper) {
         this.geoParser = geoParser;
         this.streetWikiService = streetWikiService;
+        this.streetService = streetService;
+        this.personService = personService;
+        this.mapper = mapper;
     }
 
     async processCity(city) {
@@ -26,19 +26,19 @@ class GeoDataService {
     }
 
     async createStreet(streetGeoData, city) {
-        const existingStreet = await streetService.getByName((streetGeoData.name));
+        const existingStreet = await this.streetService.getByName((streetGeoData.name));
 
         if (!existingStreet) {
             const streetInfo = await this.streetWikiService.getStreetInfo(streetGeoData.name, city.name);
             const streetModel = Object.assign({}, streetGeoData, streetInfo.street);
 
-            let street = mapper.map(streetModel, "api.v1.street", "app.street");
+            let street = this.mapper.map(streetModel, "api.v1.street", "app.street");
             street.cityId = city.id;
 
             if(streetInfo.person) {
-                let person = await personService.getByName(streetInfo.person.name);
+                let person = await this.personService.getByName(streetInfo.person.name);
                 if(!person) {
-                    person = await personService.create(streetInfo.person);
+                    person = await this.personService.create(streetInfo.person);
                 }
 
                 street.personId = person.id;
@@ -46,7 +46,7 @@ class GeoDataService {
                 street.personId = null;
             }
 
-            return streetService.create(street, streetModel.ways);
+            return this.streetService.create(street, streetModel.ways);
         } else {
             throw new Error(`Street ${existingStreet.name} already exists.`);
         }

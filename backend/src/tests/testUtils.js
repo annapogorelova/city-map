@@ -2,6 +2,7 @@
 
 process.env.NODE_ENV = "test";
 
+const dc = require("../app/dependencyResolver");
 const db = require("../data/models/index");
 const apiRoutes = require("./apiRoutes");
 const config = require("config");
@@ -11,6 +12,8 @@ const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 module.exports = {
+    dc: dc,
+
     async cleanDB() {
         return Promise.all([
             await db.user.destroy({where: {}, truncate: false}),

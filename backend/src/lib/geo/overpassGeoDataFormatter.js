@@ -23,7 +23,7 @@ class OverpassGeoDataFormatter {
 
     formatItem(geoDataItem) {
         return {
-            name: geoDataItem["tags"]["name"] || geoDataItem["tags"]["name:en"] || null,
+            name: optional(() => geoDataItem["tags"]["name"] || geoDataItem["tags"]["name:en"], null),
             nameEn: optional(() => geoDataItem["tags"]["name:en"], null),
             oldName: optional(() => geoDataItem["tags"]["old_name"], null),
             coordinates: optional(() => geoDataItem["geometry"].map(g => [g["lat"], g["lon"]]), [])

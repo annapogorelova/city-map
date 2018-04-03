@@ -1,10 +1,11 @@
 "use strict";
 
-const userService = require("../../data/services/dataServicesFactory").userService;
-const mapper = require("../../helpers/mapper");
+function makeUsersController(userService, mapper) {
+    return Object.freeze({
+        getUser
+    });
 
-module.exports = {
-    async getUser(req, res, next) {
+    async function getUser(req, res, next) {
         let params = req.params;
         let id = parseInt(params.id);
         const user = await userService.getById(id);
@@ -15,4 +16,6 @@ module.exports = {
 
         return next();
     }
-};
+}
+
+module.exports = makeUsersController;

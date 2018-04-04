@@ -36,7 +36,7 @@ function makeStreetService(db) {
         });
     }
 
-    async function searchByCoordinates(coordinates, threshold = 0.0001, limit = 1) {
+    async function searchByCoordinates(coordinates, threshold = 0.0002, limit = 1) {
         const location = db.sequelize.fn("ST_GeomFromText",
             db.sequelize.literal(`'POINT(${coordinates[0]} ${coordinates[1]})'`), 4326);
         const asText = db.sequelize.fn("ST_AsText", db.sequelize.literal("coordinates"));

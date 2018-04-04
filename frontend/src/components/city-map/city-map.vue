@@ -10,7 +10,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="map-wrapper">
-                        <basic-map ref="map" v-on:init="onMapInit"></basic-map>
+                        <basic-map ref="map" v-on:init="onMapInit" v-bind:zoom="zoom"></basic-map>
                     </div>
                 </div>
             </div>
@@ -22,9 +22,16 @@
     import CitiesList from "./cities-list";
     import {streetService} from "../../services";
     import {optional} from "tooleks";
+    import {provideImageMarkerHtml} from "../map/image-marker-provider";
 
     export default {
         components: {BasicMap, CitiesList},
+        props: {
+            zoom: {
+                type: Number,
+                default: 15
+            }
+        },
 
         data: function () {
             return {
@@ -32,7 +39,8 @@
                 marker: undefined,
                 selectedStreet: undefined,
                 polyLines: [],
-                cityId: undefined
+                cityId: undefined,
+                coordinates: undefined
             }
         },
         computed: {
@@ -44,6 +52,11 @@
             if(!isNaN(this.$route.query.cityId)) {
                 this.cityId = parseInt(this.$route.query.cityId);
             }
+
+            if(Array.isArray(this.$route.query.coordinates)) {
+                this.coordinates = this.$route.query.coordinates.map(c => parseFloat(c));
+                this.setMarker(this.coordinates);
+            }
         },
         methods: {
             findClosestStreet: (coordinates) => {
@@ -52,27 +65,46 @@
                 });
             },
             setMarker(coordinates) {
-                if (this.marker) {
-                    this.map.removeLayer(this.marker);
-                }
-                this.marker = L.marker(coordinates).addTo(this.map);
                 this.findClosestStreet(coordinates).then(street => {
                     if (street) {
                         this.selectedStreet = street;
-                        this.$router.push({query: {...this.$route.query, street: street.id}});
+                        this.coordinates = coordinates;
 
-                        if (this.polyLines) {
-                            this.polyLines.map(p => this.map.removeLayer(p));
-                        }
-
-                        street.ways.map(way => {
-                            this.polyLines.push(this.drawPolyline(way));
-                        });
+                        this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
+                        this.drawStreet(street);
+                        this.setStreetMarker(coordinates, street);
                     }
                 });
             },
+            drawStreet(street) {
+                if (this.polyLines) {
+                    this.polyLines.map(p => this.map.removeLayer(p));
+                }
+
+                street.ways.map(way => {
+                    this.polyLines.push(this.drawPolyline(way));
+                });
+            },
+            setStreetMarker(coordinates, street) {
+                if (this.marker) {
+                    this.map.removeLayer(this.marker);
+                }
+
+                if(street.person && street.person.imageUrl) {
+                    this.marker = this.renderImageMarker(coordinates, {
+                        imageUrl: street.person.imageUrl,
+                        title: street.person.name,
+                        linkUrl: street.person.wikiUrl
+                    });
+                } else {
+                    this.marker = L.marker(coordinates, {title: street.name});
+                }
+
+                this.marker.addTo(this.map);
+                this.map.setView(coordinates);
+            },
             drawPolyline(coordinates) {
-                return L.polyline(coordinates, {opacity: 0.4, weight: 5}).addTo(this.map);
+                return L.polyline(coordinates, {opacity: 0.6, weight: 5}).addTo(this.map);
             },
             onMapInit() {
                 this.map.on("click", function (e) {
@@ -82,9 +114,15 @@
             },
             onCitySelected(city) {
                 if (city) {
-                    this.$router.push({query: {cityId: city.id}});
-                    this.$refs.map.setCenter(city.coordinates[0], city.coordinates[1], 15);
+                    const query = this.cityId !== city.id ?
+                        {cityId: city.id} : {...this.$route.query, cityId: city.id};
+                    this.$router.push({query: query});
+                    this.$refs.map.setCenter(city.coordinates[0], city.coordinates[1], this.zoom);
                 }
+            },
+            renderImageMarker(coordinates, imageProps) {
+                let icon = L.divIcon({html: provideImageMarkerHtml(imageProps)});
+                return L.marker(coordinates, {icon, riseOnHover: true});
             }
         }
     }
@@ -93,22 +131,5 @@
     .map-wrapper {
         width: 100%;
         height: 100%;
-    }
-
-    .search-container {
-        position: relative;
-    }
-
-    .search-results {
-        position: absolute;
-        background: #ffffff;
-        z-index: 99999;
-        width: 100%;
-        padding: 5px 10px;
-    }
-
-    .search-result {
-        display: block;
-        padding: 5px 0;
     }
 </style>

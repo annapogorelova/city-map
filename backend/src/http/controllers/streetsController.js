@@ -18,9 +18,8 @@ function makeStreetsController(streetService, mapper) {
     }
 
     async function searchStreetsByCoordinates(req, res) {
-        const cityId = parseInt(req.query.cityId);
         const coordinates = req.query.coordinates;
-        const streets = await streetService.searchByCoordinates(coordinates, cityId);
+        const streets = await streetService.searchByCoordinates(coordinates);
         const models = mapper.map(streets, "app.street.list", "api.v1.street.list");
         return res.json({data: models});
     }

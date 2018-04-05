@@ -12,6 +12,9 @@
                     <div class="map-wrapper">
                         <basic-map ref="map" v-on:init="onMapInit" v-bind:zoom="zoom"></basic-map>
                     </div>
+                    <div v-if="selectedStreet">
+                        <street-description v-bind:street="selectedStreet"></street-description>
+                    </div>
                 </div>
             </div>
         </div>
@@ -20,12 +23,13 @@
 <script>
     import BasicMap from "../map/basic-map";
     import CitiesList from "./cities-list";
+    import StreetDescription from "./street-description";
     import {streetService} from "../../services";
     import {optional} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
 
     export default {
-        components: {BasicMap, CitiesList},
+        components: {BasicMap, CitiesList, StreetDescription},
         props: {
             zoom: {
                 type: Number,
@@ -130,6 +134,7 @@
 <style>
     .map-wrapper {
         width: 100%;
-        height: 100%;
+        height: auto;
+        margin-bottom: 20px;
     }
 </style>

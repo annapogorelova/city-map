@@ -7,7 +7,7 @@
         </div>
     </div>
 </template>
-<style>
+<style scoped>
     h5 {
         display: inline-block;
     }

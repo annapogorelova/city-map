@@ -1,5 +1,5 @@
-const constants = require("./constants");
 const {optional} = require("tooleks");
+const utils = require("./utils");
 
 class StreetWikiService {
     constructor(wikiService) {
@@ -15,8 +15,8 @@ class StreetWikiService {
         let result = {
             street: {
                 wikiUrl: optional(() => streetInfo.wikiUrl, null),
-                description: optional(() => this.isStreetCategory(streetInfo.categories) ?
-                    this.formatText(streetInfo.content, maxLength) : null, null)
+                description: optional(() => utils.isStreetCategory(streetInfo.categories) ?
+                    utils.formatText(streetInfo.content, maxLength) : null, null)
             }
         };
 
@@ -26,10 +26,10 @@ class StreetWikiService {
 
         const categories = personInfo.categories;
 
-        if (this.isPersonCategory(categories, lang)) {
+        if (utils.isPersonCategory(categories, lang)) {
             result["person"] = {
                 name: personInfo.title,
-                description: optional(() => this.formatText(personInfo.content, maxLength), ""),
+                description: optional(() => utils.formatText(personInfo.content, maxLength), ""),
                 imageUrl: personInfo.imageUrl,
                 wikiUrl: personInfo.wikiUrl
             };
@@ -43,7 +43,7 @@ class StreetWikiService {
     }
 
     async getPersonWikiInfo(streetName, lang = "uk") {
-        const title = this.extractStreetName(streetName, lang);
+        const title = utils.extractStreetName(streetName, lang);
         return this.searhPersonArticle(title, lang);
     }
 
@@ -64,7 +64,7 @@ class StreetWikiService {
 
         for(let result of searchResult.results) {
             let page = await this.getPage(result);
-            if(page && page.categories && this.isPersonCategory(page.categories)) {
+            if(page && page.categories && utils.isPersonCategory(page.categories)) {
                 return page;
             }
         }
@@ -78,7 +78,7 @@ class StreetWikiService {
             const pageContent = await Promise.all([
                 optional(() => page.summary(), ""),
                 optional(() => page.categories(), []),
-                optional(() => page.mainImage(), null)
+                optional(() => utils.mainImage(page), null)
             ]);
             return {
                 title: title,
@@ -90,30 +90,6 @@ class StreetWikiService {
         } catch (err) {
             return null;
         }
-    }
-
-    extractStreetName(streetName, lang = "uk") {
-        return streetName.replace(constants.regexp[lang].streetType, "").trim();
-    }
-
-    isPersonCategory(categories, lang = "uk") {
-        const localizedCategories = constants.categories[lang];
-        return categories.indexOf(localizedCategories.PEOPLE_STREETS_NAMED_AFTER) !== -1;
-    }
-
-    isStreetCategory(categories, lang = "uk") {
-        const localizedCategories = constants.categories[lang];
-        return categories.filter(c => {
-            return c.startsWith(localizedCategories.STREET_CATEGORY_PREFIX);
-        }).length > 0;
-    }
-
-    formatText(text, maxLength = 50) {
-        if(!text) {
-            return text;
-        }
-        const formattedText = text.replace(/\n|\t/g, " ");
-        return formattedText.length < maxLength - 3 ? formattedText : formattedText.substring(0, maxLength - 3) + "...";
     }
 }
 

@@ -6,6 +6,7 @@ const testData = require("../data/wikiTestData");
 const sinon = require("sinon");
 const WikiService = require("../../lib/wiki/wikiService");
 const StreetWikiService = require("../../lib/wiki/streetWikiService");
+const streetWikiServiceUtils = require("../../lib/wiki/utils");
 const constants = require("../../lib/wiki/constants");
 
 function getPage(key) {
@@ -27,7 +28,7 @@ describe("wiki service test", () => {
             const streetWikiService = new StreetWikiService(wikiService);
             const testStreet = getStreets()[0];
             const streetPage = getPage(getStreetSearchKey(testStreet));
-            const namedAfterTitle = streetWikiService.extractStreetName(testStreet.streetName);
+            const namedAfterTitle = streetWikiServiceUtils.extractStreetName(testStreet.streetName);
             const personPage = getPage(namedAfterTitle);
 
             sinon.stub(wikiService, "search")
@@ -103,7 +104,7 @@ describe("wiki service test", () => {
 
             const testStreet = getStreets(true)[0];
             const streetPage = getPage(getStreetSearchKey(testStreet));
-            const title = streetWikiService.extractStreetName(testStreet.streetName);
+            const title = streetWikiServiceUtils.extractStreetName(testStreet.streetName);
             const personPage = getPage(title);
 
             sinon.stub(wikiService, 'search')
@@ -176,7 +177,7 @@ describe("wiki service test", () => {
 
             const testStreet = getStreets(true)[0];
             const streetPage = getPage(getStreetSearchKey(testStreet));
-            const title = streetWikiService.extractStreetName(testStreet.streetName);
+            const title = streetWikiServiceUtils.extractStreetName(testStreet.streetName);
             const personPage = getPage(title);
 
             sinon.stub(wikiService, 'search')
@@ -249,32 +250,5 @@ describe("wiki service test", () => {
             assert.equal(result.street.description, null);
             done();
         })();
-    });
-
-    it("should return text value when text is empty or null", (done) => {
-        const wikiService = new WikiService();
-        const streetWikiService = new StreetWikiService(wikiService);
-
-        const maxLength = 50;
-        let formattedText = streetWikiService.formatText("", maxLength);
-        assert.equal(formattedText, "");
-        formattedText = streetWikiService.formatText(null, maxLength);
-        assert.equal(formattedText, null);
-        done();
-    });
-
-    it("should crop the wiki content text", (done) => {
-        const wikiService = new WikiService();
-        const streetWikiService = new StreetWikiService(wikiService);
-
-        const maxLength = 50;
-        let text = "koko\n\t";
-        for(let i = 0; i < 20; i++) {
-            text += "koko\n\t";
-        }
-        const formattedText = streetWikiService.formatText(text, maxLength);
-        assert.equal(formattedText.length, maxLength);
-        assert.equal(formattedText.indexOf("\n"), -1);
-        done();
     });
 });

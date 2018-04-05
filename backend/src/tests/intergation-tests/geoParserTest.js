@@ -146,4 +146,40 @@ describe("geoDataService test", () => {
             }
         })();
     });
+
+    it("should add the streets with the same names but different cities", (done) => {
+        (async () => {
+            const cities = await db.city.bulkCreate(testData.cities.slice(0, 2));
+            const testStreet = Object.assign({}, testData.streets[0]);
+
+            const testDescription = "Street description";
+            const testWikiUrl = "https://uk.wikipedia.org/articte";
+
+            let returnValue = {
+                street: {
+                    description: testDescription,
+                    wikiUrl: testWikiUrl
+                }
+            };
+
+            const streetWikiService =  new StreetWikiService(testUtils.dc.get("WikiService"));
+            sinon.stub(streetWikiService, "getStreetInfo").returns(returnValue);
+            testUtils.dc.registerInstance("StreetWikiService", streetWikiService);
+            const geoDataService = testUtils.dc.get("GeoDataService");
+
+            // create the street for the first city
+            const firstCityStreet = await geoDataService.createStreet(testStreet, cities[0]);
+            assert(firstCityStreet);
+            assert.equal(cities[0].id, firstCityStreet.cityId);
+            assert.equal(testStreet.name, firstCityStreet.name);
+
+            // create the street for the second city
+            const secondCityStreet = await geoDataService.createStreet(testStreet, cities[1]);
+            assert(secondCityStreet);
+            assert.equal(cities[1].id, secondCityStreet.cityId);
+            assert.equal(testStreet.name, secondCityStreet.name);
+
+            done();
+        })();
+    });
 });

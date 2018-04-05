@@ -26,7 +26,7 @@ class GeoDataService {
     }
 
     async createStreet(streetGeoData, city) {
-        const existingStreet = await this.streetService.getByName((streetGeoData.name));
+        const existingStreet = await this.streetService.getByName(streetGeoData.name, city.id);
 
         if (!existingStreet) {
             const streetInfo = await this.streetWikiService.getStreetInfo(streetGeoData.name, city.name);

@@ -16,8 +16,8 @@ function makeStreetService(db) {
         return db.street.findById(id);
     }
 
-    function getByName(name) {
-        return db.street.findOne({where: {name: name}});
+    function getByName(name, cityId) {
+        return db.street.findOne({where: {name: name, cityId: cityId}});
     }
 
     function getByCity(cityId, orderByColumn = "id") {
@@ -74,7 +74,7 @@ function makeStreetService(db) {
     }
 
     async function create(street, ways) {
-        const existingStreet = await db.street.findOne({where: {name: street.name}});
+        const existingStreet = await getByName(street.name, street.cityId);
         if (existingStreet) {
             throw new Error("Street already exists");
         }

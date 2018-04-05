@@ -1,0 +1,14 @@
+[out:json][timeout:25];
+// fetch area “Volodymyr-Volynsky” to search in
+{{geocodeArea:Volodymyr-Volynskyi}}->.searchArea;
+(
+  //way(143101141);
+  complete(
+
+      ( .k -> .k; make bla blubb = 123 -> .f;) -> .k;
+      way._(if: k.count(deriveds) <= 5);
+      way[highway][highway!~"^(path|track|cycleway|footway)$"](area.searchArea);
+  );
+);
+
+out geom;

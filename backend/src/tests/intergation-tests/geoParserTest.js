@@ -1,7 +1,7 @@
 "use strict";
 
 const JsonGeoDataProvider = require("../../lib/geo/jsonGeoDataProvider");
-const StreetWikiService = require("../../lib/wiki/streetWikiService");
+const WikiService = require("../../lib/wiki/wikiService");
 const db = require("../../data/models/index");
 const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
@@ -65,9 +65,9 @@ describe("geoDataService test", () => {
 
             const city = await db.city.create(testData.cities[1]); // Zhovkva
             const loadedStreets = await jsonGeoParser.parse(city.nameEn);
-            const streetWikiService =  new StreetWikiService(testUtils.dc.get("WikiService"));
+            const wikiService =  new WikiService(testUtils.dc.get("WikiApiService"));
 
-            const stub = sinon.stub(streetWikiService, "getStreetInfo");
+            const stub = sinon.stub(wikiService, "getStreetInfo");
             for(let i = 0; i < loadedStreets.length; i++) {
                 let returnValue = {
                     street: {
@@ -87,7 +87,7 @@ describe("geoDataService test", () => {
                 stub.onCall(i).returns(Promise.resolve(returnValue));
             }
 
-            testUtils.dc.registerInstance("StreetWikiService", streetWikiService);
+            testUtils.dc.registerInstance("WikiService", wikiService);
 
             const geoDataService = testUtils.dc.get("GeoDataService");
             await geoDataService.processCity(city);
@@ -162,9 +162,9 @@ describe("geoDataService test", () => {
                 }
             };
 
-            const streetWikiService =  new StreetWikiService(testUtils.dc.get("WikiService"));
-            sinon.stub(streetWikiService, "getStreetInfo").returns(returnValue);
-            testUtils.dc.registerInstance("StreetWikiService", streetWikiService);
+            const wikiService =  new WikiService(testUtils.dc.get("WikiApiService"));
+            sinon.stub(wikiService, "getStreetInfo").returns(returnValue);
+            testUtils.dc.registerInstance("WikiService", wikiService);
             const geoDataService = testUtils.dc.get("GeoDataService");
 
             // create the street for the first city

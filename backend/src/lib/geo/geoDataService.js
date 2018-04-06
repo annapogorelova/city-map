@@ -1,9 +1,9 @@
 "use strict";
 
 class GeoDataService {
-    constructor(geoParser, streetWikiService, streetService, personService, mapper) {
+    constructor(geoParser, wikiService, streetService, personService, mapper) {
         this.geoParser = geoParser;
-        this.streetWikiService = streetWikiService;
+        this.wikiService = wikiService;
         this.streetService = streetService;
         this.personService = personService;
         this.mapper = mapper;
@@ -29,7 +29,7 @@ class GeoDataService {
         const existingStreet = await this.streetService.getByName(streetGeoData.name, city.id);
 
         if (!existingStreet) {
-            const streetInfo = await this.streetWikiService.getStreetInfo(streetGeoData.name, city.name);
+            const streetInfo = await this.wikiService.getStreetInfo(streetGeoData.name, city.name);
             const streetModel = Object.assign({}, streetGeoData, streetInfo.street);
 
             let street = this.mapper.map(streetModel, "api.v1.street", "app.street");

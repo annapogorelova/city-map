@@ -7,8 +7,8 @@ const dataServicesFactory = require("../data/services/dataServicesFactory");
 const controllersFactory = require("../http/controllers/controllersFactory");
 
 // Wiki
+const WikiApiService = require("../lib/wiki/wikiApiService");
 const WikiService = require("../lib/wiki/wikiService");
-const StreetWikiService = require("../lib/wiki/streetWikiService");
 
 // Geo
 const OverpassGeoDataFormatter = require("../lib/geo/overpassGeoDataFormatter");
@@ -64,8 +64,8 @@ dc.registerBinding("Router", routesV1, {
     ]
 });
 
-dc.registerBinding("WikiService", WikiService, {singleton: true});
-dc.registerBinding("StreetWikiService", StreetWikiService, {dependencies: ["WikiService"]});
+dc.registerBinding("WikiApiService", WikiApiService, {singleton: true});
+dc.registerBinding("WikiService", WikiService, {dependencies: ["WikiApiService"]});
 
 dc.registerBinding("GeoDataFormatter", OverpassGeoDataFormatter, {singleton: true});
 dc.registerBinding("GeoDataProvider", JsonGeoDataProvider, {
@@ -83,7 +83,7 @@ dc.registerBinding("GeoParser", GeoParser, {
 dc.registerBinding("GeoDataService", GeoDataService, {
     dependencies: [
         "GeoParser",
-        "StreetWikiService",
+        "WikiService",
         "StreetService",
         "PersonService",
         "Mapper"

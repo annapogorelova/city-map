@@ -2,7 +2,7 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const streetWikiServiceUtils = require("../../lib/wiki/utils");
+const wikiUtils = require("../../lib/wiki/wikiUtils");
 const constants = require("../../lib/wiki/constants");
 
 describe("street wiki service utils unit test", function () {
@@ -38,7 +38,7 @@ describe("street wiki service utils unit test", function () {
         for(let i = 0; i < 20; i++) {
             text += "koko\n\t";
         }
-        const formattedText = streetWikiServiceUtils.formatText(text, maxLength);
+        const formattedText = wikiUtils.formatText(text, maxLength);
         assert.equal(formattedText.length, maxLength);
         assert.equal(formattedText.indexOf("\n"), -1);
         done();
@@ -46,9 +46,9 @@ describe("street wiki service utils unit test", function () {
 
     it("should return text value when text is empty or null", (done) => {
         const maxLength = 50;
-        let formattedText = streetWikiServiceUtils.formatText("", maxLength);
+        let formattedText = wikiUtils.formatText("", maxLength);
         assert.equal(formattedText, "");
-        formattedText = streetWikiServiceUtils.formatText(null, maxLength);
+        formattedText = wikiUtils.formatText(null, maxLength);
         assert.equal(formattedText, null);
         done();
     });
@@ -57,7 +57,7 @@ describe("street wiki service utils unit test", function () {
         const streetName = "Толочка";
 
         for(let streetType of constants.regexp["uk"].streetTypes) {
-            const name = streetWikiServiceUtils.extractStreetName(`${streetType} ${streetName}`);
+            const name = wikiUtils.extractStreetName(`${streetType} ${streetName}`);
             assert.equal(streetName, name);
         }
 
@@ -67,7 +67,7 @@ describe("street wiki service utils unit test", function () {
     it("should throw Error when extractStreetName is called with invalid language", (done) => {
         const streetTitle = "Вулиця Толочка";
         try {
-            streetWikiServiceUtils.extractStreetName(streetTitle, "de");
+            wikiUtils.extractStreetName(streetTitle, "de");
         } catch(err) {
             assert(err);
         }
@@ -76,17 +76,17 @@ describe("street wiki service utils unit test", function () {
 
     it("should check if category is a person category", (done) => {
         const personCategory = constants.categories["uk"].PEOPLE_STREETS_NAMED_AFTER;
-        assert.isTrue(streetWikiServiceUtils.isPersonCategory([personCategory]));
-        assert.isFalse(streetWikiServiceUtils.isPersonCategory([]));
-        assert.isFalse(streetWikiServiceUtils.isPersonCategory(["Тварина"]));
+        assert.isTrue(wikiUtils.isPersonCategory([personCategory]));
+        assert.isFalse(wikiUtils.isPersonCategory([]));
+        assert.isFalse(wikiUtils.isPersonCategory(["Тварина"]));
         done();
     });
 
     it("should check if category is a street category", (done) => {
         const streetCategory = constants.categories["uk"].STREET_CATEGORY_PREFIX;
-        assert.isTrue(streetWikiServiceUtils.isStreetCategory([streetCategory]));
-        assert.isFalse(streetWikiServiceUtils.isPersonCategory([]));
-        assert.isFalse(streetWikiServiceUtils.isPersonCategory(["Тварина"]));
+        assert.isTrue(wikiUtils.isStreetCategory([streetCategory]));
+        assert.isFalse(wikiUtils.isPersonCategory([]));
+        assert.isFalse(wikiUtils.isPersonCategory(["Тварина"]));
         done();
     });
 
@@ -103,7 +103,7 @@ describe("street wiki service utils unit test", function () {
                 }
             };
 
-            const result = await streetWikiServiceUtils.mainImage(page);
+            const result = await wikiUtils.mainImage(page);
             assert.equal(result, testImagesInfo[0].imageinfo[0].url);
 
             done();
@@ -123,7 +123,7 @@ describe("street wiki service utils unit test", function () {
                 }
             };
 
-            const result = await streetWikiServiceUtils.mainImage(page);
+            const result = await wikiUtils.mainImage(page);
             assert.equal(result, testImagesInfo[0].imageinfo[0].url);
 
             done();

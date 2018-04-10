@@ -24,7 +24,13 @@ describe("streets route", () => {
     it("should return 1 street", (done) => {
         (async () => {
             const createdCity = await db.city.create(testCity);
-            const testStreet = await testUtils.createStreet(testData.streets[0], createdCity.id);
+            const testNamedEntity = Object.assign({}, testData.namedEntities[0]);
+            const namedEntity = await db.namedEntity.create(testNamedEntity);
+            const testStreet = await testUtils.createStreet({
+                namedEntityId: namedEntity.id,
+                ...testData.streets[0]
+            }, createdCity.id);
+
             const requestUrl = `${apiRoutes.CITIES}/${createdCity.id}/${apiRoutes.STREETS}`;
 
             chai.request(server)
@@ -32,10 +38,15 @@ describe("streets route", () => {
                 .query({search: testStreet.name})
                 .end((err, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
-                    assert.exists(res.body.data);
-                    assert.equal(res.body.data.length, 1);
-                    assert.equal(res.body.data[0].name, testStreet.name);
-                    assert.equal(res.body.data[0].description, testStreet.description);
+                    const data = res.body.data;
+                    assert(data);
+                    assert.equal(1, data.length);
+                    assert.equal(testStreet.name, data[0].name);
+                    assert.equal(testStreet.description, data[0].description);
+                    assert(data[0].namedEntity);
+                    assert.equal(namedEntity.id, data[0].namedEntity.id);
+                    assert.equal(namedEntity.name, data[0].namedEntity.name);
+                    assert.equal(namedEntity.description, data[0].namedEntity.description);
                     done();
                 });
         })();

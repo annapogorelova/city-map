@@ -76,7 +76,7 @@ describe("geoDataService test", () => {
                     }
                 };
                 if(i % 2 === 0) {
-                    returnValue["person"] = {
+                    returnValue["namedEntity"] = {
                         name: testPersonName,
                         description: testPersonDescription,
                         wikiUrl: testWikiPersonWikiUrl,
@@ -100,12 +100,12 @@ describe("geoDataService test", () => {
                 assert.exists(addedStreets[i].ways);
 
                 if(i % 2 === 0) {
-                    assert.equal(addedStreets[i].person.name, testPersonName);
-                    assert.equal(addedStreets[i].person.wikiUrl, testWikiPersonWikiUrl);
-                    assert.equal(addedStreets[i].person.description, testPersonDescription);
-                    assert.equal(addedStreets[i].person.imageUrl, testImageUrl);
+                    assert.equal(addedStreets[i].namedEntity.name, testPersonName);
+                    assert.equal(addedStreets[i].namedEntity.wikiUrl, testWikiPersonWikiUrl);
+                    assert.equal(addedStreets[i].namedEntity.description, testPersonDescription);
+                    assert.equal(addedStreets[i].namedEntity.imageUrl, testImageUrl);
                 } else {
-                    assert.isNull(addedStreets[i].person);
+                    assert.isNull(addedStreets[i].namedEntity);
                 }
             }
             done();
@@ -139,7 +139,7 @@ describe("geoDataService test", () => {
             const geoDataService = testUtils.dc.get("GeoDataService");
 
             try {
-                const createdStreet = await geoDataService.createStreet({name: testStreet.name});
+                await geoDataService.createStreet({name: testStreet.name});
             } catch(err) {
                 assert.exists(err);
                 done();

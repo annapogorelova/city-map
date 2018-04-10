@@ -56,7 +56,7 @@ describe("street wiki service utils unit test", function () {
     it("should extract the street name from the full title of the street", (done) => {
         const streetName = "Толочка";
 
-        for(let streetType of constants.regexp["uk"].streetTypes) {
+        for(let streetType of constants["uk"].streetTypes) {
             const name = wikiUtils.extractStreetName(`${streetType} ${streetName}`);
             assert.equal(streetName, name);
         }
@@ -74,19 +74,19 @@ describe("street wiki service utils unit test", function () {
         done();
     });
 
-    it("should check if category is a person category", (done) => {
-        const personCategory = constants.categories["uk"].PEOPLE_STREETS_NAMED_AFTER;
-        assert.isTrue(wikiUtils.isPersonCategory([personCategory]));
-        assert.isFalse(wikiUtils.isPersonCategory([]));
-        assert.isFalse(wikiUtils.isPersonCategory(["Тварина"]));
+    it("should check if category is a named entity category", (done) => {
+        const personCategory = constants["uk"].PEOPLE_STREETS_NAMED_AFTER;
+        assert.isTrue(wikiUtils.isNamedEntityCategory([personCategory]));
+        assert.isFalse(wikiUtils.isNamedEntityCategory([]));
+        assert.isFalse(wikiUtils.isNamedEntityCategory(["Тварина"]));
         done();
     });
 
     it("should check if category is a street category", (done) => {
-        const streetCategory = constants.categories["uk"].STREET_CATEGORY_PREFIX;
+        const streetCategory = constants["uk"].STREET_CATEGORY_PREFIX;
         assert.isTrue(wikiUtils.isStreetCategory([streetCategory]));
-        assert.isFalse(wikiUtils.isPersonCategory([]));
-        assert.isFalse(wikiUtils.isPersonCategory(["Тварина"]));
+        assert.isFalse(wikiUtils.isNamedEntityCategory([]));
+        assert.isFalse(wikiUtils.isNamedEntityCategory(["Тварина"]));
         done();
     });
 
@@ -128,5 +128,40 @@ describe("street wiki service utils unit test", function () {
 
             done();
         })();
+    });
+
+    it("filterValidStreetResults should return the single valid street article title", (done) => {
+        const lang = "uk";
+        const streetName = "Толочка";
+        const cityName = "Толочава";
+        const streetType = constants[lang].streetTypes[0];
+        const articleTitle = `${streetType} ${streetName} (${cityName})`;
+
+        const results = wikiUtils.filterValidStreetResults(articleTitle, [articleTitle], lang);
+        assert.equal(1, results.length);
+        assert.equal(articleTitle, results[0]);
+        done();
+    });
+
+    it("filterValidStreetResults should return empty array (no valid matches)", (done) => {
+        const lang = "uk";
+        const streetName = "Толочка";
+        const cityName = "Толочава";
+        const streetType = constants[lang].streetTypes[0];
+        const articleTitle = `${streetType} ${streetName} (${cityName})`;
+        const invalidResults = [`${streetType} ${streetName}`, "Дж. Р. Р. Толкіен", `${cityName}`];
+
+        const results = wikiUtils.filterValidStreetResults(articleTitle, invalidResults, lang);
+        assert.equal(0, results.length);
+        done();
+    });
+
+    it("validateLanguage should throw when language is not supported", (done) => {
+        try {
+            wikiUtils.validateLanguage("de");
+        } catch(err) {
+            assert(err);
+            done();
+        }
     });
 });

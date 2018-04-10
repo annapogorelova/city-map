@@ -10,7 +10,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        personId: {
+        namedEntityId: {
             type: DataTypes.INTEGER,
             allowNull: true
         },

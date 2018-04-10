@@ -3,15 +3,15 @@
 const makeUserService = require("./userService");
 const makeStreetService = require("./streetService");
 const makeCityService = require("./cityService");
-const makePersonService = require("./personService");
+const makeNamedEntityService = require("./namedEntityService");
 
 /**
  * Default data services provider
- * @type {{userService(): *, streetService(): *, cityService(): *, personService(): *}}
+ * @type {{userService(): *, streetService(): *, cityService(): *, namedEntityService(): *}}
  */
 module.exports = {
     userService: makeUserService,
     streetService: makeStreetService,
     cityService: makeCityService,
-    personService: makePersonService
+    namedEntityService: makeNamedEntityService
 };

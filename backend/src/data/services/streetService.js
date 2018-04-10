@@ -25,7 +25,7 @@ function makeStreetService(db) {
             include: [{
                 model: db.city
             }, {
-                model: db.person
+                model: db.namedEntity
             }, {
                 model: db.way,
             }],
@@ -49,7 +49,7 @@ function makeStreetService(db) {
             limit: limit
         });
 
-        return optional(() => ways[0].getStreets({include: [{model: db.person}, {model: db.way}]}), []);
+        return optional(() => ways[0].getStreets({include: [{model: db.namedEntity}, {model: db.way}]}), []);
     }
 
     function search(search, cityId = null, offset = 0, limit = 5) {
@@ -58,7 +58,7 @@ function makeStreetService(db) {
             limit: limit,
             order: db.sequelize.col("name"),
             include: [{
-                model: db.person
+                model: db.namedEntity
             }]
         };
 

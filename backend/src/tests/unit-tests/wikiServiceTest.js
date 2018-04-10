@@ -13,8 +13,8 @@ function getPage(key) {
     return testData.pages.filter(p => {return p.searchKey === key})[0];
 }
 
-function getStreets(isNamedAfterPerson = false) {
-    return testData.streets.filter(p => {return p.isNamedAfterPerson === isNamedAfterPerson;});
+function getStreets(isNamedAfterEntity = false) {
+    return testData.streets.filter(p => {return p.isNamedAfterPerson === isNamedAfterEntity;});
 }
 
 function getStreetSearchKey(street) {
@@ -35,19 +35,19 @@ describe("wiki service test", () => {
             const testStreet = getStreets()[0];
             const streetPage = getPage(getStreetSearchKey(testStreet));
             const namedAfterTitle = wikiServiceUtils.extractStreetName(testStreet.streetName);
-            const personPage = getPage(namedAfterTitle);
+            const namedEntityPage = getPage(namedAfterTitle);
 
             sinon.stub(wikiApiService, "search")
                 .onFirstCall().returns({results: streetPage.searchResults})
-                .onSecondCall().returns({results: personPage.searchResults});
+                .onSecondCall().returns({results: namedEntityPage.searchResults});
 
-            let personPageStub = {
+            let namedEntityPageStub = {
                 raw: {
-                    fullurl: personPage.page.fullUrl
+                    fullurl: namedEntityPage.page.fullUrl
                 },
-                summary: sinon.stub().returns(Promise.resolve(personPage.page.content)),
-                categories: sinon.stub().returns(Promise.resolve(personPage.page.categories)),
-                mainImage: sinon.stub().returns(Promise.resolve(personPage.page.imageUrl)),
+                summary: sinon.stub().returns(Promise.resolve(namedEntityPage.page.content)),
+                categories: sinon.stub().returns(Promise.resolve(namedEntityPage.page.categories)),
+                mainImage: sinon.stub().returns(Promise.resolve(namedEntityPage.page.imageUrl)),
             };
 
             let streetPageStub = {
@@ -61,14 +61,14 @@ describe("wiki service test", () => {
 
             sinon.stub(wikiApiService, 'getPage')
                 .onFirstCall().returns(streetPageStub)
-                .onSecondCall().returns(personPageStub);
+                .onSecondCall().returns(namedEntityPageStub);
 
             const result = await wikiService.getStreetInfo(streetPage.searchKey);
 
             assert.exists(result);
             assert.exists(result.street);
             assert.equal(streetPage.page.content, result.street.description);
-            assert.notExists(result.person);
+            assert.notExists(result.namedEntity);
             done();
         })();
     });
@@ -95,7 +95,7 @@ describe("wiki service test", () => {
             assert.exists(result);
             assert.exists(result.street);
             assert.equal(testPage.page.content, result.street.description);
-            assert.notExists(result.person);
+            assert.notExists(result.namedEntity);
             done();
         })();
     });
@@ -105,19 +105,19 @@ describe("wiki service test", () => {
             const testStreet = getStreets(true)[0];
             const streetPage = getPage(getStreetSearchKey(testStreet));
             const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
-            const personPage = getPage(title);
+            const namedEntityPage = getPage(title);
 
             sinon.stub(wikiApiService, 'search')
                 .onFirstCall().returns({results: streetPage.searchResults})
-                .onSecondCall().returns({results: personPage.searchResults});
+                .onSecondCall().returns({results: namedEntityPage.searchResults});
 
-            let personPageStub = {
+            let namedEntityPageStub = {
                 raw: {
-                    fullurl: personPage.page.fullUrl
+                    fullurl: namedEntityPage.page.fullUrl
                 },
-                summary: sinon.stub().returns(Promise.resolve(personPage.page.content)),
-                categories: sinon.stub().returns(Promise.resolve(personPage.page.categories)),
-                mainImage: sinon.stub().returns(Promise.resolve(personPage.page.imageUrl)),
+                summary: sinon.stub().returns(Promise.resolve(namedEntityPage.page.content)),
+                categories: sinon.stub().returns(Promise.resolve(namedEntityPage.page.categories)),
+                mainImage: sinon.stub().returns(Promise.resolve(namedEntityPage.page.imageUrl)),
             };
 
             let streetPageStub = {
@@ -131,15 +131,15 @@ describe("wiki service test", () => {
 
             sinon.stub(wikiApiService, 'getPage')
                 .onFirstCall().returns(streetPageStub)
-                .onSecondCall().returns(personPageStub);
+                .onSecondCall().returns(namedEntityPageStub);
 
             const result = await wikiService.getStreetInfo(streetPage.searchKey);
 
             assert.exists(result);
             assert.exists(result.street);
             assert.equal(streetPage.page.content, result.street.description);
-            assert.exists(result.person);
-            assert.equal(personPage.page.content, result.person.description);
+            assert.exists(result.namedEntity);
+            assert.equal(namedEntityPage.page.content, result.namedEntity.description);
             done();
         })();
     });
@@ -151,9 +151,8 @@ describe("wiki service test", () => {
 
             const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
             assert.exists(result);
-            assert.exists(result.street);
-            assert.equal(result.street.description, null);
-            assert.notExists(result.person);
+            assert.notExists(result.street);
+            assert.notExists(result.namedEntity);
             done();
         })();
     });
@@ -174,18 +173,18 @@ describe("wiki service test", () => {
             const testStreet = getStreets(true)[0];
             const streetPage = getPage(getStreetSearchKey(testStreet));
             const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
-            const personPage = getPage(title);
+            const namedEntityPage = getPage(title);
 
             sinon.stub(wikiApiService, 'search')
                 .onFirstCall().returns({results: streetPage.searchResults})
-                .onSecondCall().returns({results: personPage.searchResults});
+                .onSecondCall().returns({results: namedEntityPage.searchResults});
 
-            let personPageStub = {
+            let namedEntityPageStub = {
                 raw: {
-                    fullurl: personPage.page.fullUrl
+                    fullurl: namedEntityPage.page.fullUrl
                 },
-                summary: sinon.stub().returns(Promise.resolve(personPage.page.content)),
-                categories: sinon.stub().returns(Promise.resolve(personPage.page.categories)),
+                summary: sinon.stub().returns(Promise.resolve(namedEntityPage.page.content)),
+                categories: sinon.stub().returns(Promise.resolve(namedEntityPage.page.categories)),
                 mainImage: sinon.stub().throws(),
             };
 
@@ -200,16 +199,16 @@ describe("wiki service test", () => {
 
             sinon.stub(wikiApiService, 'getPage')
                 .onFirstCall().returns(streetPageStub)
-                .onSecondCall().returns(personPageStub);
+                .onSecondCall().returns(namedEntityPageStub);
 
             const result = await wikiService.getStreetInfo(streetPage.searchKey);
 
             assert.exists(result);
             assert.exists(result.street);
             assert.equal(streetPage.page.content, result.street.description);
-            assert.exists(result.person);
-            assert.equal(personPage.page.content, result.person.description);
-            assert.equal(result.person.imageUrl, null);
+            assert.exists(result.namedEntity);
+            assert.equal(namedEntityPage.page.content, result.namedEntity.description);
+            assert.equal(result.namedEntity.imageUrl, null);
             done();
         })();
     });
@@ -220,7 +219,7 @@ describe("wiki service test", () => {
             let streetPage = Object.assign({}, getPage(getStreetSearchKey(testStreet)));
             // Remove street category
             streetPage.page.categories = streetPage.page.categories.filter(c => {
-                return !c.startsWith(constants.categories["uk"].STREET_CATEGORY_PREFIX);
+                return !c.startsWith(constants["uk"].STREET_CATEGORY_PREFIX);
             });
 
             sinon.stub(wikiApiService, 'search')
@@ -240,8 +239,16 @@ describe("wiki service test", () => {
             const result = await wikiService.getStreetInfo(streetPage.searchKey);
 
             assert.exists(result);
-            assert.exists(result.street);
-            assert.equal(result.street.description, null);
+            assert.notExists(result.street);
+            done();
+        })();
+    });
+
+    it("getPage should return null when error is thrown by wikiApiService", (done) => {
+        (async () => {
+            sinon.stub(wikiApiService, 'getPage').throws();
+            const result = await wikiService.getPage("5th Avenue");
+            assert.isNull(result);
             done();
         })();
     });

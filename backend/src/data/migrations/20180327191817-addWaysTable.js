@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.removeIndex("street", "street_coordinates");
+        await queryInterface.removeIndex("street", "idx_street_coordinates");
         await queryInterface.removeColumn("street", "coordinates");
 
         await queryInterface.createTable("way", {
@@ -17,7 +17,11 @@ module.exports = {
                 allowNull: false
             }
         });
-        await queryInterface.addIndex("way", {fields: ["coordinates"], type: "SPATIAL"});
+        await queryInterface.addIndex("way", {
+            name: "idx_way_coordinates",
+            fields: ["coordinates"],
+            type: "SPATIAL"
+        });
 
         await queryInterface.createTable("streetWay", {
             id: {
@@ -36,7 +40,17 @@ module.exports = {
             }
         });
 
-        queryInterface.addConstraint("streetWay", ["streetId"], {
+        await queryInterface.addIndex("streetWay", {
+            name: "idx_street_way_street_id",
+            fields: ["streetId"]
+        });
+
+        await queryInterface.addIndex("streetWay", {
+            name: "idx_street_way_way_id",
+            fields: ["wayId"]
+        });
+
+        await queryInterface.addConstraint("streetWay", ["streetId"], {
             type: "foreign key",
             name: "fk_streetway_street_id",
             references: {
@@ -46,7 +60,7 @@ module.exports = {
             onDelete: "cascade"
         });
 
-        queryInterface.addConstraint("streetWay", ["wayId"], {
+        await queryInterface.addConstraint("streetWay", ["wayId"], {
             type: "foreign key",
             name: "fk_streetway_way_id",
             references: {
@@ -67,6 +81,10 @@ module.exports = {
             allowNull: false
         });
 
-        await queryInterface.addIndex("street", {fields: ["coordinates"], type: "SPATIAL"});
+        await queryInterface.addIndex("street", {
+            name: "idx_street_coordinates",
+            fields: ["coordinates"],
+            type: "SPATIAL"
+        });
     }
 };

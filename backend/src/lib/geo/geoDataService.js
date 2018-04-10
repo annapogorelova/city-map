@@ -1,11 +1,13 @@
 "use strict";
 
+const {optional} = require("tooleks");
+
 class GeoDataService {
-    constructor(geoParser, wikiService, streetService, personService, mapper) {
+    constructor(geoParser, wikiService, streetService, namedEntityService, mapper) {
         this.geoParser = geoParser;
         this.wikiService = wikiService;
         this.streetService = streetService;
-        this.personService = personService;
+        this.namedEntityService = namedEntityService;
         this.mapper = mapper;
     }
 
@@ -30,20 +32,20 @@ class GeoDataService {
 
         if (!existingStreet) {
             const streetInfo = await this.wikiService.getStreetInfo(streetGeoData.name, city.name);
-            const streetModel = Object.assign({}, streetGeoData, streetInfo.street);
+            const streetModel = Object.assign({}, streetGeoData, optional(() => streetInfo.street, {}));
 
             let street = this.mapper.map(streetModel, "api.v1.street", "app.street");
             street.cityId = city.id;
 
-            if(streetInfo.person) {
-                let person = await this.personService.getByName(streetInfo.person.name);
-                if(!person) {
-                    person = await this.personService.create(streetInfo.person);
+            if(streetInfo.namedEntity) {
+                let namedEntity = await this.namedEntityService.getByName(streetInfo.namedEntity.name);
+                if(!namedEntity) {
+                    namedEntity = await this.namedEntityService.create(streetInfo.namedEntity);
                 }
 
-                street.personId = person.id;
+                street.namedEntityId = namedEntity.id;
             } else {
-                street.personId = null;
+                street.namedEntityId = null;
             }
 
             return this.streetService.create(street, streetModel.ways);

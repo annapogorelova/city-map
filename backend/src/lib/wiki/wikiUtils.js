@@ -4,6 +4,8 @@ const {optional} = require("tooleks");
 module.exports = {
     // wikijs mainImage function override
     mainImage(page, lang = "uk") {
+        this.validateLanguage(lang);
+
         const _getFileName = text => {
             if (!text) return undefined;
             if (text.indexOf(":") !== -1) {
@@ -18,7 +20,7 @@ module.exports = {
                 const extractedImage = optional(() =>
                     Object.keys(info)
                         .filter(k => {
-                            return constants.propNames[lang].images.indexOf(k) !== -1;
+                            return constants[lang].images.indexOf(k) !== -1;
                         })
                         .map((k) => info[k])[0],
                 undefined);
@@ -59,23 +61,42 @@ module.exports = {
     },
 
     extractStreetName(streetName, lang = "uk") {
-        if(!constants.regexp[lang]) {
-            throw Error(`${lang} language is not supported`);
-        }
+        this.validateLanguage(lang);
 
-        const regex = new RegExp(`${constants.regexp[lang].streetTypes.join("|")}`, "ig");
+        const regex = new RegExp(`${constants[lang].streetTypes.join("|")}`, "ig");
         return streetName.replace(regex, "").trim();
     },
 
-    isPersonCategory(categories, lang = "uk") {
-        const localizedCategories = constants.categories[lang];
+    isNamedEntityCategory(categories, lang = "uk") {
+        this.validateLanguage(lang);
+
+        const localizedCategories = constants[lang];
         return categories.indexOf(localizedCategories.PEOPLE_STREETS_NAMED_AFTER) !== -1;
     },
 
     isStreetCategory(categories, lang = "uk") {
-        const localizedCategories = constants.categories[lang];
+        this.validateLanguage(lang);
+
+        const localizedCategories = constants[lang];
         return categories.filter(c => {
             return c.startsWith(localizedCategories.STREET_CATEGORY_PREFIX);
         }).length > 0;
     },
+
+    filterValidStreetResults(search, results, lang) {
+        this.validateLanguage(lang);
+
+        const streetResults = results.filter(r => r.match(constants[lang].streetArticleTitleRegex));
+        if(!streetResults.length) {
+            return streetResults;
+        }
+
+        return streetResults.filter(r => r.startsWith(search.substring(0, 5)));
+    },
+
+    validateLanguage(lang) {
+        if(!constants[lang]) {
+            throw Error(`${lang} language is not supported`);
+        }
+    }
 };

@@ -1,37 +1,40 @@
 const {optional} = require("tooleks");
 const utils = require("./wikiUtils");
+const constants = require("./constants");
 
+/**
+ * Class contains methods for searching the streets articles in Wikipedia
+ */
 class WikiService {
     constructor(wikiApiService) {
         this.wikiApiService = wikiApiService;
     }
 
     async getStreetInfo(streetName, cityName, maxLength = 500, lang = "uk") {
-        const [streetInfo, personInfo] = await Promise.all([
-            this.getWikiInfo(streetName, cityName, lang),
-            this.getPersonWikiInfo(streetName, lang)
-        ]);
+        let result = {};
 
-        let result = {
-            street: {
+        const streetInfo = await this.getWikiInfo(streetName, cityName, lang);
+        const isStreet = optional(() => utils.isStreetCategory(streetInfo.categories), false);
+
+        if(streetInfo && isStreet) {
+            result["street"] = {
                 wikiUrl: optional(() => streetInfo.wikiUrl, null),
-                description: optional(() => utils.isStreetCategory(streetInfo.categories) ?
-                    utils.formatText(streetInfo.content, maxLength) : null, null)
-            }
-        };
-
-        if (!personInfo) {
-            return result;
+                description: optional(() => utils.formatText(streetInfo.content, maxLength), null)
+            };
         }
 
-        const categories = personInfo.categories;
+        let personTitle = optional(() =>
+            streetInfo.info[constants[lang].NAMED_AFTER_INFOBOX_KEY],
+        utils.extractStreetName(streetName, lang));
 
-        if (utils.isPersonCategory(categories, lang)) {
-            result["person"] = {
-                name: personInfo.title,
-                description: optional(() => utils.formatText(personInfo.content, maxLength), ""),
-                imageUrl: personInfo.imageUrl,
-                wikiUrl: personInfo.wikiUrl
+        const namedEntityInfo = await this.searchNamedEntityArticle(personTitle, lang);
+
+        if (namedEntityInfo && utils.isNamedEntityCategory(namedEntityInfo.categories, lang)) {
+            result["namedEntity"] = {
+                name: namedEntityInfo.title,
+                description: optional(() => utils.formatText(namedEntityInfo.content, maxLength), ""),
+                imageUrl: namedEntityInfo.imageUrl,
+                wikiUrl: namedEntityInfo.wikiUrl
             };
         }
 
@@ -39,24 +42,22 @@ class WikiService {
     }
 
     async getWikiInfo(streetName, cityName, lang = "uk") {
-        return this.searchArticle(`${streetName} (${cityName})`, lang);
+        return this.searchStreetArticle(`${streetName} (${cityName})`, lang);
     }
 
-    async getPersonWikiInfo(streetName, lang = "uk") {
-        const title = utils.extractStreetName(streetName, lang);
-        return this.searhPersonArticle(title, lang);
-    }
-
-    async searchArticle(articleName, lang) {
+    async searchStreetArticle(articleName, lang) {
         const searchResult = await this.wikiApiService.search(articleName, lang, 1);
-        if (!searchResult || !searchResult.results || !searchResult.results.length) {
-            return null;
+        if (optional(() => searchResult.results.length, null)) {
+            const results = utils.filterValidStreetResults(articleName, searchResult.results, lang);
+            if(results.length) {
+                return this.getPage(results[0]);
+            }
         }
 
-        return this.getPage(searchResult.results[0]);
+        return null;
     }
 
-    async searhPersonArticle(articleName, lang) {
+    async searchNamedEntityArticle(articleName, lang) {
         const searchResult = await this.wikiApiService.search(articleName, lang, 20);
         if (!searchResult || !searchResult.results || !searchResult.results.length) {
             return null;
@@ -64,7 +65,7 @@ class WikiService {
 
         for(let result of searchResult.results) {
             let page = await this.getPage(result);
-            if(page && page.categories && utils.isPersonCategory(page.categories)) {
+            if(page && page.categories && utils.isNamedEntityCategory(page.categories)) {
                 return page;
             }
         }
@@ -76,15 +77,17 @@ class WikiService {
         try {
             const page = await this.wikiApiService.getPage(title);
             const pageContent = await Promise.all([
+                optional(() => page.info(), null),
                 optional(() => page.summary(), ""),
                 optional(() => page.categories(), []),
                 optional(() => utils.mainImage(page), null)
             ]);
             return {
                 title: title,
-                content: pageContent[0],
-                categories: pageContent[1],
-                imageUrl: pageContent[2],
+                info: pageContent[0],
+                content: pageContent[1],
+                categories: pageContent[2],
+                imageUrl: pageContent[3],
                 wikiUrl: optional(() => page.raw.fullurl, "")
             };
         } catch (err) {

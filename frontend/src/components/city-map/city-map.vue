@@ -94,11 +94,11 @@
                     this.map.removeLayer(this.marker);
                 }
 
-                if(street.person && street.person.imageUrl) {
+                if(street.person && street.namedEntity.imageUrl) {
                     this.marker = this.renderImageMarker(coordinates, {
-                        imageUrl: street.person.imageUrl,
-                        title: street.person.name,
-                        linkUrl: street.person.wikiUrl
+                        imageUrl: street.namedEntity.imageUrl,
+                        title: street.namedEntity.name,
+                        linkUrl: street.namedEntity.wikiUrl
                     });
                 } else {
                     this.marker = L.marker(coordinates, {title: street.name});

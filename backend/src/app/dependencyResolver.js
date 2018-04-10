@@ -27,7 +27,7 @@ dc.registerInstance("db", db);
 dc.registerBinding("UserService", dataServicesFactory.userService, {dependencies: ["db"]});
 dc.registerBinding("CityService", dataServicesFactory.cityService, {dependencies: ["db"]});
 dc.registerBinding("StreetService", dataServicesFactory.streetService, {dependencies: ["db"]});
-dc.registerBinding("PersonService", dataServicesFactory.personService, {dependencies: ["db"]});
+dc.registerBinding("NamedEntityService", dataServicesFactory.namedEntityService, {dependencies: ["db"]});
 
 dc.registerBinding("Mapper", function () {
     return mapper;
@@ -85,7 +85,7 @@ dc.registerBinding("GeoDataService", GeoDataService, {
         "GeoParser",
         "WikiService",
         "StreetService",
-        "PersonService",
+        "NamedEntityService",
         "Mapper"
     ]
 });

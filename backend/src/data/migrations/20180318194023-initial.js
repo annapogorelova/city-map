@@ -40,7 +40,11 @@ module.exports = {
             }
         });
 
-        queryInterface.addIndex("city", {fields: ["coordinates"], type: "SPATIAL"});
+        await queryInterface.addIndex("city", {
+            name: "idx_city_coordinates",
+            fields: ["coordinates"],
+            type: "SPATIAL"
+        });
 
         await queryInterface.createTable("street", {
             id: {
@@ -82,7 +86,11 @@ module.exports = {
             }
         });
 
-        queryInterface.addIndex("street", {fields: ["coordinates"], type: "SPATIAL"});
+        await queryInterface.addIndex("street", {
+            name: "idx_street_coordinates",
+            fields: ["coordinates"],
+            type: "SPATIAL"
+        });
 
         queryInterface.addConstraint("street", ["cityId"], {
             type: "foreign key",
@@ -94,7 +102,10 @@ module.exports = {
             onDelete: "cascade"
         });
 
-        await queryInterface.addIndex("street", {fields: ["cityId"]});
+        await queryInterface.addIndex("street", {
+            name: "idx_street_city_id",
+            fields: ["cityId"]
+        });
 
         await queryInterface.createTable("person", {
             id: {
@@ -131,7 +142,10 @@ module.exports = {
             onDelete: "set null"
         });
 
-        await queryInterface.addIndex("street", {fields: ["personId"]});
+        await queryInterface.addIndex("street", {
+            name: "idx_street_person_id",
+            fields: ["personId"]
+        });
     },
 
     down: async (queryInterface) => {

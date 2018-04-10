@@ -38,7 +38,7 @@ mapper.registerResolver("app.street", "api.v1.street", (street) => {
         nameEn: street.nameEn,
         oldName: street.oldName,
         description: street.description,
-        person: street.person,
+        namedEntity: street.namedEntity,
         wikiUrl: street.wikiUrl,
         ways: optional(() => street.ways.map(w => w.coordinates), [])
     };

@@ -1,5 +1,5 @@
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define("person", {
+    return sequelize.define("namedEntity", {
         id: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -23,6 +23,6 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true
         },
     }, {
-        tableName: "person"
+        tableName: "namedEntity"
     });
 };

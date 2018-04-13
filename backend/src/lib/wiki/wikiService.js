@@ -7,14 +7,15 @@ const constants = require("./constants");
  * Class contains methods for searching the streets articles in Wikipedia
  */
 class WikiService {
-    constructor(wikiApiService) {
+    constructor(wikiApiService, lang = "uk") {
         this.wikiApiService = wikiApiService;
+        this.lang = lang;
     }
 
-    async getStreetInfo(streetName, cityName, maxLength = 500, lang = "uk") {
+    async getStreetInfo(streetName, cityName, maxLength = 500) {
         let result = {};
 
-        const streetInfo = await this.getWikiInfo(streetName, cityName, lang);
+        const streetInfo = await this.getWikiInfo(streetName, cityName);
         const isStreet = optional(() => utils.isStreetCategory(streetInfo.categories), false);
 
         if (streetInfo && isStreet) {
@@ -25,10 +26,10 @@ class WikiService {
         }
 
         let namedEntityTitle = optional(() =>
-                streetInfo.info[constants[lang].NAMED_AFTER_INFOBOX_KEY],
-            utils.extractStreetName(streetName, lang));
+            streetInfo.info[constants[this.lang].NAMED_AFTER_INFOBOX_KEY],
+        utils.extractStreetName(streetName, this.lang));
 
-        const namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle, lang);
+        const namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle, this.lang);
 
         if (namedEntityInfo) {
             result["namedEntity"] = {
@@ -42,14 +43,14 @@ class WikiService {
         return result;
     }
 
-    async getWikiInfo(streetName, cityName, lang = "uk") {
-        return this.searchStreetArticle(`${streetName} (${cityName})`, lang);
+    async getWikiInfo(streetName, cityName) {
+        return this.searchStreetArticle(`${streetName} (${cityName})`, this.lang);
     }
 
-    async searchStreetArticle(articleName, lang) {
-        const searchResult = await this.wikiApiService.search(articleName, lang, 1);
+    async searchStreetArticle(articleName) {
+        const searchResult = await this.wikiApiService.search(articleName, this.lang, 1);
         if (optional(() => searchResult.results.length, null)) {
-            const results = utils.filterValidStreetResults(articleName, searchResult.results, lang);
+            const results = utils.filterValidStreetResults(articleName, searchResult.results, this.lang);
             if (results.length) {
                 return this.getPage(results[0]);
             }
@@ -58,30 +59,25 @@ class WikiService {
         return null;
     }
 
-    async searchNamedEntityArticle(articleName, lang, limit = 20) {
-        const searchResult = await this.wikiApiService.search(articleName, lang, limit);
-        if (!searchResult || !searchResult.results || !searchResult.results.length) {
+    async searchNamedEntityArticle(articleName, limit = 20) {
+        const searchResult = await this.wikiApiService.search(articleName, this.lang, limit);
+        const results = optional(() => searchResult.results, []);
+        if (!results.length) {
             return null;
         }
 
-        const rates = stringUtils.getResultsMatchRates(articleName, searchResult.results);
         let resultCandidates = [];
 
-        for (let i = 0; i < searchResult.results.length; i++) {
-            let page = await this.getPage(searchResult.results[i]);
-            if (optional(() => utils.isNamedEntityCategory(page.categories, lang), null)) {
-                let rate = rates[i];
-                if (page.categories.length) {
-                    const category = this.findMainCategory(page.categories, lang);
-                    if(category) {
-                        rate = this.addCategoryWeight(rates[i], category);
-                    }
+        for (let i = 0; i < results.length; i++) {
+            let pageTitle = results[i];
+            let page = await this.getPage(pageTitle);
+            if (optional(() => utils.isNamedEntityCategory(page.categories, this.lang), null)) {
+                let rate = this.getPageRate(articleName, pageTitle, page.categories);
+                if(rate > 0) {
+                    resultCandidates.push({page: page, rate: rate});
                 }
-                resultCandidates.push({page: page, rate: rate});
             }
         }
-
-        resultCandidates = resultCandidates.filter(rc => rc.rate !== 0);
 
         if (!resultCandidates.length) {
             return null;
@@ -92,30 +88,38 @@ class WikiService {
 
         // Order by descending rate
         return optional(() => resultCandidates.sort((a, b) => {
-            if (a.rate < b.rate) {
-                return 1;
-            }
-
-            if (a.rate > b.rate) {
-                return -1;
-            }
-
-            return 0;
+            return a.rate < b.rate ? 1 : (a.rate > b.rate ? -1 : 0);
         })[0].page, null);
+    }
+
+    getPageRate(searchPhrase, pageTitle, pageCategories) {
+        let rate = stringUtils.calculatePhrasesMatchRate(searchPhrase, pageTitle);
+        if (pageCategories.length) {
+            const category = this.findMainCategory(pageCategories, this.lang);
+            if(category) {
+                rate = this.incrementByCategoryWeight(rate, category);
+            }
+        }
+
+        return rate;
     }
 
     addOrderWeight(rate, idx, resultsLength) {
         return (rate + ((resultsLength - idx) / resultsLength));
     }
 
-    addCategoryWeight(rate, category) {
+    incrementByCategoryWeight(rate, category) {
         return rate + (category.priority / 10);
     }
 
-    findMainCategory(categories, lang) {
-        return optional(() => constants[lang].namedEntityCategories.filter(c =>
-            categories.some(cat => utils.normalizeCategoryName(cat, lang).startsWith(c.name)))
-                .sort(this._categoryOrderDesc)[0], null);
+    findMainCategory(categories) {
+        let categoryOrderDescFn = function (a, b) {
+            return a.priority < b.priority ? 1 : (a.priority > b.priority ? -1 : 0);
+        };
+
+        return optional(() => constants[this.lang].namedEntityCategories.filter(c =>
+            categories.some(cat => utils.normalizeCategoryName(cat, this.lang).startsWith(c.name)))
+            .sort(categoryOrderDescFn)[0], null);
     }
 
     async getPage(title) {
@@ -138,18 +142,6 @@ class WikiService {
         } catch (err) {
             return null;
         }
-    }
-
-    _categoryOrderDesc(a, b) {
-        if (a.priority < b.priority) {
-            return 1;
-        }
-
-        if (a.priority > b.priority) {
-            return -1;
-        }
-
-        return 0;
     }
 }
 

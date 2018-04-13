@@ -1,12 +1,8 @@
 module.exports = {
     findBestStringsMatch(search, results) {
-        const rates = this.getResultsMatchRates(search, results);
+        const rates = results.map(r => this.calculatePhrasesMatchRate(search, r));
         const maxRateIndex = rates.reduce((iMax, x, i, arr) => x > arr[iMax] ? i : iMax, 0);
         return results[maxRateIndex];
-    },
-
-    getResultsMatchRates(search, results) {
-        return results.map(r => this.calculatePhrasesMatchRate(search, r));
     },
 
     calculatePhrasesMatchRate(firstPhrase, secondPhrase, equalityThreshold = 0.6) {
@@ -17,7 +13,7 @@ module.exports = {
         let overallRate = 0;
         for (let firstWord of firstPhraseWords) {
             for (let secondWord of secondPhraseWords) {
-                const calculatedRate = this.calculateWordsMatchRate(firstWord, secondWord)
+                const calculatedRate = this.calculateWordsMatchRate(firstWord, secondWord);
                 rates.push(calculatedRate);
                 overallRate += calculatedRate;
             }

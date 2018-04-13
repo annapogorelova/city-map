@@ -9,7 +9,8 @@ function makeStreetService(db) {
         getByCity,
         searchByCoordinates,
         search,
-        create
+        create,
+        update
     });
 
     function getById(id) {
@@ -17,7 +18,10 @@ function makeStreetService(db) {
     }
 
     function getByName(name, cityId) {
-        return db.street.findOne({where: {name: name, cityId: cityId}});
+        return db.street.findOne({where: {name: name, cityId: cityId}})
+            .then(street => optional(() => street.get({
+                plain: true
+            })), null);
     }
 
     function getByCity(cityId, orderByColumn = "id") {
@@ -87,6 +91,10 @@ function makeStreetService(db) {
         }
 
         return createdStreet;
+    }
+
+    async function update(street) {
+        return db.street.update(street);
     }
 }
 

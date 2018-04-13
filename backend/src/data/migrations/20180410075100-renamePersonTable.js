@@ -19,7 +19,7 @@ module.exports = {
         await queryInterface.addIndex("street", {
             name: "idx_street_named_entity_id",
             fields: ["namedEntityId"]
-        })
+        });
     },
 
     down: async (queryInterface) => {

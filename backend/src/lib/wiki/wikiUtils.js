@@ -25,11 +25,11 @@ module.exports = {
                         .map((k) => info[k])[0],
                 undefined);
 
-                const mainImageName = _getFileName(
+                const mainImageName = optional(() => _getFileName(
                     info.image ||
                     info.logo ||
                     extractedImage
-                );
+                ), undefined);
 
                 if (!mainImageName) {
                     return page.rawInfo().then(text => {
@@ -70,17 +70,30 @@ module.exports = {
     isNamedEntityCategory(categories, lang = "uk") {
         this.validateLanguage(lang);
 
-        const localizedCategories = constants[lang];
-        return categories.indexOf(localizedCategories.PEOPLE_STREETS_NAMED_AFTER) !== -1;
+        const normalizedCategories = categories.map(c => this.normalizeCategoryName(c, lang));
+        const localizedConstants = constants[lang].namedEntityCategories.map(c => c.name);
+
+        return localizedConstants.some(category => {
+            return normalizedCategories.some(c => c.startsWith(category));
+        });
     },
 
     isStreetCategory(categories, lang = "uk") {
         this.validateLanguage(lang);
 
-        const localizedCategories = constants[lang];
+        return this.isCategory(categories, lang);
+    },
+
+    isCategory(categories, lang) {
+        const categoryPrefix = constants[lang].STREET_CATEGORY_PREFIX;
         return categories.filter(c => {
-            return c.startsWith(localizedCategories.STREET_CATEGORY_PREFIX);
+            return this.normalizeCategoryName(c,lang).startsWith(categoryPrefix);
         }).length > 0;
+    },
+
+    normalizeCategoryName(categoryName, lang) {
+        this.validateLanguage(lang);
+        return categoryName.replace(constants[lang].CATEGORY_PREFIX, "");
     },
 
     filterValidStreetResults(search, results, lang) {
@@ -91,7 +104,11 @@ module.exports = {
             return streetResults;
         }
 
-        return streetResults.filter(r => r.startsWith(search.substring(0, 5)));
+        return streetResults.filter(result => this.streetNamesMatch(search, result));
+    },
+
+    streetNamesMatch(search, result, threshold = 5) {
+        return this.extractStreetName(result).startsWith(this.extractStreetName(search).substring(0, threshold));
     },
 
     validateLanguage(lang) {

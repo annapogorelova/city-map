@@ -1,5 +1,6 @@
 const {optional} = require("tooleks");
 const utils = require("./wikiUtils");
+const stringUtils = require("./stringUtils");
 const constants = require("./constants");
 
 /**
@@ -16,20 +17,20 @@ class WikiService {
         const streetInfo = await this.getWikiInfo(streetName, cityName, lang);
         const isStreet = optional(() => utils.isStreetCategory(streetInfo.categories), false);
 
-        if(streetInfo && isStreet) {
+        if (streetInfo && isStreet) {
             result["street"] = {
                 wikiUrl: optional(() => streetInfo.wikiUrl, null),
                 description: optional(() => utils.formatText(streetInfo.content, maxLength), null)
             };
         }
 
-        let personTitle = optional(() =>
-            streetInfo.info[constants[lang].NAMED_AFTER_INFOBOX_KEY],
-        utils.extractStreetName(streetName, lang));
+        let namedEntityTitle = optional(() =>
+                streetInfo.info[constants[lang].NAMED_AFTER_INFOBOX_KEY],
+            utils.extractStreetName(streetName, lang));
 
-        const namedEntityInfo = await this.searchNamedEntityArticle(personTitle, lang);
+        const namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle, lang);
 
-        if (namedEntityInfo && utils.isNamedEntityCategory(namedEntityInfo.categories, lang)) {
+        if (namedEntityInfo) {
             result["namedEntity"] = {
                 name: namedEntityInfo.title,
                 description: optional(() => utils.formatText(namedEntityInfo.content, maxLength), ""),
@@ -49,7 +50,7 @@ class WikiService {
         const searchResult = await this.wikiApiService.search(articleName, lang, 1);
         if (optional(() => searchResult.results.length, null)) {
             const results = utils.filterValidStreetResults(articleName, searchResult.results, lang);
-            if(results.length) {
+            if (results.length) {
                 return this.getPage(results[0]);
             }
         }
@@ -57,20 +58,64 @@ class WikiService {
         return null;
     }
 
-    async searchNamedEntityArticle(articleName, lang) {
-        const searchResult = await this.wikiApiService.search(articleName, lang, 20);
+    async searchNamedEntityArticle(articleName, lang, limit = 20) {
+        const searchResult = await this.wikiApiService.search(articleName, lang, limit);
         if (!searchResult || !searchResult.results || !searchResult.results.length) {
             return null;
         }
 
-        for(let result of searchResult.results) {
-            let page = await this.getPage(result);
-            if(page && page.categories && utils.isNamedEntityCategory(page.categories)) {
-                return page;
+        const rates = stringUtils.getResultsMatchRates(articleName, searchResult.results);
+        let resultCandidates = [];
+
+        for (let i = 0; i < searchResult.results.length; i++) {
+            let page = await this.getPage(searchResult.results[i]);
+            if (optional(() => utils.isNamedEntityCategory(page.categories, lang), null)) {
+                let rate = rates[i];
+                if (page.categories.length) {
+                    const category = this.findMainCategory(page.categories, lang);
+                    if(category) {
+                        rate = this.addCategoryWeight(rates[i], category);
+                    }
+                }
+                resultCandidates.push({page: page, rate: rate});
             }
         }
 
-        return null;
+        resultCandidates = resultCandidates.filter(rc => rc.rate !== 0);
+
+        if (!resultCandidates.length) {
+            return null;
+        }
+
+        resultCandidates.map((rc, idx) =>
+            rc.rate += this.addOrderWeight(rc.rate, idx, resultCandidates.length));
+
+        // Order by descending rate
+        return optional(() => resultCandidates.sort((a, b) => {
+            if (a.rate < b.rate) {
+                return 1;
+            }
+
+            if (a.rate > b.rate) {
+                return -1;
+            }
+
+            return 0;
+        })[0].page, null);
+    }
+
+    addOrderWeight(rate, idx, resultsLength) {
+        return (rate + ((resultsLength - idx) / resultsLength));
+    }
+
+    addCategoryWeight(rate, category) {
+        return rate + (category.priority / 10);
+    }
+
+    findMainCategory(categories, lang) {
+        return optional(() => constants[lang].namedEntityCategories.filter(c =>
+            categories.some(cat => utils.normalizeCategoryName(cat, lang).startsWith(c.name)))
+                .sort(this._categoryOrderDesc)[0], null);
     }
 
     async getPage(title) {
@@ -93,6 +138,18 @@ class WikiService {
         } catch (err) {
             return null;
         }
+    }
+
+    _categoryOrderDesc(a, b) {
+        if (a.priority < b.priority) {
+            return 1;
+        }
+
+        if (a.priority > b.priority) {
+            return -1;
+        }
+
+        return 0;
     }
 }
 

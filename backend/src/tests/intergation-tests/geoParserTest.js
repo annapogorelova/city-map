@@ -168,13 +168,13 @@ describe("geoDataService test", () => {
             const geoDataService = testUtils.dc.get("GeoDataService");
 
             // create the street for the first city
-            const firstCityStreet = await geoDataService.createStreet(testStreet, cities[0]);
+            const firstCityStreet = await geoDataService.processStreet(testStreet, cities[0]);
             assert(firstCityStreet);
             assert.equal(cities[0].id, firstCityStreet.cityId);
             assert.equal(testStreet.name, firstCityStreet.name);
 
             // create the street for the second city
-            const secondCityStreet = await geoDataService.createStreet(testStreet, cities[1]);
+            const secondCityStreet = await geoDataService.processStreet(testStreet, cities[1]);
             assert(secondCityStreet);
             assert.equal(cities[1].id, secondCityStreet.cityId);
             assert.equal(testStreet.name, secondCityStreet.name);

@@ -94,7 +94,7 @@
                     this.map.removeLayer(this.marker);
                 }
 
-                if(street.person && street.namedEntity.imageUrl) {
+                if(street.namedEntity && street.namedEntity.imageUrl) {
                     this.marker = this.renderImageMarker(coordinates, {
                         imageUrl: street.namedEntity.imageUrl,
                         title: street.namedEntity.name,

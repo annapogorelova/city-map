@@ -10,11 +10,13 @@
 <style scoped>
     h5 {
         display: inline-block;
+        margin-bottom: 0;
     }
 
     span.badge {
         margin-right: 5px;
         cursor: pointer;
+        vertical-align: middle;
     }
 </style>
 <script>

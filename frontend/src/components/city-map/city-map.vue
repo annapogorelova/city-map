@@ -7,20 +7,51 @@
                                  v-bind:selected-city-id="cityId"></cities-list>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12">
+            <div class="row sections-container">
+                <div class="col-12 col-lg-9">
                     <div class="map-wrapper">
                         <basic-map ref="map" v-on:init="onMapInit" v-bind:zoom="zoom"></basic-map>
                     </div>
-                    <div v-if="selectedStreet">
-                        <street-description v-bind:street="selectedStreet"></street-description>
-                    </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                    <transition name="slide-fade">
+                        <div v-if="selectedStreet">
+                            <street-description v-bind:street="selectedStreet"></street-description>
+                        </div>
+                    </transition>
                 </div>
             </div>
         </div>
     </div>
 </template>
+<style>
+    .slide-fade-enter-active {
+        transition: all .5s ease-in;
+    }
+    .slide-fade-leave-active {
+        transition: all .8s ease-out;
+    }
+    .slide-fade-enter, .slide-fade-leave-to {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+
+    .map-wrapper {
+        width: 100%;
+        height: auto;
+        margin-bottom: 20px;
+    }
+
+    .map {
+        margin-top: 0 !important;
+    }
+
+    .sections-container {
+        margin-top: 15px;
+    }
+</style>
 <script>
+    import Vue from "vue";
     import BasicMap from "../map/basic-map";
     import CitiesList from "./cities-list";
     import StreetDescription from "./street-description";
@@ -71,12 +102,15 @@
             setMarker(coordinates) {
                 this.findClosestStreet(coordinates).then(street => {
                     if (street) {
-                        this.selectedStreet = street;
-                        this.coordinates = coordinates;
+                        this.selectedStreet = null;
+                        Vue.nextTick(() => {
+                            this.selectedStreet = street;
+                            this.coordinates = coordinates;
 
-                        this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
-                        this.drawStreet(street);
-                        this.setStreetMarker(coordinates, street);
+                            this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
+                            this.drawStreet(street);
+                            this.setStreetMarker(coordinates, street);
+                        });
                     }
                 });
             },
@@ -131,10 +165,3 @@
         }
     }
 </script>
-<style>
-    .map-wrapper {
-        width: 100%;
-        height: auto;
-        margin-bottom: 20px;
-    }
-</style>

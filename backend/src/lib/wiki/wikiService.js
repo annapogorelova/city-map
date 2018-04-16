@@ -14,27 +14,40 @@ class WikiService {
 
     async getStreetInfo(streetName, cityName, maxLength = 500) {
         let result = {};
+        const exactArticleName = `${streetName} (${cityName})`;
+        const exactStreetSearchResults = await this.wikiApiService.search(exactArticleName, this.lang, 1);
+        const streetArticle = utils.filterValidStreetResults(
+            exactArticleName,
+            exactStreetSearchResults.results,
+            this.lang)[0];
 
-        const streetInfo = await this.getWikiInfo(streetName, cityName);
-        const isStreet = optional(() => utils.isStreetCategory(streetInfo.categories), false);
+        let streetInfo;
+        if(streetArticle) {
+            streetInfo = await this.getPage(streetArticle);
+            const isStreet = optional(() => utils.isStreetCategory(streetInfo.categories), false);
 
-        if (streetInfo && isStreet) {
-            result["street"] = {
-                wikiUrl: optional(() => streetInfo.wikiUrl, null),
-                description: optional(() => utils.formatText(streetInfo.content, maxLength), null)
-            };
+            if (streetInfo && isStreet) {
+                result["street"] = {
+                    wikiUrl: optional(() => streetInfo.wikiUrl, null),
+                    description: optional(() => utils.formatText(streetInfo.summary, maxLength), null)
+                };
+            }
         }
 
-        let namedEntityTitle = optional(() =>
-            streetInfo.info[constants[this.lang].NAMED_AFTER_INFOBOX_KEY],
-        utils.extractStreetName(streetName, this.lang));
+        let namedEntityTitle = await this.getGeneralStreetNamedEntity(streetName);
+        let namedEntityInfo;
 
-        const namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle, this.lang);
+        if(namedEntityTitle) {
+             namedEntityInfo = await this.getPage(namedEntityTitle);
+        } else {
+            namedEntityTitle = this.getNamedEntityName(streetName, streetInfo);
+            namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle);
+        }
 
         if (namedEntityInfo) {
             result["namedEntity"] = {
                 name: namedEntityInfo.title,
-                description: optional(() => utils.formatText(namedEntityInfo.content, maxLength), ""),
+                description: optional(() => utils.formatText(namedEntityInfo.summary, maxLength), ""),
                 imageUrl: namedEntityInfo.imageUrl,
                 wikiUrl: namedEntityInfo.wikiUrl
             };
@@ -43,17 +56,23 @@ class WikiService {
         return result;
     }
 
-    async getWikiInfo(streetName, cityName) {
-        return this.searchStreetArticle(`${streetName} (${cityName})`, this.lang);
+    getNamedEntityName(streetName, streetInfo) {
+        return optional(() => streetInfo.info[constants[this.lang].NAMED_AFTER_INFOBOX_KEY], undefined) ||
+            utils.extractStreetName(streetName, this.lang);
     }
 
-    async searchStreetArticle(articleName) {
-        const searchResult = await this.wikiApiService.search(articleName, this.lang, 1);
-        if (optional(() => searchResult.results.length, null)) {
-            const results = utils.filterValidStreetResults(articleName, searchResult.results, this.lang);
-            if (results.length) {
-                return this.getPage(results[0]);
+    async getGeneralStreetNamedEntity(streetName) {
+        const searchResults = await this.wikiApiService.search(streetName, this.lang, 5);
+        const articleTitle = utils.findGeneralStreetArticle(streetName, searchResults.results, this.lang);
+
+        if(articleTitle) {
+            const article = await this.wikiApiService.getPage(articleTitle);
+            let pageContent = await article.summary();
+            if(!pageContent) {
+                pageContent = await article.content();
             }
+
+            return optional(() => pageContent.match(constants[this.lang].namedAfterArticleRegex)[1], undefined);
         }
 
         return null;
@@ -96,7 +115,7 @@ class WikiService {
         let rate = stringUtils.calculatePhrasesMatchRate(searchPhrase, pageTitle);
         if (pageCategories.length) {
             const category = this.findMainCategory(pageCategories, this.lang);
-            if(category) {
+            if(category && rate > 0) {
                 rate = this.incrementByCategoryWeight(rate, category);
             }
         }
@@ -128,15 +147,17 @@ class WikiService {
             const pageContent = await Promise.all([
                 optional(() => page.info(), null),
                 optional(() => page.summary(), ""),
+                optional(() => page.content(), ""),
                 optional(() => page.categories(), []),
                 optional(() => utils.mainImage(page), null)
             ]);
             return {
                 title: title,
                 info: pageContent[0],
-                content: pageContent[1],
-                categories: pageContent[2],
-                imageUrl: pageContent[3],
+                summary: pageContent[1],
+                content: pageContent[2],
+                categories: pageContent[3],
+                imageUrl: pageContent[4],
                 wikiUrl: optional(() => page.raw.fullurl, "")
             };
         } catch (err) {

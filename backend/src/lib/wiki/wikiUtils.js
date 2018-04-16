@@ -107,6 +107,13 @@ module.exports = {
         return streetResults.filter(result => this.streetNamesMatch(search, result));
     },
 
+    findGeneralStreetArticle(search, results, lang) {
+        this.validateLanguage(lang);
+        return optional(() => results
+            .filter(r => r.match(constants[lang].generalStreetArticleTitleRegex)
+                        /*&& this.streetNamesMatch(search, r)*/)[0], undefined);
+    },
+
     streetNamesMatch(search, result, threshold = 5) {
         return this.extractStreetName(result).startsWith(this.extractStreetName(search).substring(0, threshold));
     },

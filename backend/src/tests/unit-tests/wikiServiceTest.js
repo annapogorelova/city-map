@@ -22,149 +22,292 @@ function getStreetSearchKey(street) {
     return `${street.streetName} (${street.cityName})`;
 }
 
+function getGeneralStreetPage(streetName) {
+    return testData.pages.filter(p => p.key === streetName)[0];
+}
+
 describe("wiki service test", () => {
-    let wikiApiService, wikiService;
-    const lang = "uk";
+    let wikiApiService, wikiService, searchStub, getPageStub;
 
-    function makeStreetStubs(streetPage, namedEntityPage) {
-        let searchStub = sinon.stub(wikiApiService, "search")
-            .onFirstCall().returns({results: streetPage.searchResults});
+    function configurePageStub(page, searchStub, getPageStub, searchCallIndex, getPageCallIndex) {
+        searchStub.onCall(searchCallIndex).returns({results: page.searchResults});
 
-        if(namedEntityPage) {
-            searchStub.onSecondCall().returns({results: namedEntityPage.searchResults})
-        }
-
-        let streetPageStub = {
+        let pageData = {
             raw: {
-                fullurl: streetPage.page.fullUrl
+                fullurl: page.page.fullUrl
             },
-            summary: sinon.stub().returns(Promise.resolve(streetPage.page.content)),
-            categories: sinon.stub().returns(Promise.resolve(streetPage.page.categories)),
-            mainImage: sinon.stub().returns(Promise.resolve(streetPage.page.imageUrl)),
+            summary: sinon.stub().returns(Promise.resolve(page.page.summary)), // summary must be separated
+            content: sinon.stub().returns(Promise.resolve(page.page.content)),
+            categories: sinon.stub().returns(Promise.resolve(page.page.categories)),
+            mainImage: sinon.stub().returns(Promise.resolve(page.page.imageUrl)),
         };
 
-        let getStub = sinon.stub(wikiApiService, 'getPage')
-            .onFirstCall().returns(streetPageStub);
-
-        if(namedEntityPage) {
-            let namedEntityPageStub = {
-                raw: {
-                    fullurl: namedEntityPage.page.fullUrl
-                },
-                summary: sinon.stub().returns(Promise.resolve(namedEntityPage.page.content)),
-                categories: sinon.stub().returns(Promise.resolve(namedEntityPage.page.categories)),
-                mainImage: sinon.stub().returns(Promise.resolve(namedEntityPage.page.imageUrl)),
-            };
-
-            getStub.onSecondCall().returns(namedEntityPageStub);
-        }
+        getPageStub.onCall(getPageCallIndex).returns(pageData);
     }
 
     beforeEach((done) => {
         wikiApiService = new WikiApiService();
         wikiService = new WikiService(wikiApiService);
+        searchStub = sinon.stub(wikiApiService, "search");
+        getPageStub = sinon.stub(wikiApiService, "getPage");
+
         done();
     });
 
-    it("should return street wiki page description (not named after)", (done) => {
-        (async () => {
-            const testStreet = getStreets()[0];
-            const testPage = getPage(getStreetSearchKey(testStreet));
-            sinon.stub(wikiApiService, 'search')
-                .onFirstCall().returns({results: testPage.searchResults})
-                .onSecondCall().returns({results: []});
+    afterEach((done) => {
+        if(searchStub && typeof searchStub.search !== "undefined") {
+            searchStub.search.restore();
+        }
 
-            let pageStub = {
-                raw: {
-                    fullurl: testPage.page.fullUrl
-                },
-                summary: sinon.stub().returns(Promise.resolve(testPage.page.content)),
-                categories: sinon.stub().returns(Promise.resolve(testPage.page.categories)),
-                mainImage: sinon.stub().returns(Promise.resolve(testPage.page.imageUrl)),
-            };
+        if(getPageStub && typeof searchStub.getPage !== "undefined") {
+            getPageStub.getPage.restore();
+        }
 
-            sinon.stub(wikiApiService, 'getPage').returns(pageStub);
-
-            const result = await wikiService.getStreetInfo(testPage.key, testStreet.cityName);
-
-            assert.exists(result);
-            assert.exists(result.street);
-            assert.equal(testPage.page.content, result.street.description);
-            assert.notExists(result.namedEntity);
-            done();
-        })();
+        done();
     });
 
-    it("should return the description of the street (named after)", (done) => {
+    it("should not return the description of the street: " +
+        "1. street page NOT FOUND" +
+        "2. general street page NOT FOUND" +
+        "3. named entity page NOT FOUND", (done) => {
         (async () => {
             const testStreet = getStreets(true)[0];
-            const streetPage = getPage(getStreetSearchKey(testStreet));
-            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
-            const namedEntityPage = getPage(title);
 
-            makeStreetStubs(streetPage, namedEntityPage);
-
-            const result = await wikiService.getStreetInfo(streetPage.key, testStreet.cityName);
-
-            assert.exists(result);
-            assert.exists(result.street);
-            assert.equal(streetPage.page.content, result.street.description);
-            assert.exists(result.namedEntity);
-            assert.equal(namedEntityPage.page.content, result.namedEntity.description);
-            done();
-        })();
-    });
-
-    it("should not return the content of non existing article", (done) => {
-        (async () => {
-            const testStreet = getStreets(true)[0];
-            sinon.stub(wikiApiService, 'search').returns({results: []});
+            searchStub.onCall(0).returns({results: []});
+            searchStub.onCall(1).returns({results: []});
+            searchStub.onCall(2).returns({results: []});
 
             const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
             assert.exists(result);
             assert.notExists(result.street);
             assert.notExists(result.namedEntity);
+
             done();
         })();
     });
 
-    it("should not return the content of the non existing page (getPageContent method)", (done) => {
+    it("should not return the description of the street: " +
+        "1. street page NOT FOUND" +
+        "2. general street page FOUND with REFERENCE", (done) => {
         (async () => {
-            try {
-                await wikiApiService.getPage("Not Found");
-            } catch(err) {
-                assert(err);
-                done();
-            }
+            const testStreet = getStreets(true)[0];
+            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+            const namedEntityPage = getPage(title);
+            const generalStreetPage = getGeneralStreetPage(testStreet.streetName);
+
+            searchStub.onCall(0).returns({results: []});
+            configurePageStub(generalStreetPage, searchStub, getPageStub, 1, 0);
+            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 1);
+
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
+            assert.exists(result);
+            assert.notExists(result.street);
+            assert.exists(result.namedEntity);
+            assert.equal(namedEntityPage.page.summary, result.namedEntity.description);
+
+            done();
         })();
     });
 
-    it("should return null in place of imageUrl when images from wiki throw error (a wikijs bug)", (done) => {
+    it("should not return the description of the street: " +
+        "1. street page NOT FOUND" +
+        "2. general street page NOT FOUND" +
+        "3. named entity page FOUND", (done) => {
+        (async () => {
+            const testStreet = getStreets(true)[0];
+            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+            const namedEntityPage = getPage(title);
+
+            searchStub.onCall(0).returns({results: []});
+            searchStub.onCall(1).returns({results: []});
+            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 0);
+
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
+            assert.exists(result);
+            assert.notExists(result.street);
+            assert.exists(result.namedEntity);
+            assert.equal(namedEntityPage.page.summary, result.namedEntity.description);
+
+            done();
+        })();
+    });
+
+    it("should return the description of the street:" +
+        "1. street page FOUND" +
+        "2. general street page FOUND with REFERENCE", (done) => {
+        (async () => {
+            const testStreet = getStreets(true)[0];
+            const streetPage = getPage(getStreetSearchKey(testStreet));
+            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+            const namedEntityPage = getPage(title);
+            const generalStreetPage = getGeneralStreetPage(testStreet.streetName);
+
+            configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
+            configurePageStub(generalStreetPage, searchStub, getPageStub, 1, 1);
+            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 2);
+
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.summary, result.street.description);
+            assert.exists(result.namedEntity);
+            assert.equal(namedEntityPage.page.summary, result.namedEntity.description);
+            done();
+        })();
+    });
+
+    it("should return the description of the street (" +
+        "1. street page FOUND" +
+        "2. general street page FOUND (NO REFERENCE)" +
+        "3. named entity page FOUND", (done) => {
+        (async () => {
+            const testStreet = getStreets(true)[0];
+            const streetPage = getPage(getStreetSearchKey(testStreet));
+            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+            const namedEntityPage = getPage(title);
+            let generalStreetPage = Object.assign({}, getGeneralStreetPage(testStreet.streetName));
+            generalStreetPage.summary = "";
+
+            configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
+            configurePageStub(generalStreetPage, searchStub, getPageStub, 1, 1);
+            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 2);
+
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.summary, result.street.description);
+            assert.exists(result.namedEntity);
+            assert.equal(namedEntityPage.page.summary, result.namedEntity.description);
+            done();
+        })();
+    });
+
+    it("should return the description of the street (" +
+        "1. street page FOUND" +
+        "2. general street page NOT FOUND" +
+        "3. named entity page FOUND", (done) => {
         (async () => {
             const testStreet = getStreets(true)[0];
             const streetPage = getPage(getStreetSearchKey(testStreet));
             const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
             const namedEntityPage = getPage(title);
 
-            makeStreetStubs(streetPage, namedEntityPage);
+            configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
+            searchStub.onCall(1).returns({results: []});
+            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 1);
 
-            const result = await wikiService.getStreetInfo(streetPage.searchKey, testStreet.cityName);
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
 
             assert.exists(result);
             assert.exists(result.street);
-            assert.equal(streetPage.page.content, result.street.description);
+            assert.equal(streetPage.page.summary, result.street.description);
             assert.exists(result.namedEntity);
-            assert.equal(namedEntityPage.page.content, result.namedEntity.description);
-            assert.equal(result.namedEntity.imageUrl, null);
+            assert.equal(namedEntityPage.page.summary, result.namedEntity.description);
             done();
         })();
     });
 
-    it("getPage should return null when error is thrown by wikiApiService", (done) => {
+    it("should return the description of the street (" +
+        "1. street page FOUND" +
+        "2. general street page NOT FOUND" +
+        "3. named entity page NOT FOUND", (done) => {
         (async () => {
-            sinon.stub(wikiApiService, 'getPage').throws();
-            const result = await wikiService.getPage("5th Avenue");
-            assert.isNull(result);
+            const testStreet = getStreets(true)[0];
+            const streetPage = getPage(getStreetSearchKey(testStreet));
+
+            configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
+            searchStub.onCall(1).returns({results: []});
+            searchStub.onCall(2).returns({results: []});
+
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.summary, result.street.description);
+            assert.notExists(result.namedEntity);
+            done();
+        })();
+    });
+
+    it("should return the description of the street (" +
+        "1. street page FOUND" +
+        "2. general street page FOUND, NOT VALID" +
+        "3. named entity page FOUND", (done) => {
+        (async () => {
+            const testStreet = getStreets(true)[0];
+            const streetPage = getPage(getStreetSearchKey(testStreet));
+            // Another street's general page
+            const generalStreetPage = getGeneralStreetPage(getStreets()[0].streetName);
+            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+            const namedEntityPage = getPage(title);
+
+            configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
+            configurePageStub(generalStreetPage, searchStub, getPageStub, 1, 1);
+            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 2);
+
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.summary, result.street.description);
+            assert.exists(result.namedEntity);
+            assert.equal(namedEntityPage.page.summary, result.namedEntity.description);
+            done();
+        })();
+    });
+
+    it("should return the description of the street (" +
+        "1. street page FOUND" +
+        "2. general street page FOUND, NOT VALID" +
+        "3. named entity page NOT FOUND", (done) => {
+        (async () => {
+            const testStreet = getStreets(true)[0];
+            const streetPage = getPage(getStreetSearchKey(testStreet));
+            // Another street's general page
+            const generalStreetPage = getGeneralStreetPage(getStreets()[0].streetName);
+
+            configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
+            configurePageStub(generalStreetPage, searchStub, getPageStub, 1, 1);
+            searchStub.onCall(2).returns({results: []});
+
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.summary, result.street.description);
+            assert.notExists(result.namedEntity);
+            done();
+        })();
+    });
+
+    it("should return the description of the street (" +
+        "1. street page FOUND" +
+        "2. general street page NOT FOUND" +
+        "3. named entity page FOUND, NOT VALID", (done) => {
+        (async () => {
+            const testStreet = getStreets(true)[0];
+            const streetPage = getPage(getStreetSearchKey(testStreet));
+            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+            const namedEntityPage = Object.assign({}, getPage(title));
+            namedEntityPage.searchResults = ["Андрій Симко"];
+            // This result will not pass by category
+            namedEntityPage.page.categories = ["Люди, на честь яких не названі вулиці"];
+
+            configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
+            searchStub.onCall(1).returns({results: []});
+            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 1);
+
+            const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
+
+            assert.exists(result);
+            assert.exists(result.street);
+            assert.equal(streetPage.page.summary, result.street.description);
+            assert.notExists(result.namedEntity);
             done();
         })();
     });

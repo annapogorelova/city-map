@@ -247,8 +247,8 @@ describe("wiki service test", () => {
             const namedEntityPage = getPage(title);
 
             configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
-            configurePageStub(generalStreetPage, searchStub, getPageStub, 1, 1);
-            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 2);
+            searchStub.onCall(1).returns({results: [generalStreetPage]});
+            configurePageStub(namedEntityPage, searchStub, getPageStub, 2, 1);
 
             const result = await wikiService.getStreetInfo(testStreet.streetName, testStreet.cityName);
 
@@ -296,7 +296,7 @@ describe("wiki service test", () => {
             const namedEntityPage = Object.assign({}, getPage(title));
             namedEntityPage.searchResults = ["Андрій Симко"];
             // This result will not pass by category
-            namedEntityPage.page.categories = ["Люди, на честь яких не названі вулиці"];
+            //namedEntityPage.page.categories = ["Люди, на честь яких не названі вулиці"];
 
             configurePageStub(streetPage, searchStub, getPageStub, 0, 0);
             searchStub.onCall(1).returns({results: []});

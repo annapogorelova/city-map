@@ -111,7 +111,7 @@ module.exports = {
         this.validateLanguage(lang);
         return optional(() => results
             .filter(r => r.match(constants[lang].generalStreetArticleTitleRegex)
-                        /*&& this.streetNamesMatch(search, r)*/)[0], undefined);
+                        && this.streetNamesMatch(search, r))[0], undefined);
     },
 
     streetNamesMatch(search, result, threshold = 5) {

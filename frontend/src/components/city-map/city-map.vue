@@ -108,6 +108,8 @@
                             this.coordinates = coordinates;
 
                             this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
+
+                            this.clearMap();
                             this.drawStreet(street);
                             this.setStreetMarker(coordinates, street);
                         });
@@ -115,19 +117,20 @@
                 });
             },
             drawStreet(street) {
-                if (this.polyLines) {
-                    this.polyLines.map(p => this.map.removeLayer(p));
-                }
-
-                street.ways.map(way => {
+                    street.ways.map(way => {
                     this.polyLines.push(this.drawPolyline(way));
                 });
             },
-            setStreetMarker(coordinates, street) {
+            clearMap() {
                 if (this.marker) {
                     this.map.removeLayer(this.marker);
                 }
 
+                if (this.polyLines) {
+                    this.polyLines.map(p => this.map.removeLayer(p));
+                }
+            },
+            setStreetMarker(coordinates, street) {
                 if(street.namedEntity && street.namedEntity.imageUrl) {
                     this.marker = this.renderImageMarker(coordinates, {
                         imageUrl: street.namedEntity.imageUrl,
@@ -151,9 +154,10 @@
                 }.bind(this));
             },
             onCitySelected(city) {
-                if (city) {
-                    const query = this.cityId !== city.id ?
-                        {cityId: city.id} : {...this.$route.query, cityId: city.id};
+                if (city && city.id !== this.cityId) {
+                    this.selectedStreet = null;
+                    this.clearMap();
+                    const query = {cityId: city.id};
                     this.$router.push({query: query});
                     this.$refs.map.setCenter(city.coordinates[0], city.coordinates[1], this.zoom);
                 }

@@ -1,22 +1,16 @@
 <template>
     <div class="row">
         <div class="col-12">
-            <h5 v-for="city in cities">
-                <span class="badge badge-primary" v-on:click="selectCity(city)">{{city.name}}</span>
-            </h5>
+            <button v-for="city in cities" type="button" class="btn btn-info"
+                    v-on:click="selectCity(city)">
+                {{city.name}}
+            </button>
         </div>
     </div>
 </template>
 <style scoped>
-    h5 {
-        display: inline-block;
-        margin-bottom: 0;
-    }
-
-    span.badge {
-        margin-right: 5px;
-        cursor: pointer;
-        vertical-align: middle;
+    button {
+        margin-right: 10px;
     }
 </style>
 <script>

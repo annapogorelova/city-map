@@ -1,11 +1,13 @@
 "use strict";
 
 const {optional} = require("tooleks");
+const utils = require("../../app/utils");
 
 function makeStreetService(db) {
     return Object.freeze({
         getById,
         getByName,
+        getBySimilarName,
         getByCity,
         searchByCoordinates,
         search,
@@ -19,16 +21,32 @@ function makeStreetService(db) {
 
     function getByName(name, cityId) {
         let filter = {name: name};
-        if(cityId) {
+        if (cityId) {
             filter["cityId"] = cityId;
         }
 
-        return db.street.findOne({where: filter, include: [{
-            model: db.namedEntity
-        }]})
-            .then(street => optional(() => street.get({
-                plain: true
-            })), null);
+        return db.street.findOne({
+            where: filter, include: [{
+                model: db.namedEntity
+            }]
+        }).then(street => optional(() => getPlain(street)), null);
+    }
+
+    function getBySimilarName(name, excludeStreetId) {
+        let filter = {name: {$like: `%${utils.extractStreetName(name)}%` } };
+
+        if(excludeStreetId) {
+            filter["id"] = {
+                $ne: excludeStreetId
+            };
+        }
+
+        return db.street.findAll({
+            where: filter,
+            include: [{
+                model: db.namedEntity
+            }]
+        }).then(streets => getPlainList(streets));
     }
 
     function getByCity(cityId, orderByColumn = "id") {
@@ -81,7 +99,7 @@ function makeStreetService(db) {
             selectParams["where"] = Object.assign(selectParams["where"] || {},
                 {name: {$like: `${search}%`}});
         }
-        return db.street.findAll(selectParams);
+        return db.street.findAll(selectParams).then(streets => getPlainList(streets));
     }
 
     async function create(street, ways) {
@@ -102,6 +120,14 @@ function makeStreetService(db) {
 
     async function update(street) {
         return db.street.update(street);
+    }
+
+    function getPlainList(entities) {
+        return optional(() => entities.map(entity => getPlain(entity)), null);
+    }
+
+    function getPlain(entity) {
+        return optional(() => entity.get({ plain: true }), null);
     }
 }
 

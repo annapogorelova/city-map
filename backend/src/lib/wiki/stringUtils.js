@@ -1,5 +1,5 @@
 const shevchenko = require("shevchenko");
-const constants = require("./constants");
+const constants = require("../../app/constants");
 
 module.exports = {
     findBestStringsMatch(search, results) {
@@ -75,7 +75,8 @@ module.exports = {
     },
 
     getNamePartsOptions(title) {
-        const parts = title.match(constants["uk"].wordsSplitRegex);
+        const parts = title.replace(/\(([-'\u0400-\u04FF\w\s]+)\)/g, "").trim()
+            .match(constants.wordsSplitRegex);
 
         if(parts.length === 1) {
             return [{

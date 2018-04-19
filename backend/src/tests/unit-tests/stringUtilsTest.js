@@ -200,4 +200,26 @@ describe("stringUtils test", () => {
 
         done();
     });
+
+    it("should match names (expected name in format 'FirstName LastName (Nickname)')", (done) => {
+        let expectedName = "Олега Святославича (князя усіх древлян)";
+
+        let testNames = [
+            {name: "Олег Святославич", correct: true},
+            {name: "Святославич Олег", correct: true},
+            {name: "Олег (князь) Святославич", correct: true},
+            {name: "(Великий) Олег Святославич", correct: true},
+            {name: "Олег Святославич (Великий)", correct: true},
+
+            {name: "Лопушан Петро Володимирович", correct: false},
+            {name: "Лопушан Петро", correct: false},
+            {name: "Петро Лопушан", correct: false},
+        ];
+
+        for(let testCase of testNames) {
+            assert.equal(testCase.correct, stringUtils.namesMatch(expectedName, testCase.name));
+        }
+
+        done();
+    });
 });

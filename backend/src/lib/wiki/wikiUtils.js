@@ -1,11 +1,10 @@
-const constants = require("./constants");
+const constants = require("../../app/constants");
+const utils = require("../../app/utils");
 const {optional} = require("tooleks");
 
 module.exports = {
     // wikijs mainImage function override
-    mainImage(page, lang = "uk") {
-        this.validateLanguage(lang);
-
+    mainImage(page) {
         const _getFileName = text => {
             if (!text) return undefined;
             if (text.indexOf(":") !== -1) {
@@ -20,7 +19,7 @@ module.exports = {
                 const extractedImage = optional(() =>
                     Object.keys(info)
                         .filter(k => {
-                            return constants[lang].images.indexOf(k) !== -1;
+                            return constants.images.indexOf(k) !== -1;
                         })
                         .map((k) => info[k])[0],
                 undefined);
@@ -56,50 +55,37 @@ module.exports = {
         if(!text) {
             return text;
         }
-        const formattedText = text.replace(/\n|\t/g, " ");
+
+        const formattedText = text.replace(/\n|\t/g, " ").replace(constants.wikiSummaryCleanRegex, "").trim();
         return formattedText.length < maxLength - 3 ? formattedText : formattedText.substring(0, maxLength - 3) + "...";
     },
 
-    extractStreetName(streetName, lang = "uk") {
-        this.validateLanguage(lang);
-
-        const regex = new RegExp(`${constants[lang].streetTypes.join("|")}`, "ig");
-        return streetName.replace(regex, "").trim();
-    },
-
-    isNamedEntityCategory(categories, lang = "uk") {
-        this.validateLanguage(lang);
-
-        const normalizedCategories = categories.map(c => this.normalizeCategoryName(c, lang));
-        const localizedConstants = constants[lang].namedEntityCategories.map(c => c.name);
+    isNamedEntityCategory(categories) {
+        const normalizedCategories = categories.map(c => this.normalizeCategoryName(c));
+        const localizedConstants = constants.namedEntityCategories.map(c => c.name);
 
         return localizedConstants.some(category => {
             return normalizedCategories.some(c => c.startsWith(category));
         });
     },
 
-    isStreetCategory(categories, lang = "uk") {
-        this.validateLanguage(lang);
-
-        return this.isCategory(categories, lang);
+    isStreetCategory(categories) {
+        return this.isCategory(categories);
     },
 
-    isCategory(categories, lang) {
-        const categoryPrefix = constants[lang].STREET_CATEGORY_PREFIX;
+    isCategory(categories) {
+        const categoryPrefix = constants.STREET_CATEGORY_PREFIX;
         return categories.filter(c => {
-            return this.normalizeCategoryName(c,lang).startsWith(categoryPrefix);
+            return this.normalizeCategoryName(c).startsWith(categoryPrefix);
         }).length > 0;
     },
 
-    normalizeCategoryName(categoryName, lang) {
-        this.validateLanguage(lang);
-        return categoryName.replace(constants[lang].CATEGORY_PREFIX, "");
+    normalizeCategoryName(categoryName) {
+        return categoryName.replace(constants.CATEGORY_PREFIX, "");
     },
 
-    filterValidStreetResults(search, results, lang) {
-        this.validateLanguage(lang);
-
-        const streetResults = results.filter(r => r.match(constants[lang].streetArticleTitleRegex));
+    filterValidStreetResults(search, results) {
+        const streetResults = results.filter(r => r.match(constants.streetArticleTitleRegex));
         if(!streetResults.length) {
             return streetResults;
         }
@@ -107,20 +93,13 @@ module.exports = {
         return streetResults.filter(result => this.streetNamesMatch(search, result));
     },
 
-    findGeneralStreetArticle(search, results, lang) {
-        this.validateLanguage(lang);
+    findGeneralStreetArticle(search, results) {
         return optional(() => results
-            .filter(r => r.match(constants[lang].generalStreetArticleTitleRegex)
+            .filter(r => r.match(constants.generalStreetArticleTitleRegex)
                         && this.streetNamesMatch(search, r))[0], undefined);
     },
 
     streetNamesMatch(search, result, threshold = 5) {
-        return this.extractStreetName(result).startsWith(this.extractStreetName(search).substring(0, threshold));
-    },
-
-    validateLanguage(lang) {
-        if(!constants[lang]) {
-            throw Error(`${lang} language is not supported`);
-        }
+        return utils.extractStreetName(result).startsWith(utils.extractStreetName(search).substring(0, threshold));
     }
 };

@@ -43,8 +43,10 @@ module.exports = {
     async createStreet(testStreet, cityId) {
         const {ways, ...street} = testStreet;
         const createdStreet = await db.street.create({cityId, ...street});
-        const createdWays = await db.way.bulkCreate(ways.map(w => { return {coordinates: w}}));
-        await createdStreet.setWays(createdWays);
+        if(ways) {
+            const createdWays = await db.way.bulkCreate(ways.map(w => { return {coordinates: w}}));
+            await createdStreet.setWays(createdWays);
+        }
         return createdStreet;
     },
 

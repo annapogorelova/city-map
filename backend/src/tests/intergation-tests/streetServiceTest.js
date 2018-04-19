@@ -5,6 +5,9 @@ const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
 const streetService = testUtils.dc.get("StreetService");
 const db = require("../../data/models");
+const utils = require("../../app/utils");
+const constants = require("../../app/constants");
+const {optional} = require("tooleks");
 
 describe("street data service test", () => {
     const testCity = testData.cities[0];
@@ -56,6 +59,36 @@ describe("street data service test", () => {
                 assert.exists(err);
                 done();
             }
+        })();
+    });
+
+    it("should return different street types with the similar name", (done) => {
+        (async () => {
+            const createdCity = await db.city.create(testCity);
+            const firstStreet = await testUtils.createStreet(testData.streets[0], createdCity.id);
+
+            let similarStreetModel = Object.assign({}, testData.streets[0]);
+            const cleanName = utils.extractStreetName(similarStreetModel.name);
+            similarStreetModel.name = `${constants.streetTypes[1]} ${cleanName}`;
+
+            const secondStreet = await testUtils.createStreet(similarStreetModel, createdCity.id);
+
+            const similarStreets = await streetService.getBySimilarName(secondStreet.name);
+            assert.exists(similarStreets);
+            assert.equal(2, similarStreets.length);
+
+            let fistStreetFound = optional(() => similarStreets.filter(s => s.id === firstStreet.id)[0]);
+            assert.exists(fistStreetFound);
+
+            let secondStreetFound = optional(() => similarStreets.filter(s => s.id === firstStreet.id)[0]);
+            assert.exists(secondStreetFound);
+
+            const similarStreetsFiltered = await streetService.getBySimilarName(secondStreet.name, secondStreet.id);
+            assert.exists(similarStreetsFiltered);
+            assert.equal(1, similarStreetsFiltered.length);
+            assert.equal(firstStreet.id, similarStreetsFiltered[0].id);
+
+            done();
         })();
     });
 });

@@ -37,7 +37,7 @@ class GeoDataService {
         const streetModel = Object.assign({}, streetGeoData, optional(() => streetInfo, {}));
         let street = this.mapper.map(streetModel, "api.v1.street", "app.street");
 
-        const sameNameStreet = await this.streetService.getByName(streetGeoData.name);
+        const sameNameStreet = await this.streetService.getBySimilarName(streetGeoData.name);
         if(optional(() => sameNameStreet.namedEntityId)) {
             street.namedEntityId = sameNameStreet.namedEntityId;
         } else {

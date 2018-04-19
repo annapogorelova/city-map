@@ -6,7 +6,7 @@ const testData = require("../data/wikiTestData");
 const sinon = require("sinon");
 const WikiApiService = require("../../lib/wiki/wikiApiService");
 const WikiService = require("../../lib/wiki/wikiService");
-const wikiServiceUtils = require("../../lib/wiki/wikiUtils");
+const utils = require("../../app/utils");
 
 function getPage(searchKey) {
     return testData.pages.filter(p => {return p.searchKey === searchKey})[0];
@@ -98,7 +98,7 @@ describe("wiki service test", () => {
     it("should not return the named entity (general street page found)", (done) => {
         (async () => {
             const testStreet = getStreets(true)[0];
-            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+            const title = utils.extractStreetName(testStreet.streetName);
             const namedEntityPage = getPage(title);
             const generalStreetPage = getGeneralStreetPage(testStreet.streetName);
 
@@ -119,7 +119,7 @@ describe("wiki service test", () => {
         (done) => {
             (async () => {
                 const testStreet = getStreets(true)[0];
-                const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+                const title = utils.extractStreetName(testStreet.streetName);
                 const namedEntityPage = getPage(title);
                 const generalStreetPage = Object.assign({}, getGeneralStreetPage(testStreet.streetName));
                 generalStreetPage.summary = "";
@@ -140,7 +140,7 @@ describe("wiki service test", () => {
     it("should not return the named entity (general street page not found)", (done) => {
         (async () => {
             const testStreet = getStreets(true)[0];
-            const title = wikiServiceUtils.extractStreetName(testStreet.streetName);
+            const title = utils.extractStreetName(testStreet.streetName);
             const namedEntityPage = getPage(title);
 
             searchStub.onCall(0).returns({results: []});

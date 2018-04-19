@@ -18,7 +18,14 @@ function makeStreetService(db) {
     }
 
     function getByName(name, cityId) {
-        return db.street.findOne({where: {name: name, cityId: cityId}})
+        let filter = {name: name};
+        if(cityId) {
+            filter["cityId"] = cityId;
+        }
+
+        return db.street.findOne({where: filter, include: [{
+            model: db.namedEntity
+        }]})
             .then(street => optional(() => street.get({
                 plain: true
             })), null);

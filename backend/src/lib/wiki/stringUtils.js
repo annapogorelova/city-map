@@ -1,3 +1,6 @@
+const shevchenko = require("shevchenko");
+const constants = require("./constants");
+
 module.exports = {
     findBestStringsMatch(search, results) {
         const rates = results.map(r => this.calculatePhrasesMatchRate(search, r));
@@ -45,4 +48,61 @@ module.exports = {
 
         return rate / maxLength;
     },
+
+    namesMatch(expectedTitle, actualTitle) {
+        const expectedTitleParts = this.getNamePartsOptions(expectedTitle);
+        const actualTitleParts = this.getNamePartsOptions(actualTitle);
+        let matches = [];
+
+        for (let expectedName of expectedTitleParts) {
+            for (let actualName of actualTitleParts) {
+                let male = {gender: "male", ...actualName};
+                let female = {gender: "female", ...actualName};
+
+                const genMale = shevchenko.inGenitive(male);
+                const genFemale = shevchenko.inGenitive(female);
+
+                if((genMale.lastName === expectedName.lastName &&
+                    (expectedName.firstName === undefined || genMale.firstName === expectedName.firstName)) ||
+                    (genFemale.lastName === expectedName.lastName &&
+                        (expectedName.firstName === undefined || genFemale.firstName === expectedName.firstName))) {
+                    matches.push(actualName);
+                }
+            }
+        }
+
+        return matches.length > 0;
+    },
+
+    getNamePartsOptions(title) {
+        const parts = title.match(constants["uk"].wordsSplitRegex);
+
+        if(parts.length === 1) {
+            return [{
+                lastName: parts[0]
+            }, {
+                firstName: parts[0]
+            }];
+        }
+
+        if(parts.length === 2) {
+            return [{
+                firstName: parts[0],
+                lastName: parts[1]
+            }, {
+                firstName: parts[1],
+                lastName: parts[0]
+            }];
+        }
+
+        if(parts.length === 3) {
+            return [{
+                firstName: parts[0],
+                lastName: parts[2]
+            }, {
+                firstName: parts[1],
+                lastName: parts[0]
+            }];
+        }
+    }
 };

@@ -127,4 +127,77 @@ describe("stringUtils test", () => {
         assert.equal("Павло Полуботок", bestMatch);
         done();
     });
+
+    it("should match names (expected name consists of 1 word)", (done) => {
+       let expectedName = "Сагайдачного";
+
+       let testNames = [
+           {name: "Сагайдачний", correct: true},
+           {name: "Гетьман Сагайдачний", correct: true},
+           {name: "Сагайдачний Петро", correct: true},
+           {name: "Сагайдачний Петро Васильович", correct: true},
+
+           {name: "Сагайдачна", correct: false},
+           {name: "Сагайдачна Олена", correct: false},
+           {name: "Сагайдачна Олена Валерівна", correct: false},
+
+           {name: "Лопушан", correct: false},
+       ];
+
+       for(let testCase of testNames) {
+           assert.equal(stringUtils.namesMatch(expectedName, testCase.name), testCase.correct);
+       }
+
+       done();
+    });
+
+    it("should match names (expected name consists of 2 words)", (done) => {
+        let expectedName = "Юрія Сагайдачного";
+
+        let testNames = [
+            {name: "Сагайдачний Юрій", correct: true},
+            {name: "Юрій Сагайдачний", correct: true},
+            {name: "Сагайдачний Петро", correct: false},
+
+            {name: "Сагайдачна Оксана", correct: false},
+            {name: "Оксана Сагайдачна", correct: false},
+            {name: "Оксана", correct: false},
+
+            {name: "Лопушан Петро", correct: false},
+            {name: "Петро Лопушан", correct: false},
+        ];
+
+        for(let testCase of testNames) {
+            assert.equal(stringUtils.namesMatch(expectedName, testCase.name), testCase.correct);
+        }
+
+        done();
+    });
+
+    it("should match names (expected name consists of 3 words)", (done) => {
+        let expectedName = "Юрія Володимировича Сагайдачного";
+
+        let testNames = [
+            {name: "Сагайдачний Юрій Володимирович", correct: true},
+            {name: "Юрій Володимирович Сагайдачний", correct: true},
+
+            {name: "Сагайдачний Юрій", correct: true},
+            {name: "Юрій Сагайдачний", correct: true},
+            {name: "Сагайдачний Петро", correct: false},
+
+            {name: "Сагайдачна Оксана", correct: false},
+            {name: "Оксана Сагайдачна", correct: false},
+            {name: "Оксана", correct: false},
+
+            {name: "Лопушан Петро Володимирович", correct: false},
+            {name: "Лопушан Петро", correct: false},
+            {name: "Петро Лопушан", correct: false},
+        ];
+
+        for(let testCase of testNames) {
+            assert.equal(stringUtils.namesMatch(expectedName, testCase.name), testCase.correct);
+        }
+
+        done();
+    });
 });

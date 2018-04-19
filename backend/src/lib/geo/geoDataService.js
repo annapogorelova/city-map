@@ -34,48 +34,25 @@ class GeoDataService {
         }
 
         const streetInfo = await this.wikiService.getStreetInfo(streetGeoData.name, city.name);
-        const streetModel = Object.assign({}, streetGeoData, optional(() => streetInfo.street, {}));
+        const streetModel = Object.assign({}, streetGeoData, optional(() => streetInfo, {}));
         let street = this.mapper.map(streetModel, "api.v1.street", "app.street");
 
-        if(streetInfo.namedEntity) {
-            let namedEntity = await this.processNamedEntity(streetInfo.namedEntity);
-            street.namedEntityId = namedEntity.id;
+        const sameNameStreet = await this.streetService.getByName(streetGeoData.name);
+        if(optional(() => sameNameStreet.namedEntityId)) {
+            street.namedEntityId = sameNameStreet.namedEntityId;
         } else {
-            street.namedEntityId = null;
-        }
-
-        if (!existingStreet) {
-            street.cityId = city.id;
-            return this.streetService.create(street, streetModel.ways);
-        } else {
-            // Update existing street props
-            let keys = Object.getOwnPropertyNames(street).filter(k => k !== "id");
-            let changed = false;
-
-            for(let key of keys) {
-                if(existingStreet.hasOwnProperty(key) &&
-                    typeof street[key] !== "undefined" &&
-                    existingStreet[key] !== street[key]) {
-                    changed = true;
-                    existingStreet[key] = street[key];
+            let namedEntityModel = await this.wikiService.getNamedEntityInfo(streetGeoData.name, optional(() => streetInfo.info["назва на честь"]));
+            if(namedEntityModel) {
+                let namedEntity = await this.namedEntityService.getByName(namedEntityModel.name);
+                if(!namedEntity) {
+                    namedEntity = await this.namedEntityService.create(namedEntityModel);
                 }
+                street.namedEntityId = namedEntity.id;
             }
-
-            if(changed) {
-                return this.streetService.update(existingStreet);
-            }
-
-            return existingStreet;
         }
-    }
 
-    async processNamedEntity(namedEntityModel) {
-        let namedEntity = await this.namedEntityService.getByName(namedEntityModel.name);
-        if(!namedEntity) {
-            return this.namedEntityService.create(namedEntityModel);
-        } else {
-            return namedEntity;
-        }
+        street.cityId = city.id;
+        return this.streetService.create(street, streetModel.ways);
     }
 }
 

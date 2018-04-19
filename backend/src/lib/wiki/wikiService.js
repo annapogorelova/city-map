@@ -2,7 +2,6 @@ const {optional} = require("tooleks");
 const utils = require("./wikiUtils");
 const stringUtils = require("./stringUtils");
 const constants = require("./constants");
-const shevchenko = require("shevchenko");
 
 /**
  * Class contains methods for searching the streets articles in Wikipedia
@@ -13,8 +12,30 @@ class WikiService {
         this.lang = lang;
     }
 
+    async getNamedEntityInfo(streetName, namedAfter, maxLength = 500) {
+        let namedEntityTitle = await this.getGeneralStreetNamedEntity(streetName);
+        let namedEntityInfo;
+
+        if(namedEntityTitle) {
+            namedEntityInfo = await this.getPage(namedEntityTitle);
+        } else {
+            namedEntityTitle = namedAfter ? namedAfter : utils.extractStreetName(streetName, this.lang);
+            namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle);
+        }
+
+        if (namedEntityInfo) {
+            return {
+                name: namedEntityInfo.title,
+                description: optional(() => utils.formatText(namedEntityInfo.summary, maxLength), ""),
+                imageUrl: namedEntityInfo.imageUrl,
+                wikiUrl: namedEntityInfo.wikiUrl
+            };
+        }
+
+        return null;
+    }
+
     async getStreetInfo(streetName, cityName, maxLength = 500) {
-        let result = {};
         const exactArticleName = `${streetName} (${cityName})`;
         const exactStreetSearchResults = await this.wikiApiService.search(exactArticleName, this.lang, 1);
         const streetArticle = utils.filterValidStreetResults(
@@ -28,39 +49,14 @@ class WikiService {
             const isStreet = optional(() => utils.isStreetCategory(streetInfo.categories), false);
 
             if (streetInfo && isStreet) {
-                result["street"] = {
+                return {
                     wikiUrl: optional(() => streetInfo.wikiUrl, null),
                     description: optional(() => utils.formatText(streetInfo.summary, maxLength), null)
                 };
             }
         }
 
-        // Main Strategy - search in the General street article
-        let namedEntityTitle = await this.getGeneralStreetNamedEntity(streetName);
-        let namedEntityInfo;
-
-        if(namedEntityTitle) {
-             namedEntityInfo = await this.getPage(namedEntityTitle);
-        } else {
-            namedEntityTitle = this.getNamedEntityName(streetName, streetInfo);
-            namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle);
-        }
-
-        if (namedEntityInfo) {
-            result["namedEntity"] = {
-                name: namedEntityInfo.title,
-                description: optional(() => utils.formatText(namedEntityInfo.summary, maxLength), ""),
-                imageUrl: namedEntityInfo.imageUrl,
-                wikiUrl: namedEntityInfo.wikiUrl
-            };
-        }
-
-        return result;
-    }
-
-    getNamedEntityName(streetName, streetInfo) {
-        return optional(() => streetInfo.info[constants[this.lang].NAMED_AFTER_INFOBOX_KEY], undefined) ||
-            utils.extractStreetName(streetName, this.lang);
+        return null;
     }
 
     async getGeneralStreetNamedEntity(streetName) {
@@ -80,7 +76,7 @@ class WikiService {
         return null;
     }
 
-    async searchNamedEntityArticle(articleName, limit = 20, minRate = 1.2) {
+    async searchNamedEntityArticle(articleName, limit = 10, minRate = 1.4) {
         const searchResult = await this.wikiApiService.search(articleName, this.lang, limit);
         const results = optional(() => searchResult.results, []);
         if (!results.length) {
@@ -88,7 +84,6 @@ class WikiService {
         }
 
         let resultCandidates = [];
-        const articleNameParts = articleName.match(constants[this.lang].wordsSplitRegex);
 
         for (let i = 0; i < results.length; i++) {
             let pageTitle = results[i];
@@ -97,17 +92,15 @@ class WikiService {
             if (optional(() => utils.isNamedEntityCategory(page.categories, this.lang), null)) {
                 let rate = this.getPageRate(articleName, pageTitle, page.categories);
 
-                // If it's a person and rate is worth checking, then do the genitive case validity check
-                if(rate >= minRate && articleNameParts.length === 1 && this.isPersonCategory(page)) {
-                    const lastName = this.extractLastName(page);
-                    if(!this.lastNameMatches(lastName, articleName)) {
-                        rate = 0;
-                    }
+                if(rate < minRate) {
+                    continue;
                 }
 
-                if(rate >= minRate) {
-                    resultCandidates.push({page: page, rate: rate});
+                if(this.isPersonCategory(page) && !stringUtils.namesMatch(articleName, page.title)) {
+                    continue;
                 }
+
+                resultCandidates.push({page: page, rate: rate});
             }
         }
 
@@ -122,37 +115,6 @@ class WikiService {
         return optional(() => resultCandidates.sort((a, b) => {
             return a.rate < b.rate ? 1 : (a.rate > b.rate ? -1 : 0);
         })[0].page, null);
-    }
-
-    extractLastName(page) {
-        //let personName = optional(() => page.info[constants[this.lang].nameInfoBoxProperty], undefined);
-
-        // Infobox case: Тарас Григорович Шевченко
-        // if(personName !== undefined && personName !== page.title) {
-        //     const nameParts = personName.match(constants[this.lang].wordsSplitRegex);
-        //     return optional(() => nameParts[nameParts.length - 1], "");
-        // }
-
-        // Title case: Шевченко Тарас Григорович
-        const nameParts = page.title.match(constants[this.lang].wordsSplitRegex);
-        return nameParts.length === 3 ? nameParts[0] : nameParts[nameParts.length - 1];
-    }
-
-    lastNameMatches(lastName, expectedLastName) {
-        const male = {
-            gender: "male",
-            lastName: lastName
-        };
-
-        const female = {
-            gender: "female",
-            lastName: lastName
-        };
-
-        const resultMale = shevchenko.inGenitive(male);
-        const resultFemale = shevchenko.inGenitive(female);
-
-        return (resultMale.lastName === expectedLastName || resultFemale.lastName === expectedLastName);
     }
 
     isPersonCategory(page) {

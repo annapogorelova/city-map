@@ -13,6 +13,7 @@ const sinon = require("sinon");
 describe("geoDataService test", () => {
     const jsonGeoParser = testUtils.dc.get("GeoParser");
     const streetService = testUtils.dc.get("StreetService");
+    const namedEntityService = testUtils.dc.get("NamedEntityService");
 
     before((done) => {
         // Replacing the data directory path
@@ -56,35 +57,35 @@ describe("geoDataService test", () => {
 
     it("should correctly parse the json file with geo data and add streets to db", (done) => {
         (async () => {
-            const testPersonName = "Person Person";
             const testDescription = "Street description";
-            const testPersonDescription = "Named after description";
-            const testImageUrl = "https://uk.wikipedia.org/image.jpg";
             const testWikiUrl = "https://uk.wikipedia.org/articte";
-            const testWikiPersonWikiUrl = "https://uk.wikipedia.org/named_after";
+
+            const testPersonName = "Person name";
+            const testPersonDescription = "Person description";
+            const testPersonWikiUrl = "https://uk.wikipedia.org/person";
 
             const city = await db.city.create(testData.cities[1]); // Zhovkva
             const loadedStreets = await jsonGeoParser.parse(city.nameEn);
             const wikiService =  new WikiService(testUtils.dc.get("WikiApiService"));
 
-            const stub = sinon.stub(wikiService, "getStreetInfo");
+            const getStreetInfoStub = sinon.stub(wikiService, "getStreetInfo");
+            const getNamedEntityInfoStub = sinon.stub(wikiService, "getNamedEntityInfo");
+
             for(let i = 0; i < loadedStreets.length; i++) {
-                let returnValue = {
-                    street: {
-                        description: testDescription,
-                        wikiUrl: testWikiUrl
-                    }
-                };
-                if(i % 2 === 0) {
-                    returnValue["namedEntity"] = {
+                getStreetInfoStub.onCall(i).resolves({
+                    description: testDescription,
+                    wikiUrl: testWikiUrl
+                });
+
+                if(i % 2) {
+                    getNamedEntityInfoStub.onCall(i).resolves({
                         name: testPersonName,
                         description: testPersonDescription,
-                        wikiUrl: testWikiPersonWikiUrl,
-                        imageUrl: testImageUrl
-                    };
+                        wikiUrl: testPersonWikiUrl
+                    });
+                } else {
+                    getNamedEntityInfoStub.onCall(i).resolves(null);
                 }
-
-                stub.onCall(i).returns(Promise.resolve(returnValue));
             }
 
             testUtils.dc.registerInstance("WikiService", wikiService);
@@ -99,11 +100,10 @@ describe("geoDataService test", () => {
                 assert.equal(addedStreets[i].wikiUrl, testWikiUrl);
                 assert.exists(addedStreets[i].ways);
 
-                if(i % 2 === 0) {
+                if(i % 2) {
                     assert.equal(addedStreets[i].namedEntity.name, testPersonName);
-                    assert.equal(addedStreets[i].namedEntity.wikiUrl, testWikiPersonWikiUrl);
+                    assert.equal(addedStreets[i].namedEntity.wikiUrl, testPersonWikiUrl);
                     assert.equal(addedStreets[i].namedEntity.description, testPersonDescription);
-                    assert.equal(addedStreets[i].namedEntity.imageUrl, testImageUrl);
                 } else {
                     assert.isNull(addedStreets[i].namedEntity);
                 }
@@ -155,15 +155,14 @@ describe("geoDataService test", () => {
             const testDescription = "Street description";
             const testWikiUrl = "https://uk.wikipedia.org/articte";
 
-            let returnValue = {
-                street: {
-                    description: testDescription,
-                    wikiUrl: testWikiUrl
-                }
+            const streetInfo = {
+                description: testDescription,
+                wikiUrl: testWikiUrl
             };
 
             const wikiService =  new WikiService(testUtils.dc.get("WikiApiService"));
-            sinon.stub(wikiService, "getStreetInfo").returns(returnValue);
+            sinon.stub(wikiService, "getStreetInfo").returns(streetInfo);
+            sinon.stub(wikiService, "getNamedEntityInfo").returns(null);
             testUtils.dc.registerInstance("WikiService", wikiService);
             const geoDataService = testUtils.dc.get("GeoDataService");
 
@@ -178,6 +177,57 @@ describe("geoDataService test", () => {
             assert(secondCityStreet);
             assert.equal(cities[1].id, secondCityStreet.cityId);
             assert.equal(testStreet.name, secondCityStreet.name);
+
+            done();
+        })();
+    });
+
+    it("should not search for the named entity and create it if " +
+        "the street with the same name already exists", (done) => {
+        (async () => {
+            const cities = await db.city.bulkCreate(testData.cities.slice(0, 2));
+            const testStreet = Object.assign({}, testData.streets[0]);
+
+            const streetInfo = {
+                description: "Street description",
+                wikiUrl: "https://uk.wikipedia.org/articte"
+            };
+
+            const namedEntityInfo = {
+                name: "Тарас Шевченко",
+                description: "український поет",
+                wikiUrl: "https://uk.wikipedia.org/shevchenko"
+            };
+
+            const wikiService =  new WikiService(testUtils.dc.get("WikiApiService"));
+
+            sinon.stub(wikiService, "getStreetInfo").resolves(streetInfo);
+            sinon.stub(wikiService, "getNamedEntityInfo").resolves(namedEntityInfo);
+
+            testUtils.dc.registerInstance("WikiService", wikiService);
+            const geoDataService = testUtils.dc.get("GeoDataService");
+
+            // create the street for the first city
+            const firstCityStreet = await geoDataService.processStreet(testStreet, cities[0]);
+            assert(firstCityStreet);
+            assert.equal(cities[0].id, firstCityStreet.cityId);
+            assert.equal(testStreet.name, firstCityStreet.name);
+            assert.exists(firstCityStreet.namedEntityId);
+
+            // create the street for the second city
+            const secondCityStreet = await geoDataService.processStreet(testStreet, cities[1]);
+            assert(secondCityStreet);
+            assert.equal(cities[1].id, secondCityStreet.cityId);
+            assert.equal(testStreet.name, secondCityStreet.name);
+            assert.exists(secondCityStreet.namedEntityId);
+
+            assert.equal(firstCityStreet.namedEntityId, secondCityStreet.namedEntityId);
+
+            const namedEntity = await namedEntityService.getById(firstCityStreet.namedEntityId);
+
+            assert.equal(namedEntityInfo.name, namedEntity.name);
+            assert.equal(namedEntityInfo.description, namedEntity.description);
+            assert.equal(namedEntityInfo.wikiUrl, namedEntity.wikiUrl);
 
             done();
         })();

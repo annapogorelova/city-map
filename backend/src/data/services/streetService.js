@@ -32,17 +32,17 @@ function makeStreetService(db) {
         }).then(street => optional(() => getPlain(street)), null);
     }
 
-    function getBySimilarName(name, excludeStreetId) {
-        let filter = {name: {$like: `%${utils.extractStreetName(name)}%` } };
-
-        if(excludeStreetId) {
-            filter["id"] = {
-                $ne: excludeStreetId
-            };
-        }
+    function getBySimilarName(name) {
+        let filter = db.sequelize.where(
+            db.sequelize.literal('MATCH (`street`.`name`) AGAINST (:name IN BOOLEAN MODE)'),
+            {$gt: 0});
+        let query = utils.extractStreetName(name);
 
         return db.street.findAll({
             where: filter,
+            replacements: {
+                name: `+"${query}"`
+            },
             include: [{
                 model: db.namedEntity
             }]

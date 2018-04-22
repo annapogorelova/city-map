@@ -1,6 +1,7 @@
 "use strict";
 
 const {optional} = require("tooleks");
+const constants = require("constants");
 
 class GeoDataService {
     constructor(geoParser, wikiService, streetService, namedEntityService, mapper) {
@@ -11,12 +12,12 @@ class GeoDataService {
         this.mapper = mapper;
     }
 
-    async processCity(city) {
+    async processCity(city, skipExisting = false) {
         try {
             const streetsGeoData = await this.geoParser.parse(city.nameEn);
             for (let geoData of streetsGeoData) {
                 try {
-                    const street = await this.processStreet(geoData, city);
+                    const street = await this.processStreet(geoData, city, skipExisting);
                     console.log(`Processed ${street.name}.`);
                 } catch(err) {
                     console.log(err.message);
@@ -27,9 +28,9 @@ class GeoDataService {
         }
     }
 
-    async processStreet(streetGeoData, city) {
+    async processStreet(streetGeoData, city, skipExisting) {
         let existingStreet = await this.streetService.getByName(streetGeoData.name, city.id);
-        if(existingStreet) {
+        if(existingStreet && skipExisting) {
             return existingStreet;
         }
 
@@ -37,22 +38,31 @@ class GeoDataService {
         const streetModel = Object.assign({}, streetGeoData, optional(() => streetInfo, {}));
         let street = this.mapper.map(streetModel, "api.v1.street", "app.street");
 
-        const sameNameStreet = await this.streetService.getBySimilarName(streetGeoData.name);
+        const namedEntity = await this.processNamedEntity(streetGeoData.name,
+            optional(() => streetInfo.info[constants.namedAfterInfoBoxProperty]));
+
+        if(namedEntity) {
+            street.namedEntityId = namedEntity.id;
+        }
+
+        street.cityId = city.id;
+        return this.streetService.create(street, streetModel.ways);
+    }
+
+    async processNamedEntity(streetName, namedAfter) {
+        const sameNameStreet = await this.streetService.getBySimilarName(streetName);
         if(optional(() => sameNameStreet.namedEntityId)) {
-            street.namedEntityId = sameNameStreet.namedEntityId;
+            return sameNameStreet;
         } else {
-            let namedEntityModel = await this.wikiService.getNamedEntityInfo(streetGeoData.name, optional(() => streetInfo.info["назва на честь"]));
+            let namedEntityModel = await this.wikiService.getNamedEntityInfo(streetName, namedAfter);
             if(namedEntityModel) {
                 let namedEntity = await this.namedEntityService.getByName(namedEntityModel.name);
                 if(!namedEntity) {
                     namedEntity = await this.namedEntityService.create(namedEntityModel);
                 }
-                street.namedEntityId = namedEntity.id;
+                return namedEntity;
             }
         }
-
-        street.cityId = city.id;
-        return this.streetService.create(street, streetModel.ways);
     }
 }
 

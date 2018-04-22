@@ -66,6 +66,7 @@ describe("street data service test", () => {
         (async () => {
             const createdCity = await db.city.create(testCity);
             const firstStreet = await testUtils.createStreet(testData.streets[0], createdCity.id);
+            const otherStreet = await testUtils.createStreet(testData.streets[1], createdCity.id);
 
             let similarStreetModel = Object.assign({}, testData.streets[0]);
             const cleanName = utils.extractStreetName(similarStreetModel.name);
@@ -80,13 +81,49 @@ describe("street data service test", () => {
             let fistStreetFound = optional(() => similarStreets.filter(s => s.id === firstStreet.id)[0]);
             assert.exists(fistStreetFound);
 
-            let secondStreetFound = optional(() => similarStreets.filter(s => s.id === firstStreet.id)[0]);
+            let secondStreetFound = optional(() => similarStreets.filter(s => s.id === secondStreet.id)[0]);
             assert.exists(secondStreetFound);
 
-            const similarStreetsFiltered = await streetService.getBySimilarName(secondStreet.name, secondStreet.id);
-            assert.exists(similarStreetsFiltered);
-            assert.equal(1, similarStreetsFiltered.length);
-            assert.equal(firstStreet.id, similarStreetsFiltered[0].id);
+            let otherStreetFound = optional(() => similarStreets.filter(s => s.id === otherStreet.id)[0]);
+            assert.notExists(otherStreetFound);
+
+            done();
+        })();
+    });
+
+    it("should strictly compare the streets by name", (done) => {
+        (async () => {
+            const createdCity = await db.city.create(testCity);
+            let createdStreets = [];
+
+            const testCases = [
+                {name: "вулиця Тараса Шевченка", valid: true},
+                {name: "проспект Тараса Шевченка", valid: true},
+                {name: "проспект Шевченка", valid: false},
+                {name: "провулок Тараса Шевча", valid: false},
+                {name: "проспект Олександра Шевченка", valid: false},
+                // injections test
+                {name: "') or 1 = 1;", valid: false},
+                {name: "'); drop table street;", valid: false},
+            ];
+
+            for(let testCase of testCases) {
+                let street = Object.assign({}, testData.streets[0], {name: testCase.name});
+                createdStreets.push(await testUtils.createStreet(street, createdCity.id))
+            }
+
+            const similarStreets = await streetService.getBySimilarName(testCases[0].name);
+            assert.exists(similarStreets);
+            assert.equal(testCases.filter(tc => tc.valid).length, similarStreets.length);
+
+            for(let i = 0; i < testCases.length; i++) {
+                let streetFound = optional(() => similarStreets.filter(s => s.id === createdStreets[i].id)[0]);
+                if(testCases[i].valid) {
+                    assert.exists(streetFound);
+                } else {
+                    assert.notExists(streetFound);
+                }
+            }
 
             done();
         })();

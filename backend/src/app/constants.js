@@ -15,6 +15,7 @@ module.exports = Object.freeze({
     clearSpecialSymbolsRegex: /[^\w\u0400-\u04FF\s'\-,.?!:;%()’—]+/g,
     images: ["фото", "портрет", "зображення", "герб", "прапор", "розташування"],
     nameInfoBoxProperty: "ім'я",
+    namedAfterInfoBoxProperty: "назва на честь",
     namedEntityCategories: [
         {name: "Люди, на честь яких названі вулиці", priority: 8},
         {name: "Українські археологи", priority: 2},
@@ -49,5 +50,5 @@ module.exports = Object.freeze({
         {name: "Думи", priority: 1},
         {name: "Телережисери", priority: 1},
         {name: "Персоналії", priority: 1, strictComparison: false},
-    ],
+    ]
 });

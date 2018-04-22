@@ -24,6 +24,10 @@ module.exports = {
             name: "Івано-Франківськ",
             nameEn: "Ivano-Frankivsk",
             coordinates: [48.9118646, 24.6469172]
+        }, {
+            name: "Дрогобич",
+            nameEn: "Drohobych",
+            coordinates: [49.3522013, 23.4403318]
         }];
 
         for(let city of cities) {

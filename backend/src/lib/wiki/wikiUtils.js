@@ -62,10 +62,10 @@ module.exports = {
 
     isNamedEntityCategory(categories) {
         const normalizedCategories = categories.map(c => this.normalizeCategoryName(c));
-        const localizedConstants = constants.namedEntityCategories.map(c => c.name);
 
-        return localizedConstants.some(category => {
-            return normalizedCategories.some(c => c.startsWith(category));
+        return constants.namedEntityCategories.some(category => {
+            return normalizedCategories.some(c =>
+                category.strictComparison ? c === category.name : c.startsWith(category.name));
         });
     },
 

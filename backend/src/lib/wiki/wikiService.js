@@ -63,7 +63,7 @@ class WikiService {
         const searchResults = await this.wikiApiService.search(streetName, this.lang, 5);
         const articleTitle = wikiUtils.findGeneralStreetArticle(streetName, searchResults.results);
 
-        if(articleTitle) {
+        if(articleTitle && wikiUtils.streetNamesMatch(streetName, articleTitle)) {
             const article = await this.wikiApiService.getPage(articleTitle);
             let pageContent = await article.summary();
             if(!pageContent) {
@@ -92,11 +92,12 @@ class WikiService {
             if (optional(() => wikiUtils.isNamedEntityCategory(page.categories), null)) {
                 let rate = this.getPageRate(articleName, pageTitle, page.categories);
 
-                if(rate < minRate) {
-                    continue;
+                if(rate > 0 &&
+                    articleName !== page.title && !stringUtils.namesMatch(articleName, page.title)) {
+                    rate -= minRate;
                 }
 
-                if(this.isPersonCategory(page) && !stringUtils.namesMatch(articleName, page.title)) {
+                if(rate < minRate) {
                     continue;
                 }
 
@@ -117,16 +118,12 @@ class WikiService {
         })[0].page, null);
     }
 
-    isPersonCategory(page) {
-        return optional(() => this.findMainCategory(page.categories).isPerson, false);
-    }
-
     getPageRate(searchPhrase, pageTitle, pageCategories) {
         let rate = stringUtils.calculatePhrasesMatchRate(searchPhrase, pageTitle);
         if (pageCategories.length) {
             const category = this.findMainCategory(pageCategories);
             if(category && rate > 0) {
-                rate = this.incrementByCategoryWeight(rate, category);
+                rate += (category.priority / 10);
             }
         }
 
@@ -135,10 +132,6 @@ class WikiService {
 
     addOrderWeight(rate, idx, resultsLength) {
         return (rate + ((resultsLength - idx) / resultsLength));
-    }
-
-    incrementByCategoryWeight(rate, category) {
-        return rate + (category.priority / 10);
     }
 
     findMainCategory(categories) {
@@ -162,10 +155,10 @@ class WikiService {
                 optional(() => wikiUtils.mainImage(page), null)
             ]);
             return {
-                title: title,
+                title: stringUtils.cleanText(title),
                 info: pageContent[0],
-                summary: pageContent[1],
-                content: pageContent[2],
+                summary: stringUtils.cleanText(pageContent[1]),
+                content: stringUtils.cleanText(pageContent[2]),
                 categories: pageContent[3],
                 imageUrl: pageContent[4],
                 wikiUrl: optional(() => page.raw.fullurl, "")

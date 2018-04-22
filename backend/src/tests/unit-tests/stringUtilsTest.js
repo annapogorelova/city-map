@@ -222,4 +222,31 @@ describe("stringUtils test", () => {
 
         done();
     });
+
+    it("should match names (expected name in format 'Title FirstName LastName')", (done) => {
+        let expectedName = "Князя Олега";
+
+        let testNames = [
+            {name: "Олег", correct: true},
+            {name: "Олег Святославич", correct: true},
+            {name: "Святославич Олег", correct: true},
+
+            {name: "Князь Всеволод", correct: false},
+            {name: "Король Олег", correct: false},
+        ];
+
+        for(let testCase of testNames) {
+            assert.equal(testCase.correct, stringUtils.namesMatch(expectedName, testCase.name));
+        }
+
+        done();
+    });
+
+    it("should remove the special symbols from the text", (done) => {
+        assert.equal("Юрій Олексійович Гагарін", stringUtils.cleanText("Ю́рій Олексі́йович Гага́рін"));
+        assert.equal("Леся Українка", stringUtils.cleanText("Ле́ся Украї́нка"));
+        assert.equal("Семен Степанович Гулак-Артемовський", stringUtils.cleanText("Семе́н Степа́нович Гула́к-Артемо́вський"));
+
+        done();
+    });
 });

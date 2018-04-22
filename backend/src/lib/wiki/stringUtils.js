@@ -1,4 +1,5 @@
 const shevchenko = require("shevchenko");
+const {optional} = require("tooleks");
 const constants = require("../../app/constants");
 
 module.exports = {
@@ -49,13 +50,33 @@ module.exports = {
         return rate / maxLength;
     },
 
-    namesMatch(expectedTitle, actualTitle) {
-        const expectedTitleParts = this.getNamePartsOptions(expectedTitle);
-        const actualTitleParts = this.getNamePartsOptions(actualTitle);
+    cleanText(text) {
+        return text.replace(constants.clearSpecialSymbolsRegex, "").replace("Lib\n", "");
+    },
+
+    namesMatch(expectedName, actualName) {
+        let cleanedExpectedName = this.removeNickName(expectedName);
+        let cleanedActualName = this.removeNickName(actualName);
+
+        const expectedTitle = this.extractTitle(cleanedExpectedName);
+        const actualTitle = this.extractTitle(cleanedActualName);
+
+        // "Князь Олег" != "Король Олег"
+        if(expectedTitle !== "" && actualTitle !== "" &&
+            (shevchenko.inGenitive({firstName: actualTitle, gender: "male"}).firstName !== expectedTitle &&
+            shevchenko.inGenitive({firstName: actualTitle, gender: "female"}).firstName !== expectedTitle)) {
+            return false;
+        }
+
+        cleanedExpectedName = cleanedExpectedName.replace(expectedTitle, "");
+        cleanedActualName = cleanedActualName.replace(actualTitle, "");
+
+        const expectedNameParts = this.getNamePartsOptions(cleanedExpectedName);
+        const actualNameParts = this.getNamePartsOptions(cleanedActualName);
         let matches = [];
 
-        for (let expectedName of expectedTitleParts) {
-            for (let actualName of actualTitleParts) {
+        for (let expectedName of expectedNameParts) {
+            for (let actualName of actualNameParts) {
                 let male = {gender: "male", ...actualName};
                 let female = {gender: "female", ...actualName};
 
@@ -74,9 +95,16 @@ module.exports = {
         return matches.length > 0;
     },
 
+    extractTitle(personName) {
+        return optional(() => personName.match(constants.personTitle)[0], "");
+    },
+
+    removeNickName(personName) {
+        return personName.replace(/\(([-'\u0400-\u04FF\w\s]+)\)/g, "").trim();
+    },
+
     getNamePartsOptions(title) {
-        const parts = title.replace(/\(([-'\u0400-\u04FF\w\s]+)\)/g, "").trim()
-            .match(constants.wordsSplitRegex);
+        const parts = title.match(constants.wordsSplitRegex);
 
         if(parts.length === 1) {
             return [{
@@ -96,7 +124,7 @@ module.exports = {
             }];
         }
 
-        if(parts.length === 3) {
+        if(parts.length >= 3) {
             return [{
                 firstName: parts[0],
                 lastName: parts[2]

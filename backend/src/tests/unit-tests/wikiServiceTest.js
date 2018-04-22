@@ -7,6 +7,7 @@ const sinon = require("sinon");
 const WikiApiService = require("../../lib/wiki/wikiApiService");
 const WikiService = require("../../lib/wiki/wikiService");
 const utils = require("../../app/utils");
+const stringUtils = require("../../lib/wiki/stringUtils");
 
 function getPage(searchKey) {
     return testData.pages.filter(p => {return p.searchKey === searchKey})[0];
@@ -32,16 +33,16 @@ describe("wiki service test", () => {
     function getPageStubData(page) {
         return {
             raw: page.page.raw,
-            summary: sinon.stub().resolves(page.page.summary),
-            content: sinon.stub().resolves(page.page.content),
+            summary: sinon.stub().resolves(stringUtils.cleanText(page.page.summary)),
+            content: sinon.stub().resolves(stringUtils.cleanText(page.page.content)),
             categories: sinon.stub().resolves(page.page.categories),
             mainImage: sinon.stub().resolves(page.page.imageUrl),
         };
     }
 
     function configurePageStub(page, searchStub, getPageStub, searchCallIndex, getPageCallIndex) {
-        searchStub.onCall(searchCallIndex).returns({results: page.searchResults});
-        getPageStub.onCall(getPageCallIndex).returns(getPageStubData(page));
+        searchStub.onCall(searchCallIndex).resolves({results: page.searchResults});
+        getPageStub.onCall(getPageCallIndex).resolves(getPageStubData(page));
     }
 
     beforeEach((done) => {
@@ -103,12 +104,12 @@ describe("wiki service test", () => {
             const generalStreetPage = getGeneralStreetPage(testStreet.streetName);
 
             configurePageStub(generalStreetPage, searchStub, getPageStub, 0, 0);
-            getPageStub.onCall(1).returns(getPageStubData(namedEntityPage));
+            getPageStub.onCall(1).resolves(getPageStubData(namedEntityPage));
 
             const result = await wikiService.getNamedEntityInfo(testStreet.streetName);
 
             assert.exists(result);
-            assert.equal(namedEntityPage.page.summary, result.description);
+            assert.equal(stringUtils.cleanText(namedEntityPage.page.summary), result.description);
             assert.equal(namedEntityPage.page.wikiUrl, result.wikiUrl);
 
             done();
@@ -130,7 +131,7 @@ describe("wiki service test", () => {
                 const result = await wikiService.getNamedEntityInfo(testStreet.streetName);
 
                 assert.exists(result);
-                assert.equal(namedEntityPage.page.summary, result.description);
+                assert.equal(stringUtils.cleanText(namedEntityPage.page.summary), result.description);
                 assert.equal(namedEntityPage.page.wikiUrl, result.wikiUrl);
 
                 done();
@@ -149,7 +150,7 @@ describe("wiki service test", () => {
             const result = await wikiService.getNamedEntityInfo(testStreet.streetName);
 
             assert.exists(result);
-            assert.equal(namedEntityPage.page.summary, result.description);
+            assert.equal(stringUtils.cleanText(namedEntityPage.page.summary), result.description);
             assert.equal(namedEntityPage.page.wikiUrl, result.wikiUrl);
 
             done();

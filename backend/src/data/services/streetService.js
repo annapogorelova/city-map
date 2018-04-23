@@ -34,7 +34,7 @@ function makeStreetService(db) {
 
     function getBySimilarName(name) {
         let filter = db.sequelize.where(
-            db.sequelize.literal('MATCH (`street`.`name`) AGAINST (:name IN BOOLEAN MODE)'),
+            db.sequelize.literal("MATCH (`street`.`name`) AGAINST (:name IN BOOLEAN MODE)"),
             {$gt: 0});
         let query = utils.extractStreetName(name);
 
@@ -78,7 +78,12 @@ function makeStreetService(db) {
             limit: limit
         });
 
-        return optional(() => ways[0].getStreets({include: [{model: db.namedEntity}, {model: db.way}]}), []);
+        return optional(() => ways[0].getStreets({
+            include: [
+                {model: db.namedEntity},
+                {model: db.way}
+            ]
+        }), []);
     }
 
     function search(search, cityId = null, offset = 0, limit = 5) {

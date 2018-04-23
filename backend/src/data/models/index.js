@@ -32,15 +32,19 @@ db.user = require("./user")(sequelize, Sequelize);
 db.city = require("./city")(sequelize, Sequelize);
 db.street = require("./street")(sequelize, Sequelize);
 db.namedEntity = require("./namedEntity")(sequelize, Sequelize);
+db.tag = require("./tag")(sequelize, Sequelize);
+db.tagNamedEntity = require("./tagNamedEntity")(sequelize, Sequelize);
+db.way = require("./way")(sequelize, Sequelize);
+db.streetWay = require("./streetWay")(sequelize, Sequelize);
 
 db.street.belongsTo(db.city, {foreignKey: "cityId"});
 db.street.belongsTo(db.namedEntity, {foreignKey: "namedEntityId"});
 
-db.way = require("./way")(sequelize, Sequelize);
-db.streetWay = require("./streetWay")(sequelize, Sequelize);
-
 db.way.belongsToMany(db.street, {through: db.streetWay});
 db.street.belongsToMany(db.way, {through: db.streetWay});
+
+db.namedEntity.belongsToMany(db.tag,  {through: db.tagNamedEntity});
+db.tag.belongsToMany(db.namedEntity,  {through: db.tagNamedEntity});
 
 db.sequelize.sync();
 

@@ -19,12 +19,12 @@ class GeoDataService {
                 try {
                     const street = await this.processStreet(geoData, city, skipExisting);
                     console.log(`Processed ${street.name}.`);
-                } catch(err) {
-                    console.log(err.message);
+                } catch (error) {
+                    console.log(error.message);
                 }
             }
-        } catch (err) {
-            throw Error(err);
+        } catch (error) {
+            throw Error(error);
         }
     }
 
@@ -54,12 +54,15 @@ class GeoDataService {
         if(optional(() => sameNameStreet.namedEntityId)) {
             return sameNameStreet;
         } else {
-            let namedEntityModel = await this.wikiService.getNamedEntityInfo(streetName, namedAfter);
-            if(namedEntityModel) {
+            const namedEntityInfo = await this.wikiService.getNamedEntityInfo(streetName, namedAfter);
+
+            if(namedEntityInfo) {
+                let {tags, ...namedEntityModel} = namedEntityInfo;
                 let namedEntity = await this.namedEntityService.getByName(namedEntityModel.name);
                 if(!namedEntity) {
-                    namedEntity = await this.namedEntityService.create(namedEntityModel);
+                    namedEntity = await this.namedEntityService.create(namedEntityModel, tags);
                 }
+
                 return namedEntity;
             }
         }

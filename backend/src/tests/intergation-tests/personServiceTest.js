@@ -48,8 +48,8 @@ describe("named entity data service test", () => {
 
             try {
                 await namedEntityService.create(testNamedEntity);
-            } catch(err) {
-                assert.exists(err);
+            } catch (error) {
+                assert.exists(error);
             } finally {
                 done();
             }

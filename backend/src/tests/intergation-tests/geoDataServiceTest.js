@@ -81,7 +81,8 @@ describe("geoDataService test", () => {
                     getNamedEntityInfoStub.onCall(i).resolves({
                         name: testPersonName,
                         description: testPersonDescription,
-                        wikiUrl: testPersonWikiUrl
+                        wikiUrl: testPersonWikiUrl,
+                        tags: []
                     });
                 } else {
                     getNamedEntityInfoStub.onCall(i).resolves(null);
@@ -122,9 +123,9 @@ describe("geoDataService test", () => {
 
             try {
                 await geoDataService.processCity(city);
-            } catch(err) {
-                assert.exists(err);
-                assert.equal(errorMessage, err.message);
+            } catch (error) {
+                assert.exists(error);
+                assert.equal(errorMessage, error.message);
                 done();
             }
         })();
@@ -140,8 +141,8 @@ describe("geoDataService test", () => {
 
             try {
                 await geoDataService.createStreet({name: testStreet.name});
-            } catch(err) {
-                assert.exists(err);
+            } catch (error) {
+                assert.exists(error);
                 done();
             }
         })();
@@ -161,8 +162,8 @@ describe("geoDataService test", () => {
             };
 
             const wikiService =  new WikiService(testUtils.dc.get("WikiApiService"));
-            sinon.stub(wikiService, "getStreetInfo").returns(streetInfo);
-            sinon.stub(wikiService, "getNamedEntityInfo").returns(null);
+            sinon.stub(wikiService, "getStreetInfo").resolves(streetInfo);
+            sinon.stub(wikiService, "getNamedEntityInfo").resolves(null);
             testUtils.dc.registerInstance("WikiService", wikiService);
             const geoDataService = testUtils.dc.get("GeoDataService");
 
@@ -196,7 +197,8 @@ describe("geoDataService test", () => {
             const namedEntityInfo = {
                 name: "Тарас Шевченко",
                 description: "український поет",
-                wikiUrl: "https://uk.wikipedia.org/shevchenko"
+                wikiUrl: "https://uk.wikipedia.org/shevchenko",
+                tags: []
             };
 
             const wikiService =  new WikiService(testUtils.dc.get("WikiApiService"));

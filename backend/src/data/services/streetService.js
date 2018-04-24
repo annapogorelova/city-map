@@ -114,7 +114,7 @@ function makeStreetService(db) {
         }
 
         const createdStreet = await db.street.create(street);
-        if(ways) {
+        if(ways && ways.length) {
             const wayModels = ways.map(w => {return {coordinates: w};});
             const createdWays = await db.way.bulkCreate(wayModels);
             await createdStreet.setWays(createdWays);
@@ -124,7 +124,12 @@ function makeStreetService(db) {
     }
 
     async function update(street) {
-        return db.street.update(street);
+        const existingStreet = await getById(street.id);
+        if(!existingStreet) {
+            throw Error("Street does not exist");
+        }
+
+        return db.street.update(street, {where: {id: street.id}});
     }
 
     function getPlainList(entities) {

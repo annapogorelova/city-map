@@ -29,7 +29,8 @@ class WikiService {
                 name: namedEntityInfo.title,
                 description: optional(() => wikiUtils.formatText(namedEntityInfo.summary, maxLength), ""),
                 imageUrl: namedEntityInfo.imageUrl,
-                wikiUrl: namedEntityInfo.wikiUrl
+                wikiUrl: namedEntityInfo.wikiUrl,
+                tags: this.extractTags(namedEntityInfo.categories)
             };
         }
 
@@ -166,6 +167,14 @@ class WikiService {
         } catch (err) {
             return null;
         }
+    }
+
+    extractTags(categories) {
+        return constants.namedEntityCategories.filter(category => {
+            return categories.some(categoryName =>
+                wikiUtils.normalizeCategoryName(categoryName) === category.name)
+                && typeof category.tag !== "undefined";
+        }).map(category => category.tag);
     }
 }
 

@@ -20,7 +20,9 @@ module.exports = {
             await db.streetWay.destroy({where: {}, truncate: false}),
             await db.way.destroy({where: {}, truncate: false}),
             await db.street.destroy({where: {}, truncate: false}),
+            await db.tag.destroy({where: {}, truncate: false}),
             await db.namedEntity.destroy({where: {}, truncate: false}),
+            await db.tagNamedEntity.destroy({where: {}, truncate: false}),
             await db.city.destroy({where: {}, truncate: false}),
         ]);
     },

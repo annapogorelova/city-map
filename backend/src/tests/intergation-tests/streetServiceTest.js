@@ -3,7 +3,6 @@ const chai = require("chai");
 const assert = chai.assert;
 const testData = require("../data/dbTestData");
 const testUtils = require("../testUtils");
-const streetService = testUtils.dc.get("StreetService");
 const db = require("../../data/models");
 const utils = require("../../app/utils");
 const constants = require("../../app/constants");
@@ -11,6 +10,7 @@ const {optional} = require("tooleks");
 
 describe("street data service test", () => {
     const testCity = testData.cities[0];
+    const streetService = testUtils.dc.get("StreetService");
 
     beforeEach((done) => {
         testUtils.cleanDB().then(() => {
@@ -55,8 +55,8 @@ describe("street data service test", () => {
             const existingStreet = testUtils.createStreet(testData.streets[0], createdCity.id);
             try {
                 await streetService.create(existingStreet, []);
-            } catch(err) {
-                assert.exists(err);
+            } catch (error) {
+                assert.exists(error);
                 done();
             }
         })();
@@ -126,6 +126,51 @@ describe("street data service test", () => {
             }
 
             done();
+        })();
+    });
+
+    it("should not create an existing street", (done) => {
+        (async () => {
+            const createdCity = await db.city.create(testCity);
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: createdCity.id}, street);
+            await db.street.create(testStreet);
+
+            try {
+                await streetService.create(testStreet, ways);
+            } catch (error) {
+                assert.exists(error);
+                done();
+            }
+        })();
+    });
+
+    it("should update the existing street", (done) => {
+        (async () => {
+            const createdCity = await db.city.create(testCity);
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: createdCity.id}, street);
+            let createdStreet = await db.street.create(testStreet).then(entity => entity.get({ plain: true }));
+
+            const newName = "Crazy street";
+            createdStreet.name = newName;
+
+            await streetService.update(createdStreet);
+            const updatedStreet = await streetService.getById(createdStreet.id);
+            assert.equal(updatedStreet.name, newName);
+
+            done();
+        })();
+    });
+
+    it("should throw error when trying to update non existing street", (done) => {
+        (async () => {
+            try {
+                await streetService.update(testData.streets[0]);
+            } catch (error) {
+                assert.exists(error);
+                done();
+            }
         })();
     });
 });

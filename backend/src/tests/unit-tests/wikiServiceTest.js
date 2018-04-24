@@ -111,6 +111,8 @@ describe("wiki service test", () => {
             assert.exists(result);
             assert.equal(stringUtils.cleanText(namedEntityPage.page.summary), result.description);
             assert.equal(namedEntityPage.page.wikiUrl, result.wikiUrl);
+            assert.exists(result.tags);
+            assert.isNotEmpty(result.tags);
 
             done();
         })();
@@ -133,6 +135,8 @@ describe("wiki service test", () => {
                 assert.exists(result);
                 assert.equal(stringUtils.cleanText(namedEntityPage.page.summary), result.description);
                 assert.equal(namedEntityPage.page.wikiUrl, result.wikiUrl);
+                assert.exists(result.tags);
+                assert.isNotEmpty(result.tags);
 
                 done();
             })();

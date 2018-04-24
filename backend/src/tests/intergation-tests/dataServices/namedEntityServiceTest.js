@@ -2,9 +2,9 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const testData = require("../data/dbTestData");
-const testUtils = require("../testUtils");
-const db = require("../../data/models/index");
+const testData = require("../../data/dbTestData");
+const testUtils = require("../../testUtils");
+const db = require("../../../data/models/index");
 
 describe("named entity data service test", () => {
     const namedEntityService = testUtils.dc.get("NamedEntityService");

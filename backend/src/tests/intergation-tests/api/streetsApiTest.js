@@ -2,13 +2,13 @@
 const chai = require("chai");
 const assert = chai.assert;
 const chaiHttp = require("chai-http");
-const server = require("../../app");
-const testUtils = require("../testUtils");
-const apiRoutes = require("../apiRoutes");
-const constants = require("../../http/constants/constants");
-const testData = require("../data/dbTestData");
-const db = require("../../data/models/index");
-const mapper = require("../../helpers/mapper");
+const server = require("../../../app");
+const testUtils = require("../../testUtils");
+const apiRoutes = require("../../apiRoutes");
+const constants = require("../../../http/constants/constants");
+const testData = require("../../data/dbTestData");
+const db = require("../../../data/models/index");
+const mapper = require("../../../helpers/mapper");
 
 chai.use(chaiHttp);
 
@@ -24,29 +24,40 @@ describe("streets route", () => {
     it("should return 1 street", (done) => {
         (async () => {
             const createdCity = await db.city.create(testCity);
-            const testNamedEntity = Object.assign({}, testData.namedEntities[0]);
+            const testNamedEntity = Object.assign({}, testData.namedEntities.filter(e => e.tags.length)[0]);
             const namedEntity = await db.namedEntity.create(testNamedEntity);
-            const testStreet = await testUtils.createStreet({
+            const tags = await db.tag.bulkCreate(testNamedEntity.tags.map(tag => {
+                return {name: tag}
+            }));
+            await namedEntity.setTags(tags);
+            const testStreet = testData.streets[0];
+            const street = await testUtils.createStreet({
                 namedEntityId: namedEntity.id,
-                ...testData.streets[0]
+                ...testStreet
             }, createdCity.id);
 
             const requestUrl = `${apiRoutes.CITIES}/${createdCity.id}/${apiRoutes.STREETS}`;
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
-                .query({search: testStreet.name})
+                .query({search: street.name})
                 .end((err, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     const data = res.body.data;
-                    assert(data);
+
+                    assert.exists(data);
                     assert.equal(1, data.length);
-                    assert.equal(testStreet.name, data[0].name);
-                    assert.equal(testStreet.description, data[0].description);
-                    assert(data[0].namedEntity);
+                    assert.equal(street.name, data[0].name);
+                    assert.equal(street.description, data[0].description);
+
+                    assert.exists(data[0].namedEntity);
                     assert.equal(namedEntity.id, data[0].namedEntity.id);
                     assert.equal(namedEntity.name, data[0].namedEntity.name);
                     assert.equal(namedEntity.description, data[0].namedEntity.description);
+
+                    assert.exists(data[0].namedEntity.tags);
+                    assert.sameMembers(tags.map(t => t.name), data[0].namedEntity.tags.map(t => t.name));
+
                     done();
                 });
         })();
@@ -71,7 +82,7 @@ describe("streets route", () => {
     it("should return n streets", (done) => {
         (async () => {
             const createdCity = await db.city.create(testCity);
-            await testUtils.createStreets(testData.streets.slice(), createdCity.id);
+            const createdStreets = await testUtils.createStreets(testData.streets.slice(), createdCity.id);
             const requestUrl = `${apiRoutes.CITIES}/${createdCity.id}/${apiRoutes.STREETS}`;
             const limit = 6;
 
@@ -82,6 +93,10 @@ describe("streets route", () => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, limit);
+
+                    let matchingStreets = createdStreets.filter(street => res.body.data.some(s => s.name === street.name));
+                    assert.sameMembers(matchingStreets.map(s => s.name), res.body.data.map(s => s.name));
+
                     done();
                 });
         })();

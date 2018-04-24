@@ -2,12 +2,12 @@
 const chai = require("chai");
 const assert = chai.assert;
 const chaiHttp = require("chai-http");
-const server = require("../../app");
-const testUtils = require("../testUtils");
-const apiRoutes = require("../apiRoutes");
-const constants = require("../../http/constants/constants");
+const server = require("../../../app");
+const testUtils = require("../../testUtils");
+const apiRoutes = require("../../apiRoutes");
+const constants = require("../../../http/constants/constants");
 const userService = testUtils.dc.get("UserService");
-const testUser = require("../data/dbTestData").user;
+const testUser = require("../../data/dbTestData").user;
 
 chai.use(chaiHttp);
 

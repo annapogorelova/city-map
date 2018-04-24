@@ -80,7 +80,7 @@ function makeStreetService(db) {
 
         return optional(() => ways[0].getStreets({
             include: [
-                {model: db.namedEntity},
+                {model: db.namedEntity, include: [{model: db.tag}]},
                 {model: db.way}
             ]
         }), []);
@@ -92,7 +92,7 @@ function makeStreetService(db) {
             limit: limit,
             order: db.sequelize.col("name"),
             include: [{
-                model: db.namedEntity
+                model: db.namedEntity, include: [{model: db.tag}]
             }]
         };
 

@@ -1,8 +1,8 @@
 "use strict";
 const chai = require("chai");
 const assert = chai.assert;
-const testData = require("../data/dbTestData");
-const testUtils = require("../testUtils");
+const testData = require("../../data/dbTestData");
+const testUtils = require("../../testUtils");
 const namedEntityService = testUtils.dc.get("NamedEntityService");
 
 describe("named entity data service test", () => {

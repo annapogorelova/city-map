@@ -40,7 +40,8 @@ mapper.registerResolver("app.street", "api.v1.street", (street) => {
         description: street.description,
         namedEntity: street.namedEntity,
         wikiUrl: street.wikiUrl,
-        ways: optional(() => street.ways.map(w => w.coordinates), [])
+        ways: optional(() => street.ways.map(w => w.coordinates), []),
+        tags: street.tags
     };
 });
 

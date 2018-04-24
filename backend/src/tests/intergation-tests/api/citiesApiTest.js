@@ -2,18 +2,18 @@
 const chai = require("chai");
 const assert = chai.assert;
 const chaiHttp = require("chai-http");
-const server = require("../../app");
-const testUtils = require("../testUtils");
-const apiRoutes = require("../apiRoutes");
-const constants = require("../../http/constants/constants");
-const testData = require("../data/dbTestData");
+const server = require("../../../app");
+const testUtils = require("../../testUtils");
+const apiRoutes = require("../../apiRoutes");
+const constants = require("../../../http/constants/constants");
+const testData = require("../../data/dbTestData");
 const citiesTestData = testData.cities;
 const testUser = testData.user;
-const db = require("../../data/models/index");
+const db = require("../../../data/models/index");
 const config = require("config");
 const _ = require("lodash");
 const userService = testUtils.dc.get("UserService");
-const mapper = require("../../helpers/mapper");
+const mapper = require("../../../helpers/mapper");
 
 chai.use(chaiHttp);
 

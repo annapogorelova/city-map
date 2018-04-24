@@ -38,10 +38,9 @@ mapper.registerResolver("app.street", "api.v1.street", (street) => {
         nameEn: street.nameEn,
         oldName: street.oldName,
         description: street.description,
-        namedEntity: street.namedEntity,
+        namedEntity: optional(() => mapper.map(street.namedEntity, "app.namedEntity", "api.v1.namedEntity"), null),
         wikiUrl: street.wikiUrl,
-        ways: optional(() => street.ways.map(w => w.coordinates), []),
-        tags: street.tags
+        ways: optional(() => street.ways.map(w => w.coordinates), [])
     };
 });
 
@@ -62,6 +61,29 @@ mapper.registerResolver("app.city.list", "api.v1.city.list", (cities) => {
 
 mapper.registerResolver("app.street.list", "api.v1.street.list", (streets) => {
     return streets.map(street => {return mapper.map(street, "app.street", "api.v1.street");});
+});
+
+mapper.registerResolver("app.namedEntity", "api.v1.namedEntity", (namedEntity) => {
+    return {
+        id: namedEntity.id,
+        name: namedEntity.name,
+        description: namedEntity.description,
+        imageUrl: namedEntity.imageUrl,
+        wikiUrl: namedEntity.wikiUrl,
+        tags: optional(() =>
+            mapper.map(namedEntity.tags, "app.tag.list", "api.v1.tag.list"), [])
+    };
+});
+
+mapper.registerResolver("app.tag.list", "api.v1.tag.list", (tags) => {
+    return tags.map(tag => {return mapper.map(tag, "app.tag", "api.v1.tag")});
+});
+
+mapper.registerResolver("app.tag", "api.v1.tag", (tag) => {
+    return {
+        id: tag.id,
+        name: tag.name
+    };
 });
 
 module.exports = mapper;

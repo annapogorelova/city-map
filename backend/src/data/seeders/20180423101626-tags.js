@@ -32,6 +32,7 @@ module.exports = {
             {name: "військовики"},
             {name: "рюриковичі"},
             {name: "телережисери"},
+            {name: "драматурги"},
         ];
 
         for(let tag of tags) {

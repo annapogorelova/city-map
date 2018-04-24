@@ -12,7 +12,7 @@ class GeoDataService {
         this.mapper = mapper;
     }
 
-    async processCity(city, skipExisting = false) {
+    async processCity(city, skipExisting = true) {
         try {
             const streetsGeoData = await this.geoParser.parse(city.nameEn);
             for (let geoData of streetsGeoData) {

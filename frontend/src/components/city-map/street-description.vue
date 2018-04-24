@@ -4,6 +4,11 @@
         <h5 v-if="street.oldName"><b>Стара назва:</b> {{street.oldName}}</h5>
         <div v-if="street.namedEntity" class="mt-10">
             <h5><b>Названа на честь:</b> {{street.namedEntity.name}}</h5>
+            <div v-if="street.namedEntity.tags">
+                <h5 class="tag-container" v-for="tag in street.namedEntity.tags">
+                    <span class="badge badge-dark">{{tag.name}}</span>
+                </h5>
+            </div>
             <p class="description">{{street.namedEntity.description}}</p>
         </div>
         <div class="links-container" v-if="street.wikiUrl || (street.namedEntity && street.namedEntity.wikiUrl)">
@@ -42,6 +47,12 @@
 
     .description {
         margin-top: 10px;
+    }
+
+    h5.tag-container {
+        display: inline-block;
+        margin-right: 5px;
+        margin-top: 5px;
     }
 </style>
 <script>

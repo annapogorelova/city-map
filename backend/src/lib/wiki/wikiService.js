@@ -77,7 +77,7 @@ class WikiService {
         return null;
     }
 
-    async searchNamedEntityArticle(articleName, limit = 10, minRate = 1.4) {
+    async searchNamedEntityArticle(articleName, limit = 20, minRate = 1.4) {
         const searchResult = await this.wikiApiService.search(articleName, this.lang, limit);
         const results = optional(() => searchResult.results, []);
         if (!results.length) {

@@ -51,7 +51,9 @@ module.exports = {
     },
 
     cleanText(text) {
-        return text.replace(constants.clearSpecialSymbolsRegex, "").replace("Lib\n", "");
+        return text.replace(constants.clearSpecialSymbolsRegex, "")
+            .replace("Lib\n", "")
+            .replace("Ukrcenter", "");
     },
 
     namesMatch(expectedName, actualName) {

@@ -91,9 +91,10 @@ function makeStreetService(db) {
             offset: offset,
             limit: limit,
             order: db.sequelize.col("name"),
-            include: [{
-                model: db.namedEntity, include: [{model: db.tag}]
-            }]
+            include: [
+                {model: db.namedEntity, include: [{model: db.tag}]},
+                {model: db.way}
+            ]
         };
 
         if (cityId) {

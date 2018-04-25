@@ -24,17 +24,17 @@ class WikiService {
             namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle);
         }
 
-        if (namedEntityInfo) {
-            return {
-                name: namedEntityInfo.title,
-                description: optional(() => wikiUtils.formatText(namedEntityInfo.summary, maxLength), ""),
-                imageUrl: namedEntityInfo.imageUrl,
-                wikiUrl: namedEntityInfo.wikiUrl,
-                tags: this.extractTags(namedEntityInfo.categories)
-            };
-        }
+        return namedEntityInfo ? this.mapPageToNamedEntity(namedEntityInfo, maxLength) : null;
+    }
 
-        return null;
+    mapPageToNamedEntity(page, maxLength = 500) {
+        return {
+            name: page.title,
+            description: optional(() => wikiUtils.formatText(page.summary, maxLength), ""),
+            imageUrl: page.imageUrl,
+            wikiUrl: page.wikiUrl,
+            tags: this.extractTags(page.categories)
+        };
     }
 
     async getStreetInfo(streetName, cityName, maxLength = 500) {
@@ -170,11 +170,8 @@ class WikiService {
     }
 
     extractTags(categories) {
-        return constants.namedEntityCategories.filter(category => {
-            return categories.some(categoryName =>
-                wikiUtils.normalizeCategoryName(categoryName) === category.name)
-                && typeof category.tag !== "undefined";
-        }).map(category => category.tag);
+        return constants.tags.filter(tag =>
+            categories.some(category => category.match(new RegExp(`${tag}`, "i"))));
     }
 }
 

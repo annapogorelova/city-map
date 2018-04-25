@@ -6,7 +6,9 @@ function makeNamedEntityService(db) {
     return Object.freeze({
         getById,
         getByName,
-        create
+        getAll,
+        create,
+        update
     });
 
     function getById(id) {
@@ -19,7 +21,11 @@ function makeNamedEntityService(db) {
             include: [{
                 model: db.tag
             }]
-        }).then(entity => optional(() => entity.get({ plain: true }), null));
+        }).then(entity => optional(() => entity.get({plain: true}), null));
+    }
+
+    function getAll() {
+        return db.namedEntity.findAll({}).then(entities => entities.map(entity => entity.get({plain: true})));
     }
 
     async function create(namedEntity, tags) {
@@ -29,7 +35,7 @@ function makeNamedEntityService(db) {
         }
 
         const createdNamedEntity = await db.namedEntity.create(namedEntity);
-        if(tags && tags.length) {
+        if (tags && tags.length) {
             const createdTags = await Promise.all(tags.map(tag => createTag(tag)));
             await createdNamedEntity.setTags(createdTags);
         }
@@ -39,11 +45,39 @@ function makeNamedEntityService(db) {
 
     async function createTag(tagName) {
         let existingTag = await db.tag.findOne({where: {name: tagName}});
-        if(!existingTag) {
+        if (!existingTag) {
             existingTag = await db.tag.create({name: tagName});
         }
 
         return existingTag;
+    }
+
+    async function update(namedEntity, tags) {
+        let existingNamedEntity = await getById(namedEntity.id);
+        if (!existingNamedEntity) {
+            throw Error("Named entity does not exist");
+        }
+
+        if(tags) {
+            await updateTags(existingNamedEntity, tags);
+        }
+
+        return db.namedEntity.update(namedEntity, {where: {id: namedEntity.id}});
+    }
+
+    async function updateTags(namedEntity, tags) {
+        const existingTags = await namedEntity.getTags();
+
+        for (let tag of tags) {
+            if (!existingTags.filter(t => t.name === tag).length) {
+                let existingTag = await db.tag.findOne({where: {name: tag}});
+                if (!existingTag) {
+                    existingTag = await db.tag.create({name: tag});
+                }
+
+                await namedEntity.addTag(existingTag);
+            }
+        }
     }
 }
 

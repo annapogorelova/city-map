@@ -83,4 +83,74 @@ describe("named entity data service test", () => {
             done();
         })();
     });
+
+    it("should throw error when trying to update the non existing named entity", (done) => {
+        (async () => {
+            const namedEntity = testData.namedEntities[0];
+
+            try {
+                await namedEntityService.update(namedEntity);
+            } catch (error) {
+                done();
+            }
+        })();
+    });
+
+    it("should update the named entity, add new tags", (done) => {
+        (async () => {
+            const namedEntity = testData.namedEntities[0];
+            let createdNamedEntity = await db.namedEntity.create(namedEntity).then(e => e.get({plain: true}));
+            const newName = "Король Данило";
+            createdNamedEntity.name = newName;
+
+            await namedEntityService.update(createdNamedEntity);
+            const updatedNamedEntity = await db.namedEntity.findOne({
+                where: {id: createdNamedEntity.id}
+            });
+
+            assert.equal(updatedNamedEntity.name, newName);
+
+            done();
+        })();
+    });
+
+    it("should update the named entity, add new tags", (done) => {
+        (async () => {
+            const namedEntity = Object.assign(testData.namedEntities[0], {});
+            const tags = [{name: "князі"}, {name: "рюриковичі"}, {name: "королі"}];
+            let createdNamedEntity = await db.namedEntity.create(namedEntity);
+            const createdTags = await db.tag.bulkCreate(tags);
+            await createdNamedEntity.setTags(createdTags.slice(0, 2));
+
+            const newName = "Король Данило";
+            createdNamedEntity.dataValues.name = newName;
+            const newTags = ["князі", "королі", "воїни"];
+
+            await namedEntityService.update(createdNamedEntity.dataValues, newTags);
+            const updatedNamedEntity = await db.namedEntity.findOne({
+                where: {id: createdNamedEntity.id},
+                include: [{model: db.tag}]
+            });
+
+            assert.equal(updatedNamedEntity.name, newName);
+            assert.exists(updatedNamedEntity.tags);
+            assert.includeMembers(updatedNamedEntity.tags.map(tag => tag.name), newTags);
+            assert.includeMembers(updatedNamedEntity.tags.map(tag => tag.name), tags.map(tag => tag.name));
+
+            done();
+        })();
+    });
+
+    it("should get all named entities", (done) => {
+        (async () => {
+            await db.namedEntity.bulkCreate(testData.namedEntities);
+            const namedEntities = await namedEntityService.getAll();
+
+            assert.sameMembers(
+                testData.namedEntities.map(namedEntity => namedEntity.name),
+                namedEntities.map(namedEntity => namedEntity.name));
+
+            done();
+        })();
+    });
 });

@@ -7,6 +7,12 @@
                                  v-bind:selected-city-id="cityId"></cities-list>
                 </div>
             </div>
+            <div class="row searchbox">
+                <div class="col-12 col-lg-9">
+                    <search v-on:search="onSearchStreet"
+                            v-bind:placeholder="'Введіть назву вулиці та натисніть Enter'"></search>
+                </div>
+            </div>
             <div class="row sections-container">
                 <div class="col-12 col-lg-9">
                     <div class="map-wrapper">
@@ -49,18 +55,23 @@
     .sections-container {
         margin-top: 15px;
     }
+
+    .searchbox {
+        margin-top: 15px;
+    }
 </style>
 <script>
     import Vue from "vue";
     import BasicMap from "../map/basic-map";
     import CitiesList from "./cities-list";
     import StreetDescription from "./street-description";
+    import Search from "./search";
     import {streetService} from "../../services";
     import {optional} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
 
     export default {
-        components: {BasicMap, CitiesList, StreetDescription},
+        components: {BasicMap, CitiesList, StreetDescription, Search},
         props: {
             zoom: {
                 type: Number,
@@ -70,7 +81,6 @@
 
         data: function () {
             return {
-                search: undefined,
                 marker: undefined,
                 selectedStreet: undefined,
                 polyLines: [],
@@ -102,17 +112,21 @@
             setMarker(coordinates) {
                 this.findClosestStreet(coordinates).then(street => {
                     if (street) {
-                        this.selectedStreet = null;
-                        Vue.nextTick(() => {
-                            this.selectedStreet = street;
-                            this.coordinates = coordinates;
+                        this.setSelectedStreet(street, coordinates);
+                    }
+                });
+            },
+            setSelectedStreet(street, coordinates) {
+                this.selectedStreet = null;
 
-                            this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
-
-                            this.clearMap();
-                            this.drawStreet(street);
-                            this.setStreetMarker(coordinates, street);
-                        });
+                Vue.nextTick(() => {
+                    this.selectedStreet = street;
+                    this.clearMap();
+                    this.drawStreet(street);
+                    if(coordinates) {
+                        this.coordinates = coordinates;
+                        this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
+                        this.setStreetMarker(coordinates, street);
                     }
                 });
             },
@@ -161,6 +175,14 @@
                     this.$router.push({query: query});
                     this.$refs.map.setCenter(city.coordinates[0], city.coordinates[1], this.zoom);
                 }
+            },
+            onSearchStreet(streetName) {
+                streetService.search(this.cityId, streetName).then(streets => {
+                    const street = optional(() => streets[0], null);
+                    if(street) {
+                        this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
+                    }
+                });
             },
             renderImageMarker(coordinates, imageProps) {
                 let icon = L.divIcon({html: provideImageMarkerHtml(imageProps)});

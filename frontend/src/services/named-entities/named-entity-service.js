@@ -12,4 +12,8 @@ export default class NamedEntityService {
             }
         });
     }
+
+    update(namedEntity) {
+        return this.apiService.put(`/namedEntities/${namedEntity.id}`, namedEntity);
+    }
 }

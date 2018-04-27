@@ -222,6 +222,5 @@ module.exports = {
             imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Konstanty_Korniakt_%281517-1603%29.jpg/320px-Konstanty_Korniakt_%281517-1603%29.jpg",
             tags: []
         }
-    ],
-    user: {email: "test@gmail.com", password: "testpass"}
+    ]
 };

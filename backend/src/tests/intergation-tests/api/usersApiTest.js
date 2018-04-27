@@ -11,8 +11,6 @@ const userService = testUtils.dc.get("UserService");
 chai.use(chaiHttp);
 
 describe("users route", function () {
-    const testUser = require("../../data/dbTestData").user;
-
     beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();
@@ -33,6 +31,7 @@ describe("users route", function () {
 
     it("should get the info of the existing user", (done) => {
         (async () => {
+            const testUser = testUtils.getUser();
             const user = await userService.create({email: testUser.email, password: testUser.password});
             const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
 
@@ -59,6 +58,8 @@ describe("users route", function () {
     });
 
     it("should register a new user", (done) => {
+        const testUser = testUtils.getUser();
+
         chai.request(server)
             .post(testUtils.getApiUrl(apiRoutes.REGISTER))
             .set("Content-Type", "application/json")
@@ -77,7 +78,9 @@ describe("users route", function () {
 
     it("should not register the existing user", (done) => {
         (async () => {
+            const testUser = testUtils.getUser();
             const user = await userService.create({email: testUser.email, password: testUser.password});
+
             chai.request(server)
                 .post(testUtils.getApiUrl(apiRoutes.REGISTER))
                 .set("Content-Type", "application/json")
@@ -122,6 +125,8 @@ describe("users route", function () {
 
     it("should not authorize the non existing user", (done) => {
         (async () => {
+            const testUser = testUtils.getUser();
+
             chai.request(server)
                 .post(testUtils.getApiUrl(apiRoutes.AUTH))
                 .set('Content-Type', 'application/json')
@@ -138,7 +143,9 @@ describe("users route", function () {
 
     it("should not authorize the user with invalid password", (done) => {
         (async () => {
+            const testUser = testUtils.getUser();
             const user = await userService.create({email: testUser.email, password: testUser.password});
+
             chai.request(server)
                 .post(testUtils.getApiUrl(apiRoutes.AUTH))
                 .set("Content-Type", "application/json")

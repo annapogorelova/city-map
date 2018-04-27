@@ -21,9 +21,9 @@
 </script>
 
 <style>
-    @import url('https://fonts.googleapis.com/css?family=Alegreya+Sans+SC:400,600,700,800');
+    @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,700,800');
     body {
-        font-family: 'Alegreya Sans SC', sans-serif !important;
+        font-family: 'Montserrat', sans-serif !important;
     }
 
     .app-content {

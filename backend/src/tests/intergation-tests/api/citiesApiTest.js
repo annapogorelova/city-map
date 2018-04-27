@@ -11,14 +11,11 @@ const citiesTestData = testData.cities;
 const db = require("../../../data/models/index");
 const config = require("config");
 const _ = require("lodash");
-const userService = testUtils.dc.get("UserService");
 const mapper = require("../../../helpers/mapper");
 
 chai.use(chaiHttp);
 
 describe("cities route", function () {
-    const testUser = testData.user;
-
     beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();
@@ -154,8 +151,7 @@ describe("cities route", function () {
 
     it("should create a city", (done) => {
         (async () => {
-            await userService.create(testUser);
-            const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
+            const authResponse = await testUtils.prepareAuthRequest(server);
 
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
             const city = citiesTestData[0];
@@ -183,8 +179,7 @@ describe("cities route", function () {
 
     it("should not create city with invalid parameters", (done) => {
         (async () => {
-            await userService.create(testUser);
-            const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
+            const authResponse = await testUtils.prepareAuthRequest(server);
 
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
             const cityModel = mapper.map({name: null, coordinates: []}, "app.city", "api.v1.city");
@@ -206,8 +201,7 @@ describe("cities route", function () {
 
     it("should return 400", (done) => {
         (async () => {
-            await userService.create(testUser);
-            const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
+            const authResponse = await testUtils.prepareAuthRequest(server);
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}/stringid`;
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
@@ -225,8 +219,7 @@ describe("cities route", function () {
 
     it("should return 404", (done) => {
         (async () => {
-            await userService.create(testUser);
-            const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
+            const authResponse = await testUtils.prepareAuthRequest(server);
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}/1`;
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
@@ -245,9 +238,8 @@ describe("cities route", function () {
         (async () => {
             const city = citiesTestData[0];
             const createdCity = await db.city.create(city);
-            await userService.create(testUser);
 
-            const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
+            const authResponse = await testUtils.prepareAuthRequest(server);
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}/${createdCity.id}`;
 
             const request = testUtils.getAuthenticatedRequest(

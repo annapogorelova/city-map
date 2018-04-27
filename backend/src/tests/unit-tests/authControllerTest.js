@@ -3,10 +3,11 @@
 const chai = require("chai");
 const assert = chai.assert;
 const testUtils = require("../testUtils");
-const testUser = require("../data/dbTestData").user;
 const constants = require("../../http/constants/constants");
 
 describe("Auth controller unit tests", () => {
+    const testUser = testUtils.getUser();
+
     beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();

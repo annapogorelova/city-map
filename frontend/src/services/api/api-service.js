@@ -13,7 +13,13 @@ export default class ApiService {
     }
 
     post(url, data) {
-        return this.httpClient.post(this.getFullUrl(url), {body: data})
+        return this.httpClient.post(this.getFullUrl(url), data)
+            .then(this.dataHandler)
+            .catch(this.errorHandler);
+    }
+
+    put(url, data) {
+        return this.httpClient.put(this.getFullUrl(url), data)
             .then(this.dataHandler)
             .catch(this.errorHandler);
     }

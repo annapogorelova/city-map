@@ -26,7 +26,9 @@ function makeRouter(
 
     router.post("/cities", authMiddleware.verifyToken, citiesController.createCity);
 
-    router.get("/namedEntities", namedEntitiesController.search);
+    router.put("/namedEntities/:id", authMiddleware.verifyToken, namedEntitiesController.update);
+
+    router.get("/namedEntities", authMiddleware.verifyToken, namedEntitiesController.search);
 
     return router;
 }

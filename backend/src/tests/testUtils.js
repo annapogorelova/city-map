@@ -8,6 +8,7 @@ const apiRoutes = require("./apiRoutes");
 const config = require("config");
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const userService = dc.get("UserService");
 
 chai.use(chaiHttp);
 
@@ -54,5 +55,15 @@ module.exports = {
 
     async createStreets(testStreets, cityId) {
         return Promise.all(testStreets.map(testStreet => this.createStreet(testStreet, cityId)));
+    },
+
+    getUser() {
+        return {email: "test@gmail.com", password: "testpass"};
+    },
+
+    async prepareAuthRequest(server) {
+        const user = this.getUser();
+        await userService.create({email: user.email, password: user.password});
+        return this.authorize(user.email, user.password, server);
     }
 };

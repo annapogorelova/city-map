@@ -36,7 +36,7 @@ describe("named entities route test", () => {
             const requestUrl = testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
 
@@ -57,7 +57,7 @@ describe("named entities route test", () => {
             const requestUrl = testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
 
@@ -82,7 +82,7 @@ describe("named entities route test", () => {
             const requestUrl = testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
 
@@ -107,7 +107,7 @@ describe("named entities route test", () => {
             const requestUrl = testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
 
@@ -144,7 +144,7 @@ describe("named entities route test", () => {
             const requestUrl = testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/1`);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "put");
 
@@ -172,7 +172,7 @@ describe("named entities route test", () => {
             const requestUrl = testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/${createdNamedEntity.id}`);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "put");
 

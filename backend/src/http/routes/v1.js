@@ -10,9 +10,7 @@ function makeRouter(
     authMiddleware
 ) {
 
-    router.post("/auth/token", authController.getAuthToken);
-
-    router.post("/auth/register", authController.createUser);
+    router.post("/auth", authController.getAuth);
 
     router.get("/users/:id",
         authMiddleware.extractAuth,

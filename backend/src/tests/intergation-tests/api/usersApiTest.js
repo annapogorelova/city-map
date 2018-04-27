@@ -7,8 +7,14 @@ const testUtils = require("../../testUtils");
 const apiRoutes = require("../../apiRoutes");
 const constants = require("../../../http/constants/constants");
 const userService = testUtils.dc.get("UserService");
+const jwt = require("jsonwebtoken");
+const config = require("config");
 
 chai.use(chaiHttp);
+
+function _issueToken(payload, secret, expiresIn) {
+    return jwt.sign(payload, secret, { expiresIn: expiresIn });
+}
 
 describe("users route", function () {
     beforeEach((done) => {
@@ -24,6 +30,7 @@ describe("users route", function () {
             .end((err, res) => {
                 assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
                 assert.exists(res.body.message);
+                assert.isTrue(res.unauthorized);
                 assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
                 done();
             });
@@ -35,18 +42,16 @@ describe("users route", function () {
             const user = await userService.create({email: testUser.email, password: testUser.password});
             const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
 
-            assert.isTrue(authResponse.body.auth);
-            assert.exists(authResponse.body.access_token);
-
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.GET_USER)}/${user.id}`;
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
             request
                 .end((err, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
+                    assert.isFalse(res.unauthorized);
                     assert.exists(res.body.id);
                     assert.equal(res.body.id, user.id);
                     assert.exists(res.body.email);
@@ -55,72 +60,6 @@ describe("users route", function () {
                     done();
                 });
         })();
-    });
-
-    it("should register a new user", (done) => {
-        const testUser = testUtils.getUser();
-
-        chai.request(server)
-            .post(testUtils.getApiUrl(apiRoutes.REGISTER))
-            .set("Content-Type", "application/json")
-            .send({email: testUser.email, password: testUser.password})
-            .end((err, res) => {
-                assert.equal(res.status, constants.statusCodes.OK);
-                assert.isTrue(res.body.auth);
-                assert.exists(res.body.access_token);
-                (async () => {
-                    const createdUser = await userService.getByEmail(testUser.email);
-                    assert.equal(createdUser.email, testUser.email);
-                    done();
-                })();
-            });
-    });
-
-    it("should not register the existing user", (done) => {
-        (async () => {
-            const testUser = testUtils.getUser();
-            const user = await userService.create({email: testUser.email, password: testUser.password});
-
-            chai.request(server)
-                .post(testUtils.getApiUrl(apiRoutes.REGISTER))
-                .set("Content-Type", "application/json")
-                .send({email: user.email, password: user.password})
-                .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.FORBIDDEN);
-                    assert.equal(res.body.message, constants.messages.USER_ALREADY_EXISTS);
-                    assert.isFalse(res.body.auth);
-                    assert.notExists(res.body.access_token);
-                    done();
-                });
-        })();
-    });
-
-    it("should not authorize the malformed access token", (done) => {
-        const incorrectAccessTokens = [
-            "incorrecttoken918n-_=!,.swohqwuiqqoooq929 28993hdh 29398383",
-            "Bearer",
-            "Bearer "
-        ];
-        const requests = [];
-
-        incorrectAccessTokens.forEach(token => {
-            const request = testUtils.getAuthenticatedRequest(
-                `${testUtils.getApiUrl(apiRoutes.GET_USER)}/1`,
-                token,
-                server,
-                "get");
-            requests.push(request);
-        });
-
-        requests.forEach(request => {
-            request.end((err, res) => {
-                assert.equal(res.status, constants.statusCodes.BAD_REQUEST);
-                assert.exists(res.body.message);
-                assert.equal(res.body.message, constants.messages.ACCESS_TOKEN_INCORRECT_FORMAT);
-            });
-        });
-
-        done();
     });
 
     it("should not authorize the non existing user", (done) => {
@@ -133,7 +72,60 @@ describe("users route", function () {
                 .send({email: testUser.email, password: testUser.password})
                 .end((err, res) => {
                     assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.isTrue(res.unauthorized);
                     assert.isFalse(res.body.auth);
+                    assert.exists(res.body.message);
+                    assert.equal(constants.messages.UNAUTHORIZED, res.body.message);
+                    done();
+                });
+        })();
+    });
+
+    it("should not authorize the deleted user with valid cookie", (done) => {
+        (async () => {
+            const testUser = testUtils.getUser();
+            const createdUser = await userService.create(testUser);
+
+            const accessToken = _issueToken(
+                { id: createdUser.id },
+                config.security.secret,
+                config.security.expirationTimeSeconds);
+            await createdUser.destroy();
+
+            chai.request(server)
+                .post(testUtils.getApiUrl(apiRoutes.AUTH))
+                .set('Content-Type', 'application/json')
+                .set('Cookie', `${config.security.headerName}=${accessToken}`)
+                .send({email: testUser.email, password: testUser.password})
+                .end((err, res) => {
+                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.isTrue(res.unauthorized);
+                    assert.exists(res.body.message);
+                    assert.equal(constants.messages.UNAUTHORIZED, res.body.message);
+                    done();
+                });
+        })();
+    });
+
+    it("should not allow the deleted user with valid cookie to get info", (done) => {
+        (async () => {
+            const testUser = testUtils.getUser();
+            const createdUser = await userService.create(testUser);
+            const requestUrl = `${testUtils.getApiUrl(apiRoutes.GET_USER)}/${createdUser.id}`;
+
+            const accessToken = _issueToken(
+                { id: createdUser.id },
+                config.security.secret,
+                config.security.expirationTimeSeconds);
+            await createdUser.destroy();
+
+            chai.request(server)
+                .get(requestUrl)
+                .set('Cookie', `${config.security.headerName}=${accessToken}`)
+                .send({email: testUser.email, password: testUser.password})
+                .end((err, res) => {
+                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.isTrue(res.unauthorized);
                     assert.exists(res.body.message);
                     assert.equal(constants.messages.UNAUTHORIZED, res.body.message);
                     done();
@@ -152,9 +144,8 @@ describe("users route", function () {
                 .send({email: user.email, password: "invalid"})
                 .end((err, res) => {
                     assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.isTrue(res.unauthorized);
                     assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
-                    assert.isFalse(res.body.auth);
-                    assert.notExists(res.body.access_token);
                     done();
                 });
         })();

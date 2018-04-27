@@ -1,7 +1,6 @@
 module.exports = Object.freeze({
     API: "/api/v1",
-    AUTH: "/auth/token",
-    REGISTER: "/auth/register",
+    AUTH: "/auth",
     GET_USER: "/users",
     CITIES: "/cities",
     STREETS: "streets",

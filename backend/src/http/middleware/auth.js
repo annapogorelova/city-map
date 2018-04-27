@@ -1,30 +1,22 @@
 "use strict";
 
-const jwt = require("jsonwebtoken");
 const config = require("config");
 const constants = require("../constants/constants");
 const {optional} = require("tooleks");
 
-function makeAuthMiddleware(userService) {
+function makeAuthMiddleware(userService, jwtService) {
     return Object.freeze({
         verifyAuth,
         extractAuth
     });
 
     function extractAuth(req, res, next) {
-        const accessToken = req.headers[config.security.jwt.headerName];
+        const accessToken = req.cookies[config.security.headerName];
         if (!accessToken) {
             return next();
         }
 
-        const match = constants.regex.ACCESS_TOKEN.exec(accessToken);
-        const accessTokenString = optional(() => match[2]);
-        if (!accessTokenString) {
-            return res.status(constants.statusCodes.BAD_REQUEST)
-                .send({auth: false, message: constants.messages.ACCESS_TOKEN_INCORRECT_FORMAT});
-        }
-
-        jwt.verify(accessTokenString, config.security.jwt.secret, async function (error, decoded) {
+        jwtService.verify(accessToken, config.security.secret, async function (error, decoded) {
             if (error || !decoded.id) {
                 return res
                     .status(constants.statusCodes.INTERNAL_SERVER_ERROR)

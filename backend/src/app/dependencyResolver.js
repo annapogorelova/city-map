@@ -22,6 +22,8 @@ const express = require("express");
 const makeAuthMiddleware = require("../http/middleware/auth");
 const mapper = require("../helpers/mapper");
 
+const jwt = require("jsonwebtoken");
+
 // Registration
 dc.registerInstance("db", db);
 dc.registerBinding("UserService", dataServicesFactory.userService, {dependencies: ["db"]});
@@ -33,8 +35,12 @@ dc.registerBinding("Mapper", function () {
     return mapper;
 }, {singleton: true});
 
+dc.registerBinding("JwtService", function () {
+    return jwt;
+}, {singleton: true});
+
 dc.registerBinding("AuthController", controllersFactory.authController, {
-    dependencies: ["UserService"]
+    dependencies: ["UserService", "JwtService"]
 });
 
 dc.registerBinding("CitiesController", controllersFactory.citiesController, {
@@ -54,7 +60,7 @@ dc.registerBinding("NamedEntitiesController", controllersFactory.namedEntitiesCo
 });
 
 dc.registerBinding("AuthMiddleware", makeAuthMiddleware, {
-    dependencies: ["UserService"]
+    dependencies: ["UserService", "JwtService"]
 });
 
 dc.registerBinding("Router", routesV1, {

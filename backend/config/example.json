@@ -1,6 +1,8 @@
 {
   "app": "example",
   "port": 3000,
+  "frontendDomain": "localhost",
+  "frontendUrl": "http://localhost:8080",
   "db": {
     "username": "example",
     "password": "example",
@@ -12,11 +14,9 @@
     }
   },
   "security": {
-    "jwt": {
-      "headerName": "access-token-header-name",
-      "secret": "example",
-      "expirationTimeSeconds": 86400
-    }
+    "headerName": "access-token-header-name",
+    "secret": "example",
+    "expirationTimeSeconds": 86400
   },
   "defaults": {
     "pageLimit": 5

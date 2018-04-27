@@ -5,7 +5,6 @@ process.env.NODE_ENV = "test";
 const dc = require("../app/dependencyResolver");
 const db = require("../data/models/index");
 const apiRoutes = require("./apiRoutes");
-const config = require("config");
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const userService = dc.get("UserService");
@@ -36,7 +35,7 @@ module.exports = {
     },
 
     getAuthenticatedRequest(url, accessToken, server, method) {
-        return chai.request(server)[method](url).set(config.security.jwt.headerName, accessToken);
+        return chai.request(server)[method](url).set('Cookie', accessToken);
     },
 
     getApiUrl(url) {

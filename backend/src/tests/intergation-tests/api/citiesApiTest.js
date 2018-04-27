@@ -98,7 +98,7 @@ describe("cities route", function () {
             const requestUrl = testUtils.getApiUrl(apiRoutes.CITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
 
@@ -233,7 +233,7 @@ describe("cities route", function () {
 
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "post");
 
@@ -260,7 +260,7 @@ describe("cities route", function () {
 
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "post");
 
@@ -279,7 +279,7 @@ describe("cities route", function () {
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}/stringid`;
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
 
@@ -297,7 +297,7 @@ describe("cities route", function () {
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}/1`;
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
             request
@@ -318,7 +318,7 @@ describe("cities route", function () {
 
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
-                authResponse.body.access_token,
+                authResponse.headers['set-cookie'][0],
                 server,
                 "get");
             request

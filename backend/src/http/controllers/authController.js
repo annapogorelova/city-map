@@ -1,52 +1,21 @@
 "use strict";
 
-const jwt = require("jsonwebtoken");
 const config = require("config");
 const constants = require("../constants/constants");
 
-function makeAuthController(userService) {
+function makeAuthController(userService, jwtService) {
     return Object.freeze({
-        createUser,
-        getAuthToken
+        getAuth
     });
 
     function _issueToken(payload, secret, expiresIn) {
-        return jwt.sign(payload, secret, { expiresIn: expiresIn });
+        return jwtService.sign(payload, secret, { expiresIn: expiresIn });
     }
 
-    function _getAccessTokenString(accessToken) {
-        return `Bearer ${accessToken}`;
-    }
-
-    async function createUser(req, res) {
-        try {
-            const email = req.body.email;
-            const user = await userService.getByEmail(email);
-            if (user !== null) {
-                return res
-                    .status(constants.statusCodes.FORBIDDEN)
-                    .send({auth: false, message: constants.messages.USER_ALREADY_EXISTS});
-            }
-
-            const createdUser = await userService.create({email: email, password: req.body.password});
-            const accessToken = _issueToken(
-                {id: createdUser.id},
-                config.security.jwt.secret,
-                config.security.jwt.expirationTimeSeconds);
-
-            return res
-                .status(constants.statusCodes.OK)
-                .send({auth: true, access_token: _getAccessTokenString(accessToken)});
-        } catch(error) {
-            return res.status(constants.statusCodes.INTERNAL_SERVER_ERROR)
-                .send({ auth: false, message: constants.messages.FAILED_TO_CREATE_USER });
-        }
-    }
-
-    async function getAuthToken(req, res) {
+    async function getAuth(req, res) {
         try {
             const user = await userService.getByEmail(req.body.email);
-            if(user == null) {
+            if(!user) {
                 return res
                     .status(constants.statusCodes.UNAUTHORIZED)
                     .send({ auth: false, message: constants.messages.UNAUTHORIZED });
@@ -56,11 +25,9 @@ function makeAuthController(userService) {
             if(isPasswordValid) {
                 const accessToken = _issueToken(
                     { id: user.id },
-                    config.security.jwt.secret,
-                    config.security.jwt.expirationTimeSeconds);
-                return res.status(constants.statusCodes.OK).send({
-                    auth: true, access_token: _getAccessTokenString(accessToken)
-                });
+                    config.security.secret,
+                    config.security.expirationTimeSeconds);
+                return res.cookie(config.security.headerName, accessToken, {httpOnly: true, secure: true}).send();
             } else {
                 return res.status(constants.statusCodes.UNAUTHORIZED).send({
                     auth: false, message: constants.messages.UNAUTHORIZED

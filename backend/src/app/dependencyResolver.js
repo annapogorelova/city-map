@@ -19,7 +19,7 @@ const GeoDataService = require("../lib/geo/geoDataService");
 // Common
 const routesV1 = require("../http/routes/v1");
 const express = require("express");
-const authMiddleware = require("../http/middleware/auth");
+const makeAuthMiddleware = require("../http/middleware/auth");
 const mapper = require("../helpers/mapper");
 
 // Registration
@@ -53,8 +53,8 @@ dc.registerBinding("NamedEntitiesController", controllersFactory.namedEntitiesCo
     dependencies: ["NamedEntityService", "Mapper"]
 });
 
-dc.registerBinding("AuthMiddleware", function () {
-    return authMiddleware;
+dc.registerBinding("AuthMiddleware", makeAuthMiddleware, {
+    dependencies: ["UserService"]
 });
 
 dc.registerBinding("Router", routesV1, {

@@ -14,6 +14,11 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(100),
             allowNull: false
         },
+        isPublished: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
         coordinates: {
             type: DataTypes.GEOMETRY("POINT"),
             allowNull: false,

@@ -21,8 +21,12 @@ function makeCityService(db) {
         return db.city.findOne({where: {nameEn: nameEn}});
     }
 
-    function search(search, offset = 0, limit = 5) {
+    function search(search, isPublished = null, offset = 0, limit = 5) {
         const selectParams = {offset: offset, limit: limit, order: db.sequelize.col("name")};
+        if(isPublished !== null) {
+            selectParams["where"] = {isPublished: isPublished};
+        }
+
         if(search) {
             selectParams["where"] = {name: { $like: `${search}%` }};
         }

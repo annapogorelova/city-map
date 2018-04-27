@@ -45,7 +45,8 @@ function makeCitiesController(cityService, mapper) {
 
     async function searchCities(req, res) {
         const limit = parseInt(req.query.limit) || config.defaults.pageLimit;
-        const cities = await cityService.search(req.query.search, req.query.offset || 0, limit);
+        const isPublished = req.user ? null : true;
+        const cities = await cityService.search(req.query.search, isPublished, req.query.offset || 0, limit);
         const models = mapper.map(cities, "app.city.list", "api.v1.city.list");
         return res.json({data: models});
     }

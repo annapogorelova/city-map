@@ -23,10 +23,9 @@ describe("cities route", function () {
     });
 
     it("should return []", (done) => {
-        const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
         chai.request(server)
-            .get(requestUrl)
-            .end((err, res) => {
+            .get(testUtils.getApiUrl(apiRoutes.CITIES))
+            .end((error, res) => {
                 assert.equal(res.status, constants.statusCodes.OK);
                 assert.exists(res.body.data);
                 assert.equal(res.body.data.length, 0);
@@ -36,12 +35,17 @@ describe("cities route", function () {
 
     it("should get the default number of cities", (done) => {
         (async () => {
-            const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
-            await db.city.bulkCreate(citiesTestData);
+            const cities = citiesTestData.slice().map(city => {
+                return {
+                    isPublished: true,
+                    ...city
+                }
+            });
+            await db.city.bulkCreate(cities);
 
             chai.request(server)
-                .get(requestUrl)
-                .end((err, res) => {
+                .get(testUtils.getApiUrl(apiRoutes.CITIES))
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, config.defaults.pageLimit);
@@ -50,18 +54,88 @@ describe("cities route", function () {
         })();
     });
 
-    it("should get n cities", (done) => {
+    it("should get only published cities (unauthorized user)", (done) => {
         (async () => {
             const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
-            await db.city.bulkCreate(citiesTestData);
+            const publishedCities = citiesTestData.slice(0, 2).map(city => {
+                return {
+                    isPublished: true,
+                    ...city
+                }
+            });
+            const unpublishedCities = citiesTestData.slice(2);
+
+            await db.city.bulkCreate(publishedCities);
+            await db.city.bulkCreate(unpublishedCities);
 
             chai.request(server)
                 .get(requestUrl)
-                .query({limit: 4})
-                .end((err, res) => {
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     assert.exists(res.body.data);
-                    assert.equal(res.body.data.length, 4);
+                    assert.equal(res.body.data.length, 2);
+                    assert.sameMembers(res.body.data.map(c => c.name), publishedCities.map(c => c.name));
+                    assert.notIncludeMembers(res.body.data.map(c => c.name), unpublishedCities.map(c => c.name));
+                    done();
+                });
+        })();
+    });
+
+    it("should get both published and unpublished cities (authorized user)", (done) => {
+        (async () => {
+            const publishedCities = citiesTestData.slice(0, 2).map(city => {
+                return {
+                    isPublished: true,
+                    ...city
+                }
+            });
+            const unpublishedCities = citiesTestData.slice(2);
+
+            await db.city.bulkCreate(publishedCities);
+            await db.city.bulkCreate(unpublishedCities);
+
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const requestUrl = testUtils.getApiUrl(apiRoutes.CITIES);
+            const request = testUtils.getAuthenticatedRequest(
+                requestUrl,
+                authResponse.body.access_token,
+                server,
+                "get");
+
+            const limit = citiesTestData.length;
+
+            request
+                .query({limit: limit})
+                .end((error, res) => {
+                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.exists(res.body.data);
+                    assert.includeMembers(res.body.data.map(c => c.name), publishedCities.map(c => c.name));
+                    assert.includeMembers(res.body.data.map(c => c.name), unpublishedCities.map(c => c.name));
+                    done();
+                });
+        })();
+    });
+
+    it("should get n cities", (done) => {
+        (async () => {
+            const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
+            const cities = citiesTestData.slice().map(city => {
+                return {
+                    isPublished: true,
+                    ...city
+                }
+            });
+            await db.city.bulkCreate(cities);
+
+            const limit = 4;
+
+            chai.request(server)
+                .get(requestUrl)
+                .query({limit: limit})
+                .end((error, res) => {
+                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.exists(res.body.data);
+                    assert.equal(res.body.data.length, limit);
                     done();
                 });
         })();
@@ -76,7 +150,7 @@ describe("cities route", function () {
             chai.request(server)
                 .get(requestUrl)
                 .query({search: search})
-                .end((err, res) => {
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     assert.exists(res.body.data);
                     for (let result of res.body.data) {
@@ -104,7 +178,7 @@ describe("cities route", function () {
             chai.request(server)
                 .get(requestUrl)
                 .query({search: search})
-                .end((err, res) => {
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     assert.exists(res.body.data);
 
@@ -129,7 +203,7 @@ describe("cities route", function () {
                 chai.request(server)
                     .get(requestUrl)
                     .query({search: search})
-                    .end((err, res) => {
+                    .end((error, res) => {
                         assert.equal(res.status, constants.statusCodes.OK);
                         assert.exists(res.body.data);
                         assert.equal(res.body.data.length, 0);
@@ -143,7 +217,7 @@ describe("cities route", function () {
         const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}`;
         chai.request(server)
             .post(requestUrl)
-            .end((err, res) => {
+            .end((error, res) => {
                 assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
                 done();
             });
@@ -165,7 +239,7 @@ describe("cities route", function () {
 
             request
                 .send(cityModel)
-                .end((err, res) => {
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     assert.exists(res.body.data);
                     db.city.findById(res.body.data.id).then(existingCity => {
@@ -192,7 +266,7 @@ describe("cities route", function () {
 
             request
                 .send(cityModel)
-                .end((err, res) => {
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.BAD_REQUEST);
                     done();
                 });
@@ -210,7 +284,7 @@ describe("cities route", function () {
                 "get");
 
             request
-                .end((err, res) => {
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.BAD_REQUEST);
                     done();
                 });
@@ -227,7 +301,7 @@ describe("cities route", function () {
                 server,
                 "get");
             request
-                .end((err, res) => {
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.NOT_FOUND);
                     done();
                 });
@@ -248,7 +322,7 @@ describe("cities route", function () {
                 server,
                 "get");
             request
-                .end((err, res) => {
+                .end((error, res) => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.id, createdCity.id);

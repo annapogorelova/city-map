@@ -25,7 +25,7 @@ describe("named entities route test", () => {
             .end((err, res) => {
                 assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
                 assert.exists(res.body.message);
-                assert.equal(res.body.message, constants.messages.ACCESS_TOKEN_INCORRECT_FORMAT);
+                assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
                 done();
             });
     });
@@ -132,7 +132,7 @@ describe("named entities route test", () => {
                 .end((err, res) => {
                     assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
                     assert.exists(res.body.message);
-                    assert.equal(res.body.message, constants.messages.ACCESS_TOKEN_INCORRECT_FORMAT);
+                    assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
                     done();
                 });
         })();

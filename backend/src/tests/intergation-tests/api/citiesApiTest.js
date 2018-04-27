@@ -8,7 +8,6 @@ const apiRoutes = require("../../apiRoutes");
 const constants = require("../../../http/constants/constants");
 const testData = require("../../data/dbTestData");
 const citiesTestData = testData.cities;
-const testUser = testData.user;
 const db = require("../../../data/models/index");
 const config = require("config");
 const _ = require("lodash");
@@ -18,6 +17,8 @@ const mapper = require("../../../helpers/mapper");
 chai.use(chaiHttp);
 
 describe("cities route", function () {
+    const testUser = testData.user;
+
     beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();

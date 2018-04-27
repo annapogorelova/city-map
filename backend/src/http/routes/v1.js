@@ -6,6 +6,7 @@ function makeRouter(
     citiesController,
     streetsController,
     usersController,
+    namedEntitiesController,
     authMiddleware
 ) {
 
@@ -24,6 +25,8 @@ function makeRouter(
     router.get("/cities", citiesController.searchCities);
 
     router.post("/cities", authMiddleware.verifyToken, citiesController.createCity);
+
+    router.get("/namedEntities", namedEntitiesController.search);
 
     return router;
 }

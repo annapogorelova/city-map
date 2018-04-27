@@ -56,11 +56,11 @@ mapper.registerResolver("api.v1.street", "app.street", (street) => {
 });
 
 mapper.registerResolver("app.city.list", "api.v1.city.list", (cities) => {
-    return cities.map(city => {return mapper.map(city, "app.city", "api.v1.city");});
+    return cities.map(city => mapper.map(city, "app.city", "api.v1.city"));
 });
 
 mapper.registerResolver("app.street.list", "api.v1.street.list", (streets) => {
-    return streets.map(street => {return mapper.map(street, "app.street", "api.v1.street");});
+    return streets.map(street => mapper.map(street, "app.street", "api.v1.street"));
 });
 
 mapper.registerResolver("app.namedEntity", "api.v1.namedEntity", (namedEntity) => {
@@ -75,8 +75,12 @@ mapper.registerResolver("app.namedEntity", "api.v1.namedEntity", (namedEntity) =
     };
 });
 
+mapper.registerResolver("app.namedEntity.list", "api.v1.namedEntity.list", (namedEntities) => {
+    return namedEntities.map(namedEntity => mapper.map(namedEntity, "app.namedEntity", "api.v1.namedEntity"));
+});
+
 mapper.registerResolver("app.tag.list", "api.v1.tag.list", (tags) => {
-    return tags.map(tag => {return mapper.map(tag, "app.tag", "api.v1.tag")});
+    return tags.map(tag => mapper.map(tag, "app.tag", "api.v1.tag"));
 });
 
 mapper.registerResolver("app.tag", "api.v1.tag", (tag) => {

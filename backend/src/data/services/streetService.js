@@ -99,7 +99,7 @@ function makeStreetService(db) {
 
         if (search) {
             selectParams["where"] = Object.assign(selectParams["where"] || {},
-                {name: {$like: `${search}%`}});
+                {name: {$like: `%${search}%`}});
         }
 
         const results = await Promise.all([

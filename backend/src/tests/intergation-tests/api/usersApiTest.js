@@ -7,11 +7,12 @@ const testUtils = require("../../testUtils");
 const apiRoutes = require("../../apiRoutes");
 const constants = require("../../../http/constants/constants");
 const userService = testUtils.dc.get("UserService");
-const testUser = require("../../data/dbTestData").user;
 
 chai.use(chaiHttp);
 
 describe("users route", function () {
+    const testUser = require("../../data/dbTestData").user;
+
     beforeEach((done) => {
         testUtils.cleanDB().then(() => {
             done();

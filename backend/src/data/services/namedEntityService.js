@@ -7,6 +7,7 @@ function makeNamedEntityService(db) {
         getById,
         getByName,
         getAll,
+        search,
         create,
         update
     });
@@ -26,6 +27,29 @@ function makeNamedEntityService(db) {
 
     function getAll() {
         return db.namedEntity.findAll({}).then(entities => entities.map(entity => entity.get({plain: true})));
+    }
+
+    async function search(search, offset, limit) {
+        let selectParams = {
+            offset: offset,
+            limit: limit,
+            order: db.sequelize.col("name")
+        };
+
+        if(search) {
+            selectParams["where"] = {name: {$like: `%${search}%`}};
+        }
+
+        const results = await Promise.all([
+            db.namedEntity.count(selectParams),
+            db.namedEntity.findAll({...selectParams, include: [{model: db.tag}]})
+                .then(entities => entities.map(entity => entity.get({plain: true})))
+        ]);
+
+        return {
+            count: results[0],
+            data: results[1]
+        };
     }
 
     async function create(namedEntity, tags) {

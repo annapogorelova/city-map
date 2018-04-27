@@ -3,6 +3,7 @@ import Router from "vue-router";
 import SignIn from "../components/auth/sign-in";
 import CityMap from "../components/city-map/city-map";
 import StreetsList from "../components/admin/streets-list";
+import NamedEntitiesList from "../components/admin/named-entities-list";
 
 Vue.use(Router);
 
@@ -22,8 +23,13 @@ export default new Router({
         },
         {
             path: "/admin/streets",
-            name: "Admin",
+            name: "Admin Streets",
             component: StreetsList
+        },
+        {
+            path: "/admin/named-entities",
+            name: "Admin Named Entities",
+            component: NamedEntitiesList
         }
     ]
 });

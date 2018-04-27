@@ -10,6 +10,10 @@
             placeholder: {
                 type: String,
                 default: "Шукати..."
+            },
+            minLength: {
+                type: Number,
+                default: 3
             }
         },
         data: function () {
@@ -19,7 +23,9 @@
         },
         methods: {
             onSearch: function () {
-                this.$emit("search", this.search);
+                if(!this.search || this.search.length >= this.minLength) {
+                    this.$emit("search", this.search);
+                }
             }
         }
     };

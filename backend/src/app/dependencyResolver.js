@@ -49,6 +49,10 @@ dc.registerBinding("UsersController", controllersFactory.usersController, {
     dependencies: ["UserService", "Mapper"]
 });
 
+dc.registerBinding("NamedEntitiesController", controllersFactory.namedEntitiesController, {
+    dependencies: ["NamedEntityService", "Mapper"]
+});
+
 dc.registerBinding("AuthMiddleware", function () {
     return authMiddleware;
 });
@@ -60,6 +64,7 @@ dc.registerBinding("Router", routesV1, {
         "CitiesController",
         "StreetsController",
         "UsersController",
+        "NamedEntitiesController",
         "AuthMiddleware"
     ]
 });

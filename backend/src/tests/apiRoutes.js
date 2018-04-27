@@ -4,5 +4,6 @@ module.exports = Object.freeze({
     REGISTER: "/auth/register",
     GET_USER: "/users",
     CITIES: "/cities",
-    STREETS: "streets"
+    STREETS: "streets",
+    NAMED_ENTITIES: "/namedEntities"
 });

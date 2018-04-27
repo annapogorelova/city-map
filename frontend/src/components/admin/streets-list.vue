@@ -113,7 +113,7 @@
             },
             searchStreets(search) {
                 this.pager.currentPage = 1;
-                this.getStreets({offset: this.pager.offset, limit: this.pager.limit, search: search});
+                this.getStreets({offset: 0, limit: this.pager.limit, search: search});
             },
             onCitySelected(city) {
                 if (city && city.id !== this.cityId) {
@@ -121,7 +121,7 @@
                     this.$router.push({query: query});
                     this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
                 }
-            },
+            }
         }
     }
 </script>

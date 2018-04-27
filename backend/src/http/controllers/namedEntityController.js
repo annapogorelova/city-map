@@ -33,7 +33,7 @@ function makeNamedEntityController(namedEntityService, mapper) {
             await namedEntityService.update(namedEntity);
             return res
                 .status(constants.statusCodes.OK)
-                .send({ message: "Named entity was successfully updated." })
+                .send({ message: "Named entity was successfully updated." });
         } catch (error) {
             return res
                 .status(constants.statusCodes.INTERNAL_SERVER_ERROR)

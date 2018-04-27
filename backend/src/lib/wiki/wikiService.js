@@ -92,9 +92,9 @@ class WikiService {
 
             if (optional(() => wikiUtils.isNamedEntityCategory(page.categories), null)) {
                 let rate = this.getPageRate(articleName, pageTitle, page.categories);
+                const namesInflectionMatch = stringUtils.namesInflectionMatch(articleName, page.title);
 
-                if(rate > 0 &&
-                    articleName !== page.title && !stringUtils.namesMatch(articleName, page.title)) {
+                if(rate > 0 && articleName !== page.title && !namesInflectionMatch) {
                     rate -= minRate;
                 }
 
@@ -111,7 +111,7 @@ class WikiService {
         }
 
         resultCandidates.map((rc, idx) =>
-            rc.rate += this.addOrderWeight(rc.rate, idx, resultCandidates.length));
+            rc.rate += rc.rate + ((resultCandidates.length - idx) / resultCandidates.length));
 
         // Order by descending rate
         return optional(() => resultCandidates.sort((a, b) => {
@@ -129,10 +129,6 @@ class WikiService {
         }
 
         return rate;
-    }
-
-    addOrderWeight(rate, idx, resultsLength) {
-        return (rate + ((resultsLength - idx) / resultsLength));
     }
 
     findMainCategory(categories) {

@@ -11,10 +11,11 @@ function makeStreetsController(streetService, mapper) {
     async function searchCityStreets(req, res) {
         const search = req.query.search;
         const cityId = parseInt(req.params.cityId);
+        const offset = parseInt(req.query.offset) || 0;
         const limit = parseInt(req.query.limit) || config.defaults.pageLimit;
-        const streets = await streetService.search(search, cityId, req.query.offset || 0, limit);
-        const models = mapper.map(streets, "app.street.list", "api.v1.street.list");
-        return res.json({data: models});
+        const {count, data} = await streetService.search(search, cityId, offset, limit);
+        const models = mapper.map(data, "app.street.list", "api.v1.street.list");
+        return res.json({data: models, count: count});
     }
 
     async function searchStreetsByCoordinates(req, res) {

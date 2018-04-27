@@ -95,8 +95,7 @@ module.exports = {
 
     findGeneralStreetArticle(search, results) {
         return optional(() => results
-            .filter(r => r.match(constants.generalStreetArticleTitleRegex)
-                        && this.streetNamesMatch(search, r))[0], undefined);
+            .filter(r => r.match(constants.generalStreetArticleTitleRegex))[0], undefined);
     },
 
     streetNamesMatch(search, result, threshold = 5) {

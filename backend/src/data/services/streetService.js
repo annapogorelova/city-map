@@ -86,15 +86,11 @@ function makeStreetService(db) {
         }), []);
     }
 
-    function search(search, cityId = null, offset = 0, limit = 5) {
+    async function search(search, cityId = null, offset = 0, limit = 5) {
         let selectParams = {
             offset: offset,
             limit: limit,
-            order: db.sequelize.col("name"),
-            include: [
-                {model: db.namedEntity, include: [{model: db.tag}]},
-                {model: db.way}
-            ]
+            order: db.sequelize.col("name")
         };
 
         if (cityId) {
@@ -105,7 +101,19 @@ function makeStreetService(db) {
             selectParams["where"] = Object.assign(selectParams["where"] || {},
                 {name: {$like: `${search}%`}});
         }
-        return db.street.findAll(selectParams).then(streets => getPlainList(streets));
+
+        const results = await Promise.all([
+            db.street.count(selectParams),
+            db.street.findAll({...selectParams, include: [
+                    {model: db.namedEntity, include: [{model: db.tag}]},
+                    {model: db.way}
+                ]}).then(rows => getPlainList(rows))
+        ]);
+
+        return {
+            count: results[0],
+            data: results[1]
+        };
     }
 
     async function create(street, ways) {

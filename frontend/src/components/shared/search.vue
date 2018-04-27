@@ -9,7 +9,7 @@
         props: {
             placeholder: {
                 type: String,
-                default: ""
+                default: "Шукати..."
             }
         },
         data: function () {

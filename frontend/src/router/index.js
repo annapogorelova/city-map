@@ -2,6 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import SignIn from "../components/auth/sign-in";
 import CityMap from "../components/city-map/city-map";
+import StreetsList from "../components/admin/streets-list";
 
 Vue.use(Router);
 
@@ -18,6 +19,11 @@ export default new Router({
             path: "/map",
             name: "City Map",
             component: CityMap
+        },
+        {
+            path: "/admin/streets",
+            name: "Admin",
+            component: StreetsList
         }
     ]
 });

@@ -56,7 +56,7 @@ module.exports = {
             .replace("Ukrcenter", "");
     },
 
-    namesMatch(expectedName, actualName) {
+    namesInflectionMatch(expectedName, actualName) {
         let cleanedExpectedName = this.removeNickName(expectedName);
         let cleanedActualName = this.removeNickName(actualName);
 

@@ -2,7 +2,7 @@ import ApiService from "./api-service";
 import axios from "axios";
 
 function dataHandler(response) {
-    return response.data.data;
+    return {data: response.data.data, count: response.data.count};
 }
 
 function errorHandler(response) {

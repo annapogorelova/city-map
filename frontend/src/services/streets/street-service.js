@@ -3,8 +3,14 @@ export default class StreetService {
         this.apiService = apiService;
     }
 
-    search(cityId, streetName) {
-        return this.apiService.get(`/cities/${cityId}/streets`, {params: {search: streetName}});
+    search({cityId, search, offset, limit}) {
+        return this.apiService.get(`/cities/${cityId}/streets`, {
+            params: {
+                search: search,
+                offset: offset,
+                limit: limit
+            }
+        });
     }
 
     getStreetByCoordinates(coordinates) {

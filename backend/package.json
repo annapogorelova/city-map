@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node $NODE_DEBUG_OPTION ./bin/www --arguments",
     "test": "export NODE_ENV=test && ./node_modules/.bin/nyc ./node_modules/.bin/mocha \"./src/tests/**/*.js\" --exit",
-    "parse-city-dev": "export NODE_ENV=dev && node ./src/lib/scripts/parser.js",
-    "parse-city-test": "export NODE_ENV=test && node ./src/lib/scripts/parser.js",
+    "parse-city-dev": "export NODE_ENV=dev && node ./src/lib/scripts/cityParser.js",
+    "parse-city-test": "export NODE_ENV=test && node ./src/lib/scripts/cityParser.js",
     "update-named-entities-dev": "export NODE_ENV=dev && node ./src/lib/scripts/namedEntitiesUpdater.js",
     "update-named-entities-test": "export NODE_ENV=test && node ./src/lib/scripts/namedEntitiesUpdater.js",
     "lint": "./node_modules/.bin/eslint --fix ./src"

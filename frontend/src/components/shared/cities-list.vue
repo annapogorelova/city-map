@@ -14,7 +14,7 @@
     }
 </style>
 <script>
-    import {cityService} from "../../services";
+    import {cityService} from "../../services/index";
 
     export default {
         props: {
@@ -42,8 +42,8 @@
         },
         methods: {
             loadCities() {
-                cityService.getCities().then(data => {
-                    this.cities = data;
+                cityService.getCities().then(response => {
+                    this.cities = response.data;
                     this.preselectCity();
                 });
             },

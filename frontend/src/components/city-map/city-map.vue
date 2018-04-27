@@ -63,9 +63,9 @@
 <script>
     import Vue from "vue";
     import BasicMap from "../map/basic-map";
-    import CitiesList from "./cities-list";
+    import CitiesList from "../shared/cities-list";
     import StreetDescription from "./street-description";
-    import Search from "./search";
+    import Search from "../shared/search";
     import {streetService} from "../../services";
     import {optional} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
@@ -105,8 +105,8 @@
         },
         methods: {
             findClosestStreet: (coordinates) => {
-                return streetService.getStreetByCoordinates(coordinates).then(data => {
-                    return optional(() => data[0], null);
+                return streetService.getStreetByCoordinates(coordinates).then(response => {
+                    return optional(() => response.data[0], null);
                 });
             },
             setMarker(coordinates) {
@@ -177,8 +177,9 @@
                 }
             },
             onSearchStreet(streetName) {
-                streetService.search(this.cityId, streetName).then(streets => {
-                    const street = optional(() => streets[0], null);
+                streetService.search({cityId: this.cityId, search: streetName}).then(response => {
+                    const street = optional(() => response.data[0], null);
+
                     if(street) {
                         this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
                     }

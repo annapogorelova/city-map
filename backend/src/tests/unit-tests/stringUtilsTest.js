@@ -145,7 +145,7 @@ describe("stringUtils test", () => {
        ];
 
        for(let testCase of testNames) {
-           assert.equal(stringUtils.namesMatch(expectedName, testCase.name), testCase.correct);
+           assert.equal(stringUtils.namesInflectionMatch(expectedName, testCase.name), testCase.correct);
        }
 
        done();
@@ -168,7 +168,7 @@ describe("stringUtils test", () => {
         ];
 
         for(let testCase of testNames) {
-            assert.equal(stringUtils.namesMatch(expectedName, testCase.name), testCase.correct);
+            assert.equal(stringUtils.namesInflectionMatch(expectedName, testCase.name), testCase.correct);
         }
 
         done();
@@ -195,7 +195,7 @@ describe("stringUtils test", () => {
         ];
 
         for(let testCase of testNames) {
-            assert.equal(stringUtils.namesMatch(expectedName, testCase.name), testCase.correct);
+            assert.equal(stringUtils.namesInflectionMatch(expectedName, testCase.name), testCase.correct);
         }
 
         done();
@@ -217,7 +217,7 @@ describe("stringUtils test", () => {
         ];
 
         for(let testCase of testNames) {
-            assert.equal(testCase.correct, stringUtils.namesMatch(expectedName, testCase.name));
+            assert.equal(testCase.correct, stringUtils.namesInflectionMatch(expectedName, testCase.name));
         }
 
         done();
@@ -236,7 +236,7 @@ describe("stringUtils test", () => {
         ];
 
         for(let testCase of testNames) {
-            assert.equal(testCase.correct, stringUtils.namesMatch(expectedName, testCase.name));
+            assert.equal(testCase.correct, stringUtils.namesInflectionMatch(expectedName, testCase.name));
         }
 
         done();

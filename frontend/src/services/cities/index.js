@@ -1,5 +1,3 @@
-import cityServiceProvider from "./city-service-provider";
+import CityService from "./city-service";
 
-const cityService = cityServiceProvider();
-
-export default cityService;
+export {CityService};

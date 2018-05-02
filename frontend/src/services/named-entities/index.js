@@ -1,5 +1,3 @@
-import namedEntitiesServiceProvider from "./named-entity-service-provider";
+import NamedEntityService from "./named-entity-service";
 
-const namedEntitiesService = namedEntitiesServiceProvider();
-
-export default namedEntitiesService;
+export {NamedEntityService};

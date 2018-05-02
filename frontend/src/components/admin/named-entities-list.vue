@@ -105,7 +105,6 @@
 <script>
     import Vue from "vue";
     import Pager from "../shared/pager";
-    import {namedEntityService} from "../../services";
     import Search from "../shared/search";
     import BootstrapModal from "../shared/bootstrap-modal";
 
@@ -143,7 +142,7 @@
         },
         methods: {
             getNamedEntities({offset, limit, search = null}) {
-                namedEntityService.search({search: search, offset: offset, limit: limit})
+                this.$dc.get("namedEntities").search({search: search, offset: offset, limit: limit})
                     .then(response => {
                         this.namedEntities = response.data;
                         this.namedEntitiesCount = response.count;
@@ -168,7 +167,7 @@
                 let namedEntityIndex = this.namedEntities.findIndex(entity => entity.id === this.selectedNamedEntity.id);
                 this.namedEntities[namedEntityIndex] = this.selectedNamedEntity;
 
-                namedEntityService.update(this.selectedNamedEntity).then(response => {
+                this.$dc.get("namedEntities").update(this.selectedNamedEntity).then(response => {
                     this.modal.hide();
 
                     Vue.nextTick(() => {

@@ -1,5 +1,3 @@
-import streetServiceProvider from "./street-service-provider";
+import StreetService from "./street-service";
 
-const streetService = streetServiceProvider();
-
-export default streetService;
+export {StreetService};

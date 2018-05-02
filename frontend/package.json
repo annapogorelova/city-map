@@ -22,8 +22,9 @@
     "leaflet-geosearch": "^2.6.0",
     "lodash": "^4.17.5",
     "popper.js": "^1.12.9",
-    "tooleks": "^0.1.4",
+    "tooleks": "^0.2.3",
     "vue": "^2.5.2",
+    "vue-meta": "^1.5.0",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {

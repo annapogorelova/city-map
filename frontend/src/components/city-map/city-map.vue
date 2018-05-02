@@ -66,7 +66,6 @@
     import CitiesList from "../shared/cities-list";
     import StreetDescription from "./street-description";
     import Search from "../shared/search";
-    import {streetService} from "../../services";
     import {optional} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
 
@@ -105,7 +104,7 @@
         },
         methods: {
             findClosestStreet: (coordinates) => {
-                return streetService.getStreetByCoordinates(coordinates).then(response => {
+                return this.$dc.get("streets").getStreetByCoordinates(coordinates).then(response => {
                     return optional(() => response.data[0], null);
                 });
             },
@@ -177,7 +176,7 @@
                 }
             },
             onSearchStreet(streetName) {
-                streetService.search({cityId: this.cityId, search: streetName}).then(response => {
+                this.$dc.get("streets").search({cityId: this.cityId, search: streetName}).then(response => {
                     const street = optional(() => response.data[0], null);
 
                     if(street) {

@@ -3,7 +3,7 @@
         <div class="col-12">
             <div class="row">
                 <div class="col-12">
-                    <cities-list :selected-city-id="cityId"
+                    <cities-list v-bind:selected-city-id="cityId"
                                  v-on:citySelected="onCitySelected"></cities-list>
                 </div>
             </div>
@@ -44,7 +44,7 @@
                                 </td>
                             </tr>
                             <tr v-if="!streets.length">
-                                <td class="no-records" colspan="4">No Records</td>
+                                <td class="no-records" colspan="4">No Records (select city please)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -68,7 +68,6 @@
 <script>
     import CitiesList from "../shared/cities-list";
     import Pager from "../shared/pager";
-    import {streetService} from "../../services";
     import Search from "../shared/search";
 
     export default {
@@ -101,12 +100,15 @@
                 this.pageNumber = parseInt(this.$route.query.page);
             }
 
-            this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
+            if(this.cityId) {
+                this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
+            }
         },
         methods: {
             getStreets({offset, limit, search = null}) {
-                streetService.search({cityId: this.cityId, search: search, offset: offset, limit: limit})
+                this.$dc.get("streets").search({cityId: this.cityId, search: search, offset: offset, limit: limit})
                     .then(response => {
+                        debugger
                         this.streets = response.data;
                         this.streetsCount = response.count;
                     });

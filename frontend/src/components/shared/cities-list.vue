@@ -11,11 +11,10 @@
 <style scoped>
     button {
         margin-right: 10px;
+        margin-bottom: 5px;
     }
 </style>
 <script>
-    import {cityService} from "../../services/index";
-
     export default {
         props: {
             selectedCityId: {
@@ -42,7 +41,7 @@
         },
         methods: {
             loadCities() {
-                cityService.getCities().then(response => {
+                this.$dc.get("cities").getCities().then(response => {
                     this.cities = response.data;
                     this.preselectCity();
                 });

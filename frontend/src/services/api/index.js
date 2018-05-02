@@ -1,5 +1,3 @@
-import apiServiceProvider from "./api-service-provider";
+import ApiService from "./api-service";
 
-const apiService = apiServiceProvider();
-
-export default apiService;
+export {ApiService};

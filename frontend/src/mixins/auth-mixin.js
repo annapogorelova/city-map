@@ -14,10 +14,5 @@ export default {
         if (typeof this.unsubscribeFromAuthChanges !== "undefined") {
             this.unsubscribeFromAuthChanges();
         }
-    },
-    methods: {
-        signOut: function () {
-            this.$dc.get("auth").signOut().then(() => this.$router.push("/map"));
-        }
     }
 };

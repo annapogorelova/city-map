@@ -32,9 +32,9 @@
                 isFormValid: false
             };
         },
-        mounted: function () {
+        created: function () {
             if(this.isAuthenticated) {
-                this.$router.replace("/admin/streets");
+                this.$router.push({name: "admin-streets"});
             }
         },
         watch: {
@@ -48,11 +48,11 @@
         methods: {
             onSubmit() {
                 if (this.isFormValid) {
-                    this.$dc.get("auth").postAuth({
+                    this.$dc.get("auth").signIn({
                         email: this.formData.email,
                         password: this.formData.password
                     }).then(() => {
-                        this.$router.push("/admin/streets");
+                        this.$router.push({name: "admin-streets"});
                     });
                 }
             }

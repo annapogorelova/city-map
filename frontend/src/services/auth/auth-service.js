@@ -14,7 +14,7 @@ export default class AuthService {
         }
     }
 
-    postAuth({email, password}) {
+    signIn({email, password}) {
         return this.apiService.post("/auth", {email: email, password: password}).then(response => {
             this.setUser(response.data.user);
             return response.data;

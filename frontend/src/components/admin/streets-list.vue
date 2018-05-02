@@ -108,7 +108,6 @@
             getStreets({offset, limit, search = null}) {
                 this.$dc.get("streets").search({cityId: this.cityId, search: search, offset: offset, limit: limit})
                     .then(response => {
-                        debugger
                         this.streets = response.data;
                         this.streetsCount = response.count;
                     });

@@ -28,9 +28,13 @@ function makeAuthController(userService, jwtService) {
                     {id: user.id},
                     config.security.secret,
                     config.security.expirationTimeSeconds);
+                let expiresAt = new Date();
+                expiresAt.setTime(expiresAt.getTime() + config.security.expirationTimeSeconds * 1000);
+
                 return res
                     .cookie(config.security.headerName, accessToken, {
                         httpOnly: true,
+                        expires: expiresAt,
                         secure: process.env.NODE_ENV === "production"
                     })
                     .send({
@@ -38,9 +42,7 @@ function makeAuthController(userService, jwtService) {
                             user: {
                                 id: user.id,
                                 email: user.email,
-                                expiresAt: new Date(
-                                    new Date().getTime() + (config.security.expirationTimeSeconds * 60)
-                                )
+                                expiresAt: expiresAt
                             }
                         }
                     });

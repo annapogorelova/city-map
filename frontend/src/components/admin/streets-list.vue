@@ -118,7 +118,8 @@
             },
             onCitySelected(city) {
                 if (city && city.id !== this.cityId) {
-                    const query = {cityId: city.id};
+                    this.cityId = city.id;
+                    const query = {cityId: this.cityId};
                     this.$router.push({query: query});
                     this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
                 }

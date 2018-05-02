@@ -16,11 +16,11 @@ function makeAuthMiddleware(userService, jwtService) {
             return next();
         }
 
-        jwtService.verify(accessToken, config.security.secret, async function (error, decoded) {
+        jwtService.verify(accessToken, config.security.secret, async (error, decoded) => {
             if (error || !decoded.id) {
                 return res
-                    .status(constants.statusCodes.INTERNAL_SERVER_ERROR)
-                    .send({auth: false, message: constants.messages.UNAUTHORIZED});
+                    .status(constants.statusCodes.UNAUTHORIZED)
+                    .send({message: constants.messages.UNAUTHORIZED});
             }
 
             const user = await userService.getById(decoded.id)
@@ -29,7 +29,7 @@ function makeAuthMiddleware(userService, jwtService) {
             if (!user) {
                 return res
                     .status(constants.statusCodes.UNAUTHORIZED)
-                    .send({auth: false, message: constants.messages.UNAUTHORIZED});
+                    .send({message: constants.messages.UNAUTHORIZED});
             }
 
             req.userId = decoded.id;
@@ -40,9 +40,9 @@ function makeAuthMiddleware(userService, jwtService) {
     }
 
     function verifyAuth(req, res, next) {
-        if(!req.user) {
+        if (!req.user) {
             return res.status(constants.statusCodes.UNAUTHORIZED)
-                .send({auth: false, message: constants.messages.UNAUTHORIZED});
+                .send({message: constants.messages.UNAUTHORIZED});
         }
 
         next();

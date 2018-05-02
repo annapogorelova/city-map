@@ -10,7 +10,12 @@ function makeRouter(
     authMiddleware
 ) {
 
-    router.post("/auth", authController.getAuth);
+    router.post("/auth", authController.postAuth);
+
+    router.delete("/auth",
+        authMiddleware.extractAuth,
+        authMiddleware.verifyAuth,
+        authController.expireAuth);
 
     router.get("/users/:id",
         authMiddleware.extractAuth,

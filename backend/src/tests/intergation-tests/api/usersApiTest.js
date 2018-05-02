@@ -73,7 +73,6 @@ describe("users route", function () {
                 .end((err, res) => {
                     assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
                     assert.isTrue(res.unauthorized);
-                    assert.isFalse(res.body.auth);
                     assert.exists(res.body.message);
                     assert.equal(constants.messages.UNAUTHORIZED, res.body.message);
                     done();
@@ -151,4 +150,33 @@ describe("users route", function () {
         })();
     });
 
+    it("should log the user out", (done) => {
+        (async () => {
+            const testUser = testUtils.getUser();
+            const createdUser = await userService.create({email: testUser.email, password: testUser.password});
+
+            chai.request(server)
+                .post(testUtils.getApiUrl(apiRoutes.AUTH))
+                .send({email: testUser.email, password: testUser.password})
+                .end((err, res) => {
+                    assert.exists(res.headers["set-cookie"]);
+
+                    chai.request(server)
+                        .delete(testUtils.getApiUrl(apiRoutes.AUTH))
+                        .set("Cookie", res.headers["set-cookie"][0])
+                        .end((err, res) => {
+                            assert.equal(res.headers["set-cookie"], "x-access-token=; Path=/");
+
+                            const requestUrl = `${testUtils.getApiUrl(apiRoutes.GET_USER)}/${createdUser.id}`;
+                            chai.request(server)
+                                .get(requestUrl)
+                                .set("Cookie", res.headers["set-cookie"][0])
+                                .end((err, res) => {
+                                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                                    done();
+                                });
+                        });
+                });
+        })();
+    });
 });

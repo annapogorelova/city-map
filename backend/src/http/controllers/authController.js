@@ -5,39 +5,59 @@ const constants = require("../constants/constants");
 
 function makeAuthController(userService, jwtService) {
     return Object.freeze({
-        getAuth
+        postAuth,
+        expireAuth
     });
 
     function _issueToken(payload, secret, expiresIn) {
-        return jwtService.sign(payload, secret, { expiresIn: expiresIn });
+        return jwtService.sign(payload, secret, {expiresIn: expiresIn});
     }
 
-    async function getAuth(req, res) {
+    async function postAuth(req, res) {
         try {
             const user = await userService.getByEmail(req.body.email);
-            if(!user) {
+            if (!user) {
                 return res
                     .status(constants.statusCodes.UNAUTHORIZED)
-                    .send({ auth: false, message: constants.messages.UNAUTHORIZED });
+                    .send({message: constants.messages.UNAUTHORIZED});
             }
 
             const isPasswordValid = await userService.isPasswordValid(req.body.password, user.password);
-            if(isPasswordValid) {
+            if (isPasswordValid) {
                 const accessToken = _issueToken(
-                    { id: user.id },
+                    {id: user.id},
                     config.security.secret,
                     config.security.expirationTimeSeconds);
-                return res.cookie(config.security.headerName, accessToken, {httpOnly: true, secure: true}).send();
+                return res
+                    .cookie(config.security.headerName, accessToken, {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === "production"
+                    })
+                    .send({
+                        data: {
+                            user: {
+                                id: user.id,
+                                email: user.email,
+                                expiresAt: new Date(
+                                    new Date().getTime() + (config.security.expirationTimeSeconds * 60)
+                                )
+                            }
+                        }
+                    });
             } else {
                 return res.status(constants.statusCodes.UNAUTHORIZED).send({
-                    auth: false, message: constants.messages.UNAUTHORIZED
+                    message: constants.messages.UNAUTHORIZED
                 });
             }
-        } catch(error) {
+        } catch (error) {
             return res.status(constants.statusCodes.INTERNAL_SERVER_ERROR).send({
-                auth: false, message: constants.messages.PROBLEM_AUTHORIZING
+                message: constants.messages.PROBLEM_AUTHORIZING
             });
         }
+    }
+
+    async function expireAuth(req, res) {
+        return res.cookie(config.security.headerName, "").send({});
     }
 }
 

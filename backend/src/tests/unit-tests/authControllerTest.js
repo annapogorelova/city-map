@@ -38,11 +38,9 @@ describe("Auth controller unit tests", () => {
                 }
             };
 
-            await authController.getAuth(req, res);
+            await authController.postAuth(req, res);
 
             assert.equal(constants.statusCodes.INTERNAL_SERVER_ERROR, res.statusCode);
-            assert(res.body);
-            assert.equal(false, res.body.auth);
             assert.equal(constants.messages.PROBLEM_AUTHORIZING, res.body.message);
 
             done();

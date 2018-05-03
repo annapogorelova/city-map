@@ -167,8 +167,9 @@
                 let namedEntityIndex = this.namedEntities.findIndex(entity => entity.id === this.selectedNamedEntity.id);
                 this.namedEntities[namedEntityIndex] = this.selectedNamedEntity;
 
-                this.$dc.get("namedEntities").update(this.selectedNamedEntity).then(response => {
+                this.$dc.get("namedEntities").update(this.selectedNamedEntity).then(() => {
                     this.modal.hide();
+                    this.$dc.get("notices").success("Дію успішно виконано", `${this.selectedNamedEntity.name} оновлено`);
 
                     Vue.nextTick(() => {
                         this.selectedNamedEntity = undefined;

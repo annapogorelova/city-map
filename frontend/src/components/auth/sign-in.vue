@@ -53,6 +53,8 @@
                         password: this.formData.password
                     }).then(() => {
                         this.$router.push({name: "admin-streets"});
+                    }).catch((error) => {
+                        this.$dc.get("notices").error("Failed to sign in", "Please try again");
                     });
                 }
             }

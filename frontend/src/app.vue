@@ -6,15 +6,18 @@
                 <router-view/>
             </div>
         </div>
+        <notices></notices>
     </div>
 </template>
 
 <script>
     import AppHeader from "./components/layout/app-header";
+    import Notices from "./components/shared/notices";
 
     export default {
         name: 'app',
         components: {
+            Notices,
             AppHeader
         }
     }

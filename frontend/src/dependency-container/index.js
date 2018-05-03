@@ -5,6 +5,7 @@ import {AuthService} from "../services/auth";
 import {StreetService} from "../services/streets";
 import {CityService} from "../services/cities";
 import {NamedEntityService} from "../services/named-entities";
+import {NoticesService} from "../services/notices";
 import axios from "axios";
 
 const dc = new DependencyContainer;
@@ -29,6 +30,8 @@ dc.registerBinding("api", () => new ApiService(
 });
 
 dc.registerBinding("localStorage", () => new LocalStorageService(localStorage));
+
+dc.registerBinding("notices", () => new NoticesService(new EventEmitter), { singleton: true, factory: true});
 
 dc.registerBinding("auth",
     (apiService, localStorageService) =>

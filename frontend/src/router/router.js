@@ -10,7 +10,7 @@ Vue.use(VueMeta);
 let router = new Router({
     mode: "history",
     routes,
-    scrollBehavior(to, from, savedPosition) {
+    scrollBehavior() {
         return {x: 0, y: 0};
     },
 });

@@ -14,6 +14,7 @@
                         <th>Назва</th>
                         <th>Опис</th>
                         <th>Теги</th>
+                        <th>Оновлено</th>
                         <th></th>
                         </thead>
                         <tbody>
@@ -32,6 +33,9 @@
                             </td>
                             <td>
                                 <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
+                            </td>
+                            <td>
+                                <span>{{namedEntity.updatedAt | formatDate }}</span>
                             </td>
                             <td>
                                 <button class="btn float-right"

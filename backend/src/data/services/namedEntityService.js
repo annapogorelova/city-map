@@ -86,6 +86,7 @@ function makeNamedEntityService(db) {
             await updateTags(existingNamedEntity, tags);
         }
 
+        namedEntity.updatedAt = Date.now();
         return db.namedEntity.update(namedEntity, {where: {id: namedEntity.id}});
     }
 

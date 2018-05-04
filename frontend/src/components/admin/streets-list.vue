@@ -16,36 +16,38 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                            <th>Img</th>
-                            <th>Назва</th>
-                            <th>Назва на честь</th>
-                            <th>Опис</th>
-                            <th></th>
+                        <th>Img</th>
+                        <th>Назва</th>
+                        <th>Назва на честь</th>
+                        <th>Опис</th>
+                        <th>Оновлено</th>
+                        <th></th>
                         </thead>
                         <tbody>
-                            <tr v-for="street in streets">
-                                <td>
-                                    <div class="street-image"
-                                         v-if="street.namedEntity"
-                                         :style="{
+                        <tr v-for="street in streets">
+                            <td>
+                                <div class="street-image"
+                                     v-if="street.namedEntity"
+                                     :style="{
                                                 'background-image': 'url(' + street.namedEntity.imageUrl + ')',
                                                 'background-color': 'lightgrey'}"></div>
-                                    <div class="street-image" v-if="!street.namedEntity"></div>
-                                </td>
-                                <td>{{street.name}}</td>
-                                <td>{{street.namedEntity ? street.namedEntity.name : ""}}</td>
-                                <td>
+                                <div class="street-image" v-if="!street.namedEntity"></div>
+                            </td>
+                            <td>{{street.name}}</td>
+                            <td>{{street.namedEntity ? street.namedEntity.name : ""}}</td>
+                            <td>
                                     <span v-if="street.description">
                                     {{`${street.description.substring(0, 60)}...`}}
                                     </span>
-                                </td>
-                                <td>
-                                    <button class="btn float-right">Ред.</button>
-                                </td>
-                            </tr>
-                            <tr v-if="!streets.length">
-                                <td class="no-records" colspan="4">No Records (select city please)</td>
-                            </tr>
+                            </td>
+                            <td>{{street.updatedAt | formatDate}}</td>
+                            <td>
+                                <button class="btn float-right">Ред.</button>
+                            </td>
+                        </tr>
+                        <tr v-if="!streets.length">
+                            <td class="no-records" colspan="4">No Records (select city please)</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -100,7 +102,7 @@
                 this.pageNumber = parseInt(this.$route.query.page);
             }
 
-            if(this.cityId) {
+            if (this.cityId) {
                 this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
             }
         },

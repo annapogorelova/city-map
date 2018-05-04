@@ -40,7 +40,8 @@ mapper.registerResolver("app.street", "api.v1.street", (street) => {
         description: street.description,
         namedEntity: optional(() => mapper.map(street.namedEntity, "app.namedEntity", "api.v1.namedEntity"), null),
         wikiUrl: street.wikiUrl,
-        ways: optional(() => street.ways.map(w => w.coordinates), [])
+        ways: optional(() => street.ways.map(w => w.coordinates), []),
+        updatedAt: street.updatedAt
     };
 });
 
@@ -71,7 +72,8 @@ mapper.registerResolver("app.namedEntity", "api.v1.namedEntity", (namedEntity) =
         imageUrl: namedEntity.imageUrl,
         wikiUrl: namedEntity.wikiUrl,
         tags: optional(() =>
-            mapper.map(namedEntity.tags, "app.tag.list", "api.v1.tag.list"), [])
+            mapper.map(namedEntity.tags, "app.tag.list", "api.v1.tag.list"), []),
+        updatedAt: namedEntity.updatedAt
     };
 });
 

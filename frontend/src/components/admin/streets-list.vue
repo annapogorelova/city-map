@@ -42,7 +42,9 @@
                             </td>
                             <td>{{street.updatedAt | formatDate}}</td>
                             <td>
-                                <button class="btn float-right">Ред.</button>
+                                <button class="btn float-right"
+                                        v-on:click="editStreet(street)">Ред.
+                                </button>
                             </td>
                         </tr>
                         <tr v-if="!streets.length">
@@ -65,15 +67,45 @@
                 </div>
             </div>
         </div>
+        <bootstrap-modal ref="modal" :id="'editModal'" v-if="selectedStreet">
+            <template slot="header">
+                <h4 class="mb-0">Редагувати {{selectedStreet.name}}</h4>
+            </template>
+            <template slot="body">
+                <form>
+                    <div class="form-group">
+                        <label for="named-entity-name" class="col-form-label">Назва:</label>
+                        <input type="text" class="form-control" id="named-entity-name"
+                               v-model="selectedStreet.name">
+                    </div>
+                    <div class="form-group">
+                        <label for="named-entity-description" class="col-form-label">Опис:</label>
+                        <textarea class="form-control" id="named-entity-description"
+                                  v-model="selectedStreet.description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="named-entity-wiki-url" class="col-form-label">Url сторінки на Wiki:</label>
+                        <input type="text" class="form-control" id="named-entity-wiki-url"
+                               v-model="selectedStreet.wikiUrl">
+                    </div>
+                </form>
+            </template>
+            <template slot="footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+                <button type="button" class="btn btn-primary" v-on:click="saveStreet">Зберегти</button>
+            </template>
+        </bootstrap-modal>
     </div>
 </template>
 <script>
+    import Vue from "vue";
     import CitiesList from "../shared/cities-list";
     import Pager from "../shared/pager";
     import Search from "../shared/search";
+    import BootstrapModal from "../shared/bootstrap-modal";
 
     export default {
-        components: {Search, CitiesList, Pager},
+        components: {Search, CitiesList, Pager, BootstrapModal},
         props: {
             pageLimit: {
                 type: Number,
@@ -85,12 +117,16 @@
                 cityId: undefined,
                 streets: [],
                 streetsCount: 0,
-                pageNumber: 1
+                pageNumber: 1,
+                selectedStreet: undefined
             }
         },
         computed: {
             pager() {
                 return this.$refs.pager;
+            },
+            modal() {
+                return this.$refs.modal;
             }
         },
         mounted: function () {
@@ -125,6 +161,30 @@
                     this.$router.push({query: query});
                     this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
                 }
+            },
+            editStreet(street) {
+                if(!street) {
+                    return;
+                }
+
+                this.selectedStreet = {...street};
+
+                Vue.nextTick(() => {
+                    this.modal.show();
+                });
+            },
+            saveStreet() {
+                let streetIndex = this.streets.findIndex(street => street.id === this.selectedStreet.id);
+                this.streets[streetIndex] = this.selectedStreet;
+
+                this.$dc.get("streets").update(this.selectedStreet).then(() => {
+                    this.modal.hide();
+                    this.$dc.get("notices").success("Дію успішно виконано", `${this.selectedStreet.name} оновлено`);
+
+                    Vue.nextTick(() => {
+                        this.selectedStreet = undefined;
+                    });
+                });
             }
         }
     }

@@ -12,6 +12,10 @@ export default class StreetService {
     }
 
     getStreetByCoordinates(coordinates) {
-        return this.apiService.get("/streets", {params: {coordinates: coordinates}});
+        return this.apiService.get("/streets", {coordinates: coordinates});
+    }
+
+    update(street) {
+        return this.apiService.put(`/streets/${street.id}`, street);
     }
 }

@@ -273,24 +273,6 @@ describe("cities route", function () {
         })();
     });
 
-    it("should return 400", (done) => {
-        (async () => {
-            const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = `${testUtils.getApiUrl(apiRoutes.CITIES)}/stringid`;
-            const request = testUtils.getAuthenticatedRequest(
-                requestUrl,
-                authResponse.headers['set-cookie'][0],
-                server,
-                "get");
-
-            request
-                .end((error, res) => {
-                    assert.equal(res.status, constants.statusCodes.BAD_REQUEST);
-                    done();
-                });
-        })();
-    });
-
     it("should return 404", (done) => {
         (async () => {
             const authResponse = await testUtils.prepareAuthRequest(server);

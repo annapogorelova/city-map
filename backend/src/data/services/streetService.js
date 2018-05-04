@@ -2,6 +2,7 @@
 
 const {optional} = require("tooleks");
 const utils = require("../../app/utils");
+const {errors} = require("../../app/constants/index");
 
 function makeStreetService(db) {
     return Object.freeze({
@@ -119,7 +120,7 @@ function makeStreetService(db) {
     async function create(street, ways) {
         const existingStreet = await getByName(street.name, street.cityId);
         if (existingStreet) {
-            throw new Error("Street already exists");
+            throw new Error(errors.ALREADY_EXISTS.key);
         }
 
         const createdStreet = await db.street.create(street);
@@ -132,13 +133,23 @@ function makeStreetService(db) {
         return createdStreet;
     }
 
-    async function update(street) {
-        const existingStreet = await getById(street.id);
+    async function update(id, newValues) {
+        const existingStreet = await getById(id).then(entity => optional(() => entity.get({plain: true})));
         if(!existingStreet) {
-            throw Error("Street does not exist");
+            throw Error(errors.NOT_FOUND.key);
         }
 
-        return db.street.update(street, {where: {id: street.id}});
+        let streetProps = Object.getOwnPropertyNames(existingStreet);
+
+        for(let propName of streetProps) {
+            if(newValues[propName] !== undefined &&
+                existingStreet[propName] !== newValues[propName]) {
+                existingStreet[propName] = newValues[propName];
+            }
+        }
+
+        existingStreet.updatedAt = Date.now();
+        return db.street.update(existingStreet, {where: {id: id}});
     }
 
     function getPlainList(entities) {

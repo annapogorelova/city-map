@@ -5,7 +5,7 @@ const testData = require("../../data/dbTestData");
 const testUtils = require("../../testUtils");
 const db = require("../../../data/models/index");
 const utils = require("../../../app/utils");
-const constants = require("../../../app/constants");
+const constants = require("../../../app/constants/common");
 const {optional} = require("tooleks");
 
 describe("street data service test", () => {
@@ -155,7 +155,7 @@ describe("street data service test", () => {
             const newName = "Crazy street";
             createdStreet.name = newName;
 
-            await streetService.update(createdStreet);
+            await streetService.update(createdStreet.id, createdStreet);
             const updatedStreet = await streetService.getById(createdStreet.id);
             assert.equal(updatedStreet.name, newName);
 
@@ -166,7 +166,7 @@ describe("street data service test", () => {
     it("should throw error when trying to update non existing street", (done) => {
         (async () => {
             try {
-                await streetService.update(testData.streets[0]);
+                await streetService.update(1, testData.streets[0]);
             } catch (error) {
                 assert.exists(error);
                 done();

@@ -18,26 +18,17 @@ function makeNamedEntityController(namedEntityService, mapper) {
         return res.json({data: models, count: count});
     }
 
-    async function update(req, res) {
+    async function update(req, res, next) {
         const id = parseInt(req.params.id);
         const namedEntity = req.body;
 
-        let existingNamedEntity = await namedEntityService.getById(id);
-        if(!existingNamedEntity) {
-            return res
-                .status(constants.statusCodes.NOT_FOUND)
-                .send({ message: constants.messages.NOT_FOUND });
-        }
-
         try {
-            await namedEntityService.update(namedEntity);
+            await namedEntityService.update(id, namedEntity);
             return res
                 .status(constants.statusCodes.OK)
                 .send({ message: "Named entity was successfully updated." });
         } catch (error) {
-            return res
-                .status(constants.statusCodes.INTERNAL_SERVER_ERROR)
-                .send({ message: constants.messages.INTERNAL_SERVER_ERROR });
+            next(error);
         }
     }
 }

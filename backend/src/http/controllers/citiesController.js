@@ -14,19 +14,17 @@ function makeCitiesController(cityService, mapper) {
         let params = req.params;
         let id = parseInt(params.id);
 
-        if(isNaN(id)) {
-            return res
-                .status(constants.statusCodes.BAD_REQUEST)
-                .send({message: "Invalid 'id' parameter."});
+        try {
+            const city = await cityService.getById(id);
+            if (city) {
+                const model = mapper.map(city, "app.city", "api.v1.city");
+                return res.json({data: model});
+            } else {
+                next();
+            }
+        } catch (error) {
+            next(error);
         }
-
-        const city = await cityService.getById(id);
-        if (city) {
-            const model = mapper.map(city, "app.city", "api.v1.city");
-            return res.json({data: model});
-        }
-
-        next();
     }
 
     async function createCity(req, res) {

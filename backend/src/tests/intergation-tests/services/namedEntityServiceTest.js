@@ -103,7 +103,7 @@ describe("named entity data service test", () => {
             const newName = "Король Данило";
             createdNamedEntity.name = newName;
 
-            await namedEntityService.update(createdNamedEntity);
+            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity);
             const updatedNamedEntity = await db.namedEntity.findOne({
                 where: {id: createdNamedEntity.id}
             });
@@ -126,7 +126,7 @@ describe("named entity data service test", () => {
             createdNamedEntity.dataValues.name = newName;
             const newTags = ["князі", "королі", "воїни"];
 
-            await namedEntityService.update(createdNamedEntity.dataValues, newTags);
+            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity.dataValues, newTags);
             const updatedNamedEntity = await db.namedEntity.findOne({
                 where: {id: createdNamedEntity.id},
                 include: [{model: db.tag}]

@@ -1,6 +1,7 @@
 "use strict";
 
 const {optional} = require("tooleks");
+const {errors} = require("../../app/constants/index");
 
 function makeNamedEntityService(db) {
     return Object.freeze({
@@ -55,7 +56,7 @@ function makeNamedEntityService(db) {
     async function create(namedEntity, tags) {
         const existingNamedEntity = await db.namedEntity.findOne({where: {name: namedEntity.name}});
         if (existingNamedEntity) {
-            throw new Error("Named entity already exists");
+            throw new Error(errors.ALREADY_EXISTS.key);
         }
 
         const createdNamedEntity = await db.namedEntity.create(namedEntity);
@@ -76,18 +77,27 @@ function makeNamedEntityService(db) {
         return existingTag;
     }
 
-    async function update(namedEntity, tags) {
-        let existingNamedEntity = await getById(namedEntity.id);
+    async function update(id, newValues, tags) {
+        let existingNamedEntity = await getById(id);
         if (!existingNamedEntity) {
-            throw Error("Named entity does not exist");
+            throw Error(errors.NOT_FOUND.key);
+        }
+
+        let namedEntityProps = Object.getOwnPropertyNames(existingNamedEntity.dataValues);
+
+        for(let propName of namedEntityProps) {
+            if(newValues[propName] !== undefined &&
+                existingNamedEntity.dataValues[propName] !== newValues[propName]) {
+                existingNamedEntity.dataValues[propName] = newValues[propName];
+            }
         }
 
         if(tags) {
             await updateTags(existingNamedEntity, tags);
         }
 
-        namedEntity.updatedAt = Date.now();
-        return db.namedEntity.update(namedEntity, {where: {id: namedEntity.id}});
+        existingNamedEntity.updatedAt = Date.now();
+        return db.namedEntity.update(existingNamedEntity.dataValues, {where: {id: id}});
     }
 
     async function updateTags(namedEntity, tags) {

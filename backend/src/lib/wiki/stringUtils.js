@@ -1,6 +1,6 @@
 const shevchenko = require("shevchenko");
 const {optional} = require("tooleks");
-const constants = require("../../app/constants");
+const constants = require("../../app/constants/common");
 
 module.exports = {
     findBestStringsMatch(search, results) {

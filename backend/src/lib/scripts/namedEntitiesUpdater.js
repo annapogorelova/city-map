@@ -11,16 +11,7 @@ const wikiService = dc.get("WikiService");
         let namedEntityPage = await wikiService.getPage(namedEntity.name);
         if(namedEntityPage) {
             let {tags, ...newNamedEntity} = wikiService.mapPageToNamedEntity(namedEntityPage);
-            let namedEntityProps = Object.getOwnPropertyNames(namedEntity);
-
-            for(let propName of namedEntityProps) {
-                if(newNamedEntity[propName] !== undefined &&
-                    namedEntity[propName] !== newNamedEntity[propName]) {
-                    namedEntity[propName] = newNamedEntity[propName];
-                }
-            }
-
-            await namedEntityService.update(namedEntity, tags);
+            await namedEntityService.update(namedEntity.id, newNamedEntity, tags);
             console.log(`Updated ${namedEntity.name}`);
         }
     }

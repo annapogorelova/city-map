@@ -1,11 +1,13 @@
 "use strict";
 
 const config = require("config");
+const constants = require("../constants/constants");
 
 function makeStreetsController(streetService, mapper) {
     return Object.freeze({
         searchCityStreets,
-        searchStreetsByCoordinates
+        searchStreetsByCoordinates,
+        update
     });
 
     async function searchCityStreets(req, res) {
@@ -23,6 +25,20 @@ function makeStreetsController(streetService, mapper) {
         const streets = await streetService.searchByCoordinates(coordinates);
         const models = mapper.map(streets, "app.street.list", "api.v1.street.list");
         return res.json({data: models});
+    }
+
+    async function update(req, res, next) {
+        const id = parseInt(req.params.id);
+        const street = req.body;
+
+        try {
+            await streetService.update(id, street);
+            return res
+                .status(constants.statusCodes.OK)
+                .send({ message: "Street was successfully updated." });
+        } catch (error) {
+            next(error);
+        }
     }
 }
 

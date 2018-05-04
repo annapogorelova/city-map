@@ -7,6 +7,7 @@ const dc = require("./app/dependencyResolver");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const config = require("config");
+const errorHandler = require("./http/middleware/errorHandler");
 
 const routes = dc.get("Router");
 const app = express();
@@ -29,15 +30,6 @@ app.use(function(req, res, next) {
 });
 
 app.use("/api/v1", routes);
-
-app.use(function (req, res, next) {
-    const err = new Error("Not Found");
-    err.status = 404;
-    next(err);
-});
-
-app.use(async function (err, req, res) {
-    res.status(err.status || 500).json({message: err.message});
-});
+app.use(errorHandler.handleError);
 
 module.exports = app;

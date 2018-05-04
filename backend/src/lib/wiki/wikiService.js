@@ -2,7 +2,7 @@ const {optional} = require("tooleks");
 const wikiUtils = require("./wikiUtils");
 const utils = require("../../app/utils");
 const stringUtils = require("./stringUtils");
-const constants = require("../../app/constants");
+const constants = require("../../app/constants/common");
 
 /**
  * Class contains methods for searching the streets articles in Wikipedia

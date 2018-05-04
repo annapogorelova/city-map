@@ -26,6 +26,11 @@ function makeRouter(
 
     router.get("/streets", streetsController.searchStreetsByCoordinates);
 
+    router.put("/streets/:id",
+        authMiddleware.extractAuth,
+        authMiddleware.verifyAuth,
+        streetsController.update);
+
     router.get("/cities/:id",
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,

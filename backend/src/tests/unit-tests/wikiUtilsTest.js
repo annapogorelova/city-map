@@ -3,7 +3,7 @@
 const chai = require("chai");
 const assert = chai.assert;
 const wikiUtils = require("../../lib/wiki/wikiUtils");
-const constants = require("../../app/constants");
+const constants = require("../../app/constants/common");
 const utils = require("../../app/utils");
 
 describe("street wiki service utils unit test", function () {

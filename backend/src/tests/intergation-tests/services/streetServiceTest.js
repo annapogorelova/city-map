@@ -5,7 +5,7 @@ const testData = require("../../data/dbTestData");
 const testUtils = require("../../testUtils");
 const db = require("../../../data/models/index");
 const utils = require("../../../app/utils");
-const constants = require("../../../app/constants/common");
+const {common, errors} = require("../../../app/constants/index");
 const {optional} = require("tooleks");
 
 describe("street data service test", () => {
@@ -52,11 +52,14 @@ describe("street data service test", () => {
     it("should throw when trying to create the existing street", (done) => {
         (async () => {
             const createdCity = await db.city.create(testCity);
-            const existingStreet = testUtils.createStreet(testData.streets[0], createdCity.id);
+            const existingStreet = await testUtils.createStreet(testData.streets[0], createdCity.id);
+
             try {
-                await streetService.create(existingStreet, []);
+                await streetService.create(existingStreet.dataValues, []);
             } catch (error) {
                 assert.exists(error);
+                assert.equal(error.message, errors.ALREADY_EXISTS.key);
+
                 done();
             }
         })();
@@ -70,7 +73,7 @@ describe("street data service test", () => {
 
             let similarStreetModel = Object.assign({}, testData.streets[0]);
             const cleanName = utils.extractStreetName(similarStreetModel.name);
-            similarStreetModel.name = `${constants.streetTypes[1]} ${cleanName}`;
+            similarStreetModel.name = `${common.streetTypes[1]} ${cleanName}`;
 
             const secondStreet = await testUtils.createStreet(similarStreetModel, createdCity.id);
 
@@ -140,6 +143,8 @@ describe("street data service test", () => {
                 await streetService.create(testStreet, ways);
             } catch (error) {
                 assert.exists(error);
+                assert.equal(error.message, errors.ALREADY_EXISTS.key);
+
                 done();
             }
         })();
@@ -163,12 +168,14 @@ describe("street data service test", () => {
         })();
     });
 
-    it("should throw error when trying to update non existing street", (done) => {
+    it("should throw error when trying to update the non existing street", (done) => {
         (async () => {
             try {
                 await streetService.update(1, testData.streets[0]);
             } catch (error) {
                 assert.exists(error);
+                assert.equal(error.message, errors.NOT_FOUND.key);
+
                 done();
             }
         })();

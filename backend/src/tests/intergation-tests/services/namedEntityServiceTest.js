@@ -5,6 +5,7 @@ const assert = chai.assert;
 const testData = require("../../data/dbTestData");
 const testUtils = require("../../testUtils");
 const db = require("../../../data/models/index");
+const {errors} = require("../../../app/constants/index");
 
 describe("named entity data service test", () => {
     const namedEntityService = testUtils.dc.get("NamedEntityService");
@@ -149,6 +150,31 @@ describe("named entity data service test", () => {
             assert.sameMembers(
                 testData.namedEntities.map(namedEntity => namedEntity.name),
                 namedEntities.map(namedEntity => namedEntity.name));
+
+            done();
+        })();
+    });
+
+    it("should throw error when trying to delete the non existing named entity", (done) => {
+        (async () => {
+            try {
+                await namedEntityService.remove(1);
+            } catch (error) {
+                assert.exists(error);
+                assert.equal(error.message, errors.NOT_FOUND.key);
+
+                done();
+            }
+        })();
+    });
+
+    it("should delete the existing named entity", (done) => {
+        (async () => {
+            const existingNamedEntity = await db.namedEntity.create({...testData.namedEntities[0]});
+            await namedEntityService.remove(existingNamedEntity.id);
+
+            const namedEntity = await db.namedEntity.findById(existingNamedEntity.id);
+            assert.notExists(namedEntity);
 
             done();
         })();

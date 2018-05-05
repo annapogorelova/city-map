@@ -10,7 +10,8 @@ function makeNamedEntityService(db) {
         getAll,
         search,
         create,
-        update
+        update,
+        remove
     });
 
     function getById(id) {
@@ -113,6 +114,15 @@ function makeNamedEntityService(db) {
                 await namedEntity.addTag(existingTag);
             }
         }
+    }
+
+    async function remove(id) {
+        let existingNamedEntity = await getById(id);
+        if (!existingNamedEntity) {
+            throw Error(errors.NOT_FOUND.key);
+        }
+
+        return db.namedEntity.destroy({where: {id: id}});
     }
 }
 

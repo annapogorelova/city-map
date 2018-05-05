@@ -5,6 +5,7 @@ import App from "./app";
 import router from "./router/router";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.js";
+import "../assets/css/fontawesome-all.min.css";
 import dc from "./dependency-container";
 import "./filters/index";
 

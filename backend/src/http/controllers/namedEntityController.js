@@ -6,7 +6,8 @@ const constants = require("../constants/constants");
 function makeNamedEntityController(namedEntityService, mapper) {
     return Object.freeze({
         search,
-        update
+        update,
+        remove
     });
 
     async function search(req, res) {
@@ -27,6 +28,19 @@ function makeNamedEntityController(namedEntityService, mapper) {
             return res
                 .status(constants.statusCodes.OK)
                 .send({ message: "Named entity was successfully updated." });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async function remove(req, res, next) {
+        const id = parseInt(req.params.id);
+
+        try {
+            await namedEntityService.remove(id);
+            return res
+                .status(constants.statusCodes.OK)
+                .send({ message: "Named entity was deleted." });
         } catch (error) {
             next(error);
         }

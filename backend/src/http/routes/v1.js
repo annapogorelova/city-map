@@ -50,6 +50,11 @@ function makeRouter(
         authMiddleware.verifyAuth,
         namedEntitiesController.update);
 
+    router.delete("/namedEntities/:id",
+        authMiddleware.extractAuth,
+        authMiddleware.verifyAuth,
+        namedEntitiesController.remove);
+
     router.get("/namedEntities",
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,

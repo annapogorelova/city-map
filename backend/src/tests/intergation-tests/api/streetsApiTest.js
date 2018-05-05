@@ -191,32 +191,32 @@ describe("streets route", () => {
         })();
     });
 
-    // it("should update the existing street", (done) => {
-    //     (async () => {
-    //         const testStreet = testData.streets[0];
-    //         const testCity = testData.cities[0];
-    //         const createdCity = await db.city.create(testCity);
-    //         const createdStreet = await db.street.create({cityId: createdCity.id, ...testStreet});
-    //         const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
-    //
-    //         const authResponse = await testUtils.prepareAuthRequest(server);
-    //         const request = testUtils.getAuthenticatedRequest(
-    //             requestUrl,
-    //             authResponse.headers['set-cookie'][0],
-    //             server,
-    //             "put");
-    //
-    //         const newDescription = "Totally new";
-    //
-    //         request
-    //             .send({description: newDescription})
-    //             .end(async (err, res) => {
-    //                 assert.equal(res.status, constants.statusCodes.OK);
-    //                 const updatedStreet = await db.street.findById(createdStreet.id);
-    //                 assert.equal(updatedStreet.description, newDescription);
-    //
-    //                 done();
-    //             });
-    //     })();
-    // });
+    it("should update the existing street", (done) => {
+        (async () => {
+            const testStreet = testData.streets[0];
+            const testCity = testData.cities[0];
+            const createdCity = await db.city.create(testCity);
+            const createdStreet = await db.street.create({cityId: createdCity.id, ...testStreet});
+            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
+
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const request = testUtils.getAuthenticatedRequest(
+                requestUrl,
+                authResponse.headers['set-cookie'][0],
+                server,
+                "put");
+
+            const newDescription = "Totally new";
+
+            request
+                .send({description: newDescription})
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.OK);
+                    const updatedStreet = await db.street.findById(createdStreet.id);
+                    assert.equal(updatedStreet.description, newDescription);
+
+                    done();
+                });
+        })();
+    });
 });

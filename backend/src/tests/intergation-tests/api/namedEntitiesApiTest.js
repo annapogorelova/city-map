@@ -189,4 +189,67 @@ describe("named entities route test", () => {
                 });
         })();
     });
+
+    it("should return 401 when trying to remove the named entity being unauthorized", (done) => {
+        (async () => {
+            chai.request(server)
+                .delete(testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/1`))
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    done();
+                });
+        })();
+    });
+
+    it("should return 404 when trying to remove the non existing named entity", (done) => {
+        (async () => {
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const requestUrl = testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/1`);
+            const request = testUtils.getAuthenticatedRequest(
+                requestUrl,
+                authResponse.headers['set-cookie'][0],
+                server,
+                "delete");
+
+            request
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.NOT_FOUND);
+                    done();
+                });
+        })();
+    });
+
+    it("should delete the existing named entity", (done) => {
+        (async () => {
+            const namedEntity = Object.assign({}, testData.namedEntities[0]);
+            const createdNamedEntity = await db.namedEntity.create(namedEntity);
+
+            const city = Object.assign({}, testData.cities[0]);
+            const createdCity = await db.city.create(city);
+
+            const street = Object.assign({cityId: createdCity.id, namedEntityId: createdNamedEntity.id},
+                testData.streets[0]);
+            const createdStreet = await db.street.create(street);
+
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const requestUrl = testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/${createdNamedEntity.id}`);
+            const request = testUtils.getAuthenticatedRequest(
+                requestUrl,
+                authResponse.headers['set-cookie'][0],
+                server,
+                "delete");
+
+            request
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.OK);
+                    const namedEntity = await db.namedEntity.findById(createdNamedEntity.id);
+                    assert.notExists(namedEntity);
+
+                    const street = await db.street.findById(createdStreet.id);
+                    assert.isNull(street.namedEntityId);
+
+                    done();
+                });
+        })();
+    });
 });

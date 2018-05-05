@@ -48,7 +48,7 @@
                             </td>
                         </tr>
                         <tr v-if="!streets.length">
-                            <td class="no-records" colspan="4">No Records (select city please)</td>
+                            <td class="no-records" colspan="4">Жодної вулиці не знайдено</td>
                         </tr>
                         </tbody>
                     </table>

@@ -3,7 +3,7 @@
         <div class="col-12">
             <div class="row search-container">
                 <div class="col-12">
-                    <search v-on:search="searchNamedEntities"></search>
+                    <search v-on:search="search"></search>
                 </div>
             </div>
             <div class="row">
@@ -38,14 +38,16 @@
                                 <span>{{namedEntity.updatedAt | formatDate }}</span>
                             </td>
                             <td>
-                                <button class="btn float-right"
-                                    v-on:click="editNamedEntity(namedEntity)">
-                                    Ред.
+                                <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
+                                        v-on:click="edit(namedEntity)">
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
+                                        v-on:click="showRemoveConfirmation(namedEntity)">
                                 </button>
                             </td>
                         </tr>
                         <tr v-if="!namedEntities.length">
-                            <td class="no-records" colspan="4">No Records</td>
+                            <td class="no-records" colspan="4">Жодного запису не знайдено</td>
                         </tr>
                         </tbody>
                     </table>
@@ -64,7 +66,9 @@
                 </div>
             </div>
         </div>
-        <bootstrap-modal ref="modal" :id="'editModal'" v-if="selectedNamedEntity">
+
+        <!-- Edit modal -->
+        <bootstrap-modal ref="editModal" :id="'editModal'" v-if="selectedNamedEntity">
             <template slot="header">
                 <h4 class="mb-0">Редагувати {{selectedNamedEntity.name}}</h4>
             </template>
@@ -78,7 +82,7 @@
                     <div class="form-group">
                         <label for="named-entity-description" class="col-form-label">Опис:</label>
                         <textarea class="form-control" id="named-entity-description"
-                            v-model="selectedNamedEntity.description"></textarea>
+                                  v-model="selectedNamedEntity.description"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="named-entity-image-url" class="col-form-label">Url зображення:</label>
@@ -101,9 +105,25 @@
             </template>
             <template slot="footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
-                <button type="button" class="btn btn-primary" v-on:click="saveNamedEntity">Зберегти</button>
+                <button type="button" class="btn btn-primary" v-on:click="save">Зберегти</button>
             </template>
         </bootstrap-modal>
+        <!--/ Edit modal -->
+
+        <!-- Remove confirmation modal -->
+        <bootstrap-modal ref="removeConfirmationModal" :id="'removeConfirmationModal'" v-if="selectedNamedEntity">
+            <template slot="header">
+                <h4 class="mb-0">Видалення {{selectedNamedEntity.name}}</h4>
+            </template>
+            <template slot="body">
+                <p>Ви дійсно бажаєте видалити <b>{{selectedNamedEntity.name}}?</b></p>
+            </template>
+            <template slot="footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Ні</button>
+                <button type="button" class="btn btn-primary" v-on:click="remove">Так</button>
+            </template>
+        </bootstrap-modal>
+        <!--/ Remove confirmation modal -->
     </div>
 </template>
 <script>
@@ -133,8 +153,11 @@
             pager() {
                 return this.$refs.pager;
             },
-            modal() {
-                return this.$refs.modal;
+            editModal() {
+                return this.$refs.editModal;
+            },
+            removeConfirmationModal() {
+                return this.$refs.removeConfirmationModal;
             }
         },
         mounted: function () {
@@ -152,28 +175,47 @@
                         this.namedEntitiesCount = response.count;
                     });
             },
-            searchNamedEntities(search) {
+            search(search) {
                 this.pager.currentPage = 1;
                 this.getNamedEntities({offset: 0, limit: this.pager.limit, search: search});
             },
-            editNamedEntity(namedEntity) {
-                if(!namedEntity) {
+            edit(namedEntity) {
+                if (!namedEntity) {
                     return;
                 }
 
                 this.selectedNamedEntity = {...namedEntity};
 
                 Vue.nextTick(() => {
-                   this.modal.show();
+                    this.editModal.show();
                 });
             },
-            saveNamedEntity() {
-                let namedEntityIndex = this.namedEntities.findIndex(entity => entity.id === this.selectedNamedEntity.id);
-                this.namedEntities[namedEntityIndex] = this.selectedNamedEntity;
-
+            save() {
                 this.$dc.get("namedEntities").update(this.selectedNamedEntity).then(() => {
-                    this.modal.hide();
+                    let namedEntityIndex = this.namedEntities.findIndex(entity => entity.id === this.selectedNamedEntity.id);
+                    this.namedEntities[namedEntityIndex] = this.selectedNamedEntity;
+
+                    this.editModal.hide();
                     this.$dc.get("notices").success("Дію успішно виконано", `${this.selectedNamedEntity.name} оновлено`);
+
+                    Vue.nextTick(() => {
+                        this.selectedNamedEntity = undefined;
+                    });
+                });
+            },
+            showRemoveConfirmation(namedEntity) {
+                this.selectedNamedEntity = namedEntity;
+
+                Vue.nextTick(() => {
+                    this.removeConfirmationModal.show();
+                });
+            },
+            remove() {
+                this.$dc.get("namedEntities").remove(this.selectedNamedEntity.id).then(() => {
+                    this.namedEntities = this.namedEntities.filter(entity => entity.id !== this.selectedNamedEntity.id);
+
+                    this.removeConfirmationModal.hide();
+                    this.$dc.get("notices").success("Дію успішно виконано", `${this.selectedNamedEntity.name} видалено`);
 
                     Vue.nextTick(() => {
                         this.selectedNamedEntity = undefined;

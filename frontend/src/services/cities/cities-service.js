@@ -1,4 +1,4 @@
-export default class CityService {
+export default class CitiesService {
     constructor(apiService) {
         this.apiService = apiService;
     }

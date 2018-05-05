@@ -1,4 +1,4 @@
-export default class NamedEntityService {
+export default class NamedEntitiesService {
     constructor(apiService) {
         this.apiService = apiService;
     }

@@ -131,9 +131,11 @@
     import Pager from "../shared/pager";
     import Search from "../shared/search";
     import BootstrapModal from "../shared/bootstrap-modal";
+    import {NamedEntitiesServiceMixin, NoticesServiceMixin} from "../../mixins/index";
 
     export default {
         components: {Search, Pager, BootstrapModal},
+        mixins: [NamedEntitiesServiceMixin, NoticesServiceMixin],
         props: {
             pageLimit: {
                 type: Number,
@@ -169,7 +171,7 @@
         },
         methods: {
             getNamedEntities({offset, limit, search = null}) {
-                this.$dc.get("namedEntities").search({search: search, offset: offset, limit: limit})
+                this.namedEntitiesService.search({search: search, offset: offset, limit: limit})
                     .then(response => {
                         this.namedEntities = response.data;
                         this.namedEntitiesCount = response.count;
@@ -191,12 +193,12 @@
                 });
             },
             save() {
-                this.$dc.get("namedEntities").update(this.selectedNamedEntity).then(() => {
+                this.namedEntitiesService.update(this.selectedNamedEntity).then(() => {
                     let namedEntityIndex = this.namedEntities.findIndex(entity => entity.id === this.selectedNamedEntity.id);
                     this.namedEntities[namedEntityIndex] = this.selectedNamedEntity;
 
                     this.editModal.hide();
-                    this.$dc.get("notices").success("Дію успішно виконано", `${this.selectedNamedEntity.name} оновлено`);
+                    this.noticesService.success("Дію успішно виконано", `${this.selectedNamedEntity.name} оновлено`);
 
                     Vue.nextTick(() => {
                         this.selectedNamedEntity = undefined;
@@ -211,11 +213,11 @@
                 });
             },
             remove() {
-                this.$dc.get("namedEntities").remove(this.selectedNamedEntity.id).then(() => {
+                this.namedEntitiesService.remove(this.selectedNamedEntity.id).then(() => {
                     this.namedEntities = this.namedEntities.filter(entity => entity.id !== this.selectedNamedEntity.id);
 
                     this.removeConfirmationModal.hide();
-                    this.$dc.get("notices").success("Дію успішно виконано", `${this.selectedNamedEntity.name} видалено`);
+                    this.noticesService.success("Дію успішно виконано", `${this.selectedNamedEntity.name} видалено`);
 
                     Vue.nextTick(() => {
                         this.selectedNamedEntity = undefined;

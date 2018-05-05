@@ -2,9 +2,9 @@ import {DependencyContainer, EventEmitter} from "tooleks";
 import {ApiService} from "../services/api";
 import {LocalStorageService} from "../services/local-storage";
 import {AuthService} from "../services/auth";
-import {StreetService} from "../services/streets";
-import {CityService} from "../services/cities";
-import {NamedEntityService} from "../services/named-entities";
+import {StreetsService} from "../services/streets";
+import {CitiesService} from "../services/cities";
+import {NamedEntitiesService} from "../services/named-entities";
 import {NoticesService} from "../services/notices";
 import axios from "axios";
 
@@ -41,15 +41,15 @@ dc.registerBinding("auth",
         factory: true,
     });
 
-dc.registerBinding("streets", StreetService, {
+dc.registerBinding("streets", StreetsService, {
     dependencies: ["api"]
 });
 
-dc.registerBinding("cities", CityService, {
+dc.registerBinding("cities", CitiesService, {
     dependencies: ["api"]
 });
 
-dc.registerBinding("namedEntities", NamedEntityService, {
+dc.registerBinding("namedEntities", NamedEntitiesService, {
     dependencies: ["api"]
 });
 

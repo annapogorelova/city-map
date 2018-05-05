@@ -103,9 +103,11 @@
     import Pager from "../shared/pager";
     import Search from "../shared/search";
     import BootstrapModal from "../shared/bootstrap-modal";
+    import {StreetsServiceMixin, NoticesServiceMixin} from "../../mixins/index";
 
     export default {
         components: {Search, CitiesList, Pager, BootstrapModal},
+        mixins: [StreetsServiceMixin, NoticesServiceMixin],
         props: {
             pageLimit: {
                 type: Number,
@@ -144,7 +146,7 @@
         },
         methods: {
             getStreets({offset, limit, search = null}) {
-                this.$dc.get("streets").search({cityId: this.cityId, search: search, offset: offset, limit: limit})
+                this.streetsService.search({cityId: this.cityId, search: search, offset: offset, limit: limit})
                     .then(response => {
                         this.streets = response.data;
                         this.streetsCount = response.count;
@@ -177,9 +179,9 @@
                 let streetIndex = this.streets.findIndex(street => street.id === this.selectedStreet.id);
                 this.streets[streetIndex] = this.selectedStreet;
 
-                this.$dc.get("streets").update(this.selectedStreet).then(() => {
+                this.streetsService.update(this.selectedStreet).then(() => {
                     this.modal.hide();
-                    this.$dc.get("notices").success("Дію успішно виконано", `${this.selectedStreet.name} оновлено`);
+                    this.noticesService.success("Дію успішно виконано", `${this.selectedStreet.name} оновлено`);
 
                     Vue.nextTick(() => {
                         this.selectedStreet = undefined;

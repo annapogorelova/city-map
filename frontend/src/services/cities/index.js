@@ -1,3 +1,3 @@
-import CityService from "./city-service";
+import CitiesService from "./cities-service";
 
-export {CityService};
+export {CitiesService};

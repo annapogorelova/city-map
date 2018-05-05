@@ -68,9 +68,11 @@
     import Search from "../shared/search";
     import {optional} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
+    import {StreetsServiceMixin} from "../../mixins/index";
 
     export default {
         components: {BasicMap, CitiesList, StreetDescription, Search},
+        mixins: [StreetsServiceMixin],
         props: {
             zoom: {
                 type: Number,
@@ -103,8 +105,8 @@
             }
         },
         methods: {
-            findClosestStreet: (coordinates) => {
-                return this.$dc.get("streets").getStreetByCoordinates(coordinates).then(response => {
+            findClosestStreet: function (coordinates) {
+                return this.streetsService.getStreetByCoordinates(coordinates).then(response => {
                     return optional(() => response.data[0], null);
                 });
             },
@@ -176,7 +178,7 @@
                 }
             },
             onSearchStreet(streetName) {
-                this.$dc.get("streets").search({cityId: this.cityId, search: streetName}).then(response => {
+                this.streetService.search({cityId: this.cityId, search: streetName}).then(response => {
                     const street = optional(() => response.data[0], null);
 
                     if(street) {

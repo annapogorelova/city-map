@@ -22,6 +22,7 @@
 </style>
 <script>
     import {optional} from "tooleks";
+    import {CitiesServiceMixin} from "../../mixins/index";
 
     export default {
         props: {
@@ -30,6 +31,7 @@
                 default: undefined
             }
         },
+        mixins: [CitiesServiceMixin],
         data: function () {
             return {
                 selectedCity: undefined,
@@ -52,7 +54,7 @@
                 return optional(() => this.selectedCity.id === city.id);
             },
             loadCities: function () {
-                this.$dc.get("cities").getCities().then(response => {
+                this.citiesService.getCities().then(response => {
                     this.cities = response.data;
                     this.preselectCity();
                 });

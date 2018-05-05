@@ -1,3 +1,3 @@
-import StreetService from "./street-service";
+import StreetsService from "./streets-service";
 
-export {StreetService};
+export {StreetsService};

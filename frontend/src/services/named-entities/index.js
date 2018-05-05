@@ -1,3 +1,3 @@
-import NamedEntityService from "./named-entity-service";
+import NamedEntitiesService from "./named-entities-service";
 
-export {NamedEntityService};
+export {NamedEntitiesService};

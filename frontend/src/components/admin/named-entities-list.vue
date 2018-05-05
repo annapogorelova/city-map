@@ -10,45 +10,45 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                        <th>Img</th>
-                        <th>Назва</th>
-                        <th>Опис</th>
-                        <th>Теги</th>
-                        <th>Оновлено</th>
-                        <th></th>
+                            <th>Img</th>
+                            <th>Назва</th>
+                            <th>Опис</th>
+                            <th>Теги</th>
+                            <th>Оновлено</th>
+                            <th></th>
                         </thead>
                         <tbody>
-                        <tr v-for="namedEntity in namedEntities">
-                            <td>
-                                <div class="named-entity-image"
-                                     :style="{
-                                                'background-image': 'url(' + namedEntity.imageUrl + ')',
-                                                'background-color': 'lightgrey'}"></div>
-                            </td>
-                            <td>{{namedEntity.name}}</td>
-                            <td>
-                                <span v-if="namedEntity.description">
-                                    {{`${namedEntity.description.substring(0, 60)}...`}}
-                                </span>
-                            </td>
-                            <td>
-                                <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
-                            </td>
-                            <td>
-                                <span>{{namedEntity.updatedAt | formatDate }}</span>
-                            </td>
-                            <td>
-                                <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
-                                        v-on:click="edit(namedEntity)">
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
-                                        v-on:click="showRemoveConfirmation(namedEntity)">
-                                </button>
-                            </td>
-                        </tr>
-                        <tr v-if="!namedEntities.length">
-                            <td class="no-records" colspan="4">Жодного запису не знайдено</td>
-                        </tr>
+                            <tr v-for="namedEntity in namedEntities">
+                                <td>
+                                    <div class="named-entity-image"
+                                         :style="{
+                                                    'background-image': 'url(' + namedEntity.imageUrl + ')',
+                                                    'background-color': 'lightgrey'}"></div>
+                                </td>
+                                <td>{{namedEntity.name}}</td>
+                                <td>
+                                    <span v-if="namedEntity.description">
+                                        {{`${namedEntity.description.substring(0, 30)}...`}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
+                                </td>
+                                <td>
+                                    <span>{{namedEntity.updatedAt | formatDate }}</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
+                                            v-on:click="edit(namedEntity)">
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
+                                            v-on:click="showRemoveConfirmation(namedEntity)">
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-if="!namedEntities.length">
+                                <td class="no-records" colspan="6">Жодного запису не знайдено</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -85,6 +85,15 @@
                                   v-model="selectedNamedEntity.description"></textarea>
                     </div>
                     <div class="form-group">
+                        <label class="col-form-label">Теги:</label>
+                        <p v-if="!selectedNamedEntity.tags.length">Немає тегів</p>
+                        <div v-if="selectedNamedEntity.tags.length">
+                            <h6 class="tag-container" v-for="tag in selectedNamedEntity.tags">
+                                <span class="badge badge-dark">{{tag.name}}</span>
+                            </h6>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="named-entity-image-url" class="col-form-label">Url зображення:</label>
                         <input type="text" class="form-control" id="named-entity-image-url"
                                v-model="selectedNamedEntity.imageUrl">
@@ -104,8 +113,8 @@
                 </form>
             </template>
             <template slot="footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
-                <button type="button" class="btn btn-primary" v-on:click="save">Зберегти</button>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal">Закрити</button>
+                <button type="button" class="btn btn-outline-success" v-on:click="save">Зберегти</button>
             </template>
         </bootstrap-modal>
         <!--/ Edit modal -->
@@ -119,8 +128,8 @@
                 <p>Ви дійсно бажаєте видалити <b>{{selectedNamedEntity.name}}?</b></p>
             </template>
             <template slot="footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Ні</button>
-                <button type="button" class="btn btn-primary" v-on:click="remove">Так</button>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal">Ні</button>
+                <button type="button" class="btn btn-outline-success" v-on:click="remove">Так</button>
             </template>
         </bootstrap-modal>
         <!--/ Remove confirmation modal -->
@@ -177,9 +186,9 @@
                         this.namedEntitiesCount = response.count;
                     });
             },
-            search(search) {
+            search(text) {
                 this.pager.currentPage = 1;
-                this.getNamedEntities({offset: 0, limit: this.pager.limit, search: search});
+                this.getNamedEntities({offset: 0, limit: this.pager.limit, search: text});
             },
             edit(namedEntity) {
                 if (!namedEntity) {
@@ -264,5 +273,17 @@
 
     textarea {
         height: 120px;
+    }
+
+    h6.tag-container {
+        display: inline-block;
+        margin-right: 5px;
+        margin-top: 0;
+        margin-bottom: 3px;
+    }
+
+    button {
+        margin-right: 5px;
+        margin-bottom: 5px;
     }
 </style>

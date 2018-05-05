@@ -9,47 +9,47 @@
             </div>
             <div class="row search-container">
                 <div class="col-12">
-                    <search v-on:search="searchStreets"></search>
+                    <search v-on:search="search"></search>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                        <th>Img</th>
-                        <th>Назва</th>
-                        <th>Назва на честь</th>
-                        <th>Опис</th>
-                        <th>Оновлено</th>
-                        <th></th>
+                            <th>Img</th>
+                            <th>Назва</th>
+                            <th>Назва на честь</th>
+                            <th>Опис</th>
+                            <th>Оновлено</th>
+                            <th></th>
                         </thead>
                         <tbody>
-                        <tr v-for="street in streets">
-                            <td>
-                                <div class="street-image"
-                                     v-if="street.namedEntity"
-                                     :style="{
-                                                'background-image': 'url(' + street.namedEntity.imageUrl + ')',
-                                                'background-color': 'lightgrey'}"></div>
-                                <div class="street-image" v-if="!street.namedEntity"></div>
-                            </td>
-                            <td>{{street.name}}</td>
-                            <td>{{street.namedEntity ? street.namedEntity.name : ""}}</td>
-                            <td>
-                                    <span v-if="street.description">
-                                    {{`${street.description.substring(0, 60)}...`}}
-                                    </span>
-                            </td>
-                            <td>{{street.updatedAt | formatDate}}</td>
-                            <td>
-                                <button class="btn float-right"
-                                        v-on:click="editStreet(street)">Ред.
-                                </button>
-                            </td>
-                        </tr>
-                        <tr v-if="!streets.length">
-                            <td class="no-records" colspan="4">Жодної вулиці не знайдено</td>
-                        </tr>
+                            <tr v-for="street in streets">
+                                <td>
+                                    <div class="street-image"
+                                         v-if="street.namedEntity"
+                                         :style="{
+                                                    'background-image': 'url(' + street.namedEntity.imageUrl + ')',
+                                                    'background-color': 'lightgrey'}"></div>
+                                    <div class="street-image" v-if="!street.namedEntity"></div>
+                                </td>
+                                <td>{{street.name}}</td>
+                                <td>{{street.namedEntity ? street.namedEntity.name : ""}}</td>
+                                <td>
+                                        <span v-if="street.description">
+                                        {{`${street.description.substring(0, 30)}...`}}
+                                        </span>
+                                </td>
+                                <td>{{street.updatedAt | formatDate}}</td>
+                                <td>
+                                    <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
+                                            v-on:click="edit(street)">
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-if="!streets.length">
+                                <td class="no-records" colspan="6">Жодної вулиці не знайдено</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -91,8 +91,8 @@
                 </form>
             </template>
             <template slot="footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
-                <button type="button" class="btn btn-primary" v-on:click="saveStreet">Зберегти</button>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal">Закрити</button>
+                <button type="button" class="btn btn-outline-success" v-on:click="save">Зберегти</button>
             </template>
         </bootstrap-modal>
     </div>
@@ -152,9 +152,9 @@
                         this.streetsCount = response.count;
                     });
             },
-            searchStreets(search) {
+            search(text) {
                 this.pager.currentPage = 1;
-                this.getStreets({offset: 0, limit: this.pager.limit, search: search});
+                this.getStreets({offset: 0, limit: this.pager.limit, search: text});
             },
             onCitySelected(city) {
                 if (city && city.id !== this.cityId) {
@@ -164,8 +164,8 @@
                     this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
                 }
             },
-            editStreet(street) {
-                if(!street) {
+            edit(street) {
+                if (!street) {
                     return;
                 }
 
@@ -175,7 +175,7 @@
                     this.modal.show();
                 });
             },
-            saveStreet() {
+            save() {
                 let streetIndex = this.streets.findIndex(street => street.id === this.selectedStreet.id);
                 this.streets[streetIndex] = this.selectedStreet;
 

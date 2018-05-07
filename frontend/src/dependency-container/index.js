@@ -21,8 +21,11 @@ dc.registerBinding("api", () => new ApiService(
             count: response.data.count
         });
     },
-    (response) => {
-        return Promise.reject({error: response.message});
+    (error) => {
+        if(error && error.code === "ECONNABORTED") {
+            dc.get("notices").error("Час запиту вийшов", "Спробуйте будь ласка пізніше");
+        }
+        return Promise.reject({error: error.message});
     }),
 {
     singleton: true,

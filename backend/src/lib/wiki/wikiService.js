@@ -2,7 +2,7 @@ const {optional} = require("tooleks");
 const wikiUtils = require("./wikiUtils");
 const utils = require("../../app/utils");
 const stringUtils = require("./stringUtils");
-const constants = require("../../app/constants/common");
+const {common} = require("../../app/constants/index");
 
 /**
  * Class contains methods for searching the streets articles in Wikipedia
@@ -11,9 +11,10 @@ class WikiService {
     constructor(wikiApiService, lang = "uk") {
         this.wikiApiService = wikiApiService;
         this.lang = lang;
+        this.defaultMaxDescriptionLength = common.maxDescriptionLength;
     }
 
-    async getNamedEntityInfo(streetName, namedAfter, maxLength = 500) {
+    async getNamedEntityInfo(streetName, namedAfter, maxLength = this.defaultMaxDescriptionLength) {
         let namedEntityTitle = await this.getGeneralStreetNamedEntity(streetName);
         let namedEntityInfo;
 
@@ -27,7 +28,7 @@ class WikiService {
         return namedEntityInfo ? this.mapPageToNamedEntity(namedEntityInfo, maxLength) : null;
     }
 
-    mapPageToNamedEntity(page, maxLength = 500) {
+    mapPageToNamedEntity(page, maxLength = this.defaultMaxDescriptionLength) {
         return {
             name: page.title,
             description: optional(() => wikiUtils.formatText(page.summary, maxLength), ""),
@@ -71,7 +72,7 @@ class WikiService {
                 pageContent = await article.content();
             }
 
-            return optional(() => pageContent.match(constants.namedAfterArticleRegex)[1], undefined);
+            return optional(() => pageContent.match(common.namedAfterArticleRegex)[1], undefined);
         }
 
         return null;
@@ -136,7 +137,7 @@ class WikiService {
             return a.priority < b.priority ? 1 : (a.priority > b.priority ? -1 : 0);
         };
 
-        return optional(() => constants.namedEntityCategories.filter(c =>
+        return optional(() => common.namedEntityCategories.filter(c =>
             categories.some(category => wikiUtils.normalizeCategoryName(category).startsWith(c.name)))
             .sort(categoryOrderDescFn)[0], null);
     }
@@ -166,7 +167,7 @@ class WikiService {
     }
 
     extractTags(categories) {
-        return constants.tags.filter(tag =>
+        return common.tags.filter(tag =>
             categories.some(category => category.match(new RegExp(`${tag}`, "i"))));
     }
 }

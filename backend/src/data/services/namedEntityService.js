@@ -28,7 +28,7 @@ function makeNamedEntityService(db) {
     }
 
     function getAll() {
-        return db.namedEntity.findAll({}).then(entities => entities.map(entity => entity.get({plain: true})));
+        return db.namedEntity.findAll({order: db.sequelize.col("name")}).then(entities => entities.map(entity => entity.get({plain: true})));
     }
 
     async function search(search, offset, limit) {

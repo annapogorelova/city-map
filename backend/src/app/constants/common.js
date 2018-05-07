@@ -5,6 +5,7 @@ module.exports = Object.freeze({
     STREET_CATEGORY_PREFIX: "Вулиці",
     CITY_CATEGORY_PREFIX: "Міста України",
     NAMED_AFTER_INFOBOX_KEY: "назва на честь",
+    maxDescriptionLength: 800,
     streetTypes: ["вулиця", "провулок", "площа", "перехрестя", "проспект", "майдан", "вул."],
     generalStreetArticleTitleRegex: /^(вулиця|провулок|площа|перехрестя|проспект|майдан|вул.) ([-'\u0400-\u04FF\w\s]+)$/ig,
     streetArticleTitleRegex: /(вулиця|провулок|площа|перехрестя|проспект|майдан) ([-'\u0400-\u04FF\w\s]+) \(([-'\u0400-\u04FF\w\s]+)\)/ig,

@@ -53,6 +53,10 @@ module.exports = {
     cleanText(text) {
         return text.replace(constants.clearSpecialSymbolsRegex, "")
             .replace("Lib\n", "")
+            .replace("Lib", "")
+            .replace("Примітки", "")
+            .replace("Член КПРС?", "")
+            .replace("Lib Член ??КПРС??", "")
             .replace("Ukrcenter", "");
     },
 

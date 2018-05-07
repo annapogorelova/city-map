@@ -27,19 +27,34 @@ function makeNamedEntityService(db) {
         }).then(entity => optional(() => entity.get({plain: true}), null));
     }
 
-    function getAll() {
-        return db.namedEntity.findAll({order: db.sequelize.col("name")}).then(entities => entities.map(entity => entity.get({plain: true})));
+    function getAll({isLockedForParsing = null} = {}) {
+        let selectParams = {
+            order: db.sequelize.col("name")
+        };
+
+        if(isLockedForParsing !== null) {
+            selectParams["where"] = {
+                isLockedForParsing: isLockedForParsing
+            };
+        }
+
+        return db.namedEntity.findAll(selectParams).then(entities => entities.map(entity => entity.get({plain: true})));
     }
 
-    async function search(search, offset, limit) {
+    async function search({search, offset, limit, isLockedForParsing = null} = {}) {
         let selectParams = {
             offset: offset,
             limit: limit,
-            order: db.sequelize.col("name")
+            order: db.sequelize.col("name"),
+            where: {}
         };
 
         if(search) {
             selectParams["where"] = {name: {$like: `%${search}%`}};
+        }
+
+        if(isLockedForParsing !== null) {
+            selectParams["where"] = {isLockedForParsing: isLockedForParsing};
         }
 
         const results = await Promise.all([

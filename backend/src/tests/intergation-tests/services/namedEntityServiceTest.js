@@ -155,6 +155,50 @@ describe("named entity data service test", () => {
         })();
     });
 
+    it("should get only locked for parsing named entities", (done) => {
+        (async () => {
+            const testNamedEntities = testData.namedEntities.slice();
+            const lockedCount = 3;
+
+            testNamedEntities.map((namedEntity, i) => {
+                namedEntity.isLockedForParsing = i < lockedCount;
+            });
+
+            await db.namedEntity.bulkCreate(testNamedEntities);
+            const namedEntities = await namedEntityService.getAll({isLockedForParsing: true});
+
+            assert.sameMembers(
+                testNamedEntities
+                    .filter(namedEntity => namedEntity.isLockedForParsing === true)
+                    .map(namedEntity => namedEntity.name),
+                namedEntities.map(namedEntity => namedEntity.name));
+
+            done();
+        })();
+    });
+
+    it("should get only not locked for parsing named entities", (done) => {
+        (async () => {
+            const testNamedEntities = testData.namedEntities.slice();
+            const unlockedCount = 3;
+
+            testNamedEntities.map((namedEntity, i) => {
+                namedEntity.isLockedForParsing = i >= unlockedCount;
+            });
+
+            await db.namedEntity.bulkCreate(testNamedEntities);
+            const namedEntities = await namedEntityService.getAll({isLockedForParsing: false});
+
+            assert.sameMembers(
+                testNamedEntities
+                    .filter(namedEntity => namedEntity.isLockedForParsing === false)
+                    .map(namedEntity => namedEntity.name),
+                namedEntities.map(namedEntity => namedEntity.name));
+
+            done();
+        })();
+    });
+
     it("should throw error when trying to delete the non existing named entity", (done) => {
         (async () => {
             try {

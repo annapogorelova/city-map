@@ -73,7 +73,8 @@ mapper.registerResolver("app.namedEntity", "api.v1.namedEntity", (namedEntity) =
         wikiUrl: namedEntity.wikiUrl,
         tags: optional(() =>
             mapper.map(namedEntity.tags, "app.tag.list", "api.v1.tag.list"), []),
-        updatedAt: namedEntity.updatedAt
+        updatedAt: namedEntity.updatedAt,
+        isLockedForParsing: namedEntity.isLockedForParsing
     };
 });
 

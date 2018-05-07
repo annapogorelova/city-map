@@ -10,45 +10,49 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                            <th>Img</th>
-                            <th>Назва</th>
-                            <th>Опис</th>
-                            <th>Теги</th>
-                            <th>Оновлено</th>
-                            <th></th>
+                        <th>Img</th>
+                        <th>Назва</th>
+                        <th>Опис</th>
+                        <th class="text-right">Теги</th>
+                        <th class="text-right">Оновлено</th>
+                        <th class="text-right">Заблоковано</th>
+                        <th></th>
                         </thead>
                         <tbody>
-                            <tr v-for="namedEntity in namedEntities">
-                                <td>
-                                    <div class="named-entity-image"
-                                         :style="{
+                        <tr v-for="namedEntity in namedEntities">
+                            <td>
+                                <div class="named-entity-image"
+                                     :style="{
                                                     'background-image': 'url(' + namedEntity.imageUrl + ')',
                                                     'background-color': 'lightgrey'}"></div>
-                                </td>
-                                <td>{{namedEntity.name}}</td>
-                                <td>
+                            </td>
+                            <td>{{namedEntity.name}}</td>
+                            <td>
                                     <span v-if="namedEntity.description">
                                         {{`${namedEntity.description.substring(0, 30)}...`}}
                                     </span>
-                                </td>
-                                <td>
-                                    <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
-                                </td>
-                                <td>
-                                    <span>{{namedEntity.updatedAt | formatDate }}</span>
-                                </td>
-                                <td>
-                                    <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
-                                            v-on:click="edit(namedEntity)">
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
-                                            v-on:click="showRemoveConfirmation(namedEntity)">
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr v-if="!namedEntities.length">
-                                <td class="no-records" colspan="6">Жодного запису не знайдено</td>
-                            </tr>
+                            </td>
+                            <td class="text-right">
+                                <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
+                            </td>
+                            <td class="text-right">
+                                <span>{{namedEntity.updatedAt | formatDate }}</span>
+                            </td>
+                            <td class="text-right">
+                                {{namedEntity.isLockedForParsing ? "1" : "0"}}
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
+                                        v-on:click="edit(namedEntity)">
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
+                                        v-on:click="showRemoveConfirmation(namedEntity)">
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="!namedEntities.length">
+                            <td class="no-records" colspan="6">Жодного запису не знайдено</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -104,6 +108,11 @@
                              :style="{'background-image': 'url(' + selectedNamedEntity.imageUrl + ')',
                                       'background-color': 'lightgrey'}">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Заблоковано:</label>
+                        <input type="checkbox" class="form-control-lg"
+                               v-model="selectedNamedEntity.isLockedForParsing"/>
                     </div>
                     <div class="form-group">
                         <label for="named-entity-wiki-url" class="col-form-label">Url сторінки на Wiki:</label>
@@ -285,5 +294,12 @@
     button {
         margin-right: 5px;
         margin-bottom: 5px;
+    }
+
+    input[type=checkbox] {
+        height: 16px;
+        width: 16px;
+        vertical-align: middle;
+        margin-left: 5px;
     }
 </style>

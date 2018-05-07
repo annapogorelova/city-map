@@ -5,7 +5,7 @@ const namedEntityService = dc.get("NamedEntityService");
 const wikiService = dc.get("WikiService");
 
 (async () => {
-    const namedEntitites = await namedEntityService.getAll();
+    const namedEntitites = await namedEntityService.getAll({isLockedForParsing: false});
 
     for(let namedEntity of namedEntitites) {
         let namedEntityPage = await wikiService.getPage(namedEntity.name);

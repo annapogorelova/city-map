@@ -9,6 +9,7 @@ const constants = require("../../../http/constants/constants");
 const testData = require("../../data/dbTestData");
 const db = require("../../../data/models/index");
 const mapper = require("../../../helpers/mapper");
+const {optional} = require("tooleks");
 
 chai.use(chaiHttp);
 
@@ -214,7 +215,106 @@ describe("streets route", () => {
                     assert.equal(res.status, constants.statusCodes.OK);
                     const updatedStreet = await db.street.findById(createdStreet.id);
                     assert.equal(updatedStreet.description, newDescription);
+                    done();
+                });
+        })();
+    });
 
+    it("should update named entity of the street", (done) => {
+        (async () => {
+            const testStreet = testData.streets[0];
+            const testCity = testData.cities[0];
+            const testNamedEntity = testData.namedEntities[0];
+
+            const createdCity = await db.city.create(testCity);
+            const createdNamedEntity = await db.namedEntity.create(testNamedEntity);
+            let createdStreet = await db.street.create({
+                cityId: createdCity.id,
+                namedEntity: createdNamedEntity.id,
+                ...testStreet
+            }).then(entity => optional(() => entity.get({plain: true})));
+
+            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const request = testUtils.getAuthenticatedRequest(
+                requestUrl,
+                authResponse.headers['set-cookie'][0],
+                server,
+                "put");
+
+            const newTestNamedEntity = testData.namedEntities[1];
+            const newNamedEntity = await db.namedEntity.create(newTestNamedEntity)
+                .then(entity => optional(() => entity.get({plain: true})))
+            createdStreet.namedEntity = newNamedEntity;
+
+            request
+                .send(createdStreet)
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.OK);
+                    const updatedStreet = await db.street.findById(createdStreet.id);
+                    assert.equal(updatedStreet.namedEntityId, newNamedEntity.id);
+                    done();
+                });
+        })();
+    });
+
+    it("should remove the named entity from the street", (done) => {
+        (async () => {
+            const testStreet = testData.streets[0];
+            const testCity = testData.cities[0];
+            const testNamedEntity = testData.namedEntities[0];
+
+            const createdCity = await db.city.create(testCity);
+            const createdNamedEntity = await db.namedEntity.create(testNamedEntity);
+            let createdStreet = await db.street.create({
+                cityId: createdCity.id,
+                namedEntity: createdNamedEntity.id,
+                ...testStreet
+            }).then(entity => optional(() => entity.get({plain: true})));
+
+            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const request = testUtils.getAuthenticatedRequest(
+                requestUrl,
+                authResponse.headers['set-cookie'][0],
+                server,
+                "put");
+
+            request
+                .send({namedEntityId: null, ...createdStreet})
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.OK);
+                    const updatedStreet = await db.street.findById(createdStreet.id);
+                    assert.isNull(updatedStreet.namedEntityId);
+                    done();
+                });
+        })();
+    });
+
+    it("should return 404 when trying to set the non existing named entity for the street", (done) => {
+        (async () => {
+            const testStreet = testData.streets[0];
+            const testCity = testData.cities[0];
+            const testNamedEntity = testData.namedEntities[0];
+
+            const createdCity = await db.city.create(testCity);
+            let createdStreet = await db.street.create({
+                cityId: createdCity.id,
+                ...testStreet
+            }).then(entity => optional(() => entity.get({plain: true})));
+
+            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const request = testUtils.getAuthenticatedRequest(
+                requestUrl,
+                authResponse.headers['set-cookie'][0],
+                server,
+                "put");
+
+            request
+                .send({namedEntity: testNamedEntity, ...createdStreet})
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.NOT_FOUND);
                     done();
                 });
         })();

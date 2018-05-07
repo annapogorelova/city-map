@@ -148,8 +148,23 @@ function makeStreetService(db) {
             }
         }
 
+        if(!newValues.namedEntity) {
+            existingStreet.namedEntityId = null;
+        } else if(existingStreet.namedEntityId !== newValues.namedEntity.id) {
+            await updateNamedEntity(existingStreet, newValues.namedEntity);
+        }
+
         existingStreet.updatedAt = Date.now();
         return db.street.update(existingStreet, {where: {id: id}});
+    }
+
+    async function updateNamedEntity(existingStreet, namedEntity) {
+        const existingNamedEntity = await db.namedEntity.findById(namedEntity.id);
+        if(!existingNamedEntity) {
+            throw Error(errors.NOT_FOUND.key);
+        }
+
+        existingStreet.namedEntityId = existingNamedEntity.id
     }
 
     function getPlainList(entities) {

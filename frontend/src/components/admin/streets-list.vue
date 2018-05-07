@@ -67,7 +67,7 @@
                 </div>
             </div>
         </div>
-        <bootstrap-modal ref="modal" :id="'editModal'" v-if="selectedStreet">
+        <bootstrap-modal ref="modal" :id="'editModal'" v-if="selectedStreet" v-on:modalHidden="selectedStreet = undefined">
             <template slot="header">
                 <h4 class="mb-0">Редагувати {{selectedStreet.name}}</h4>
             </template>
@@ -84,9 +84,16 @@
                                   v-model="selectedStreet.description"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="named-entity-wiki-url" class="col-form-label">Url сторінки на Wiki:</label>
-                        <input type="text" class="form-control" id="named-entity-wiki-url"
+                        <label for="street-wiki-url" class="col-form-label">Url сторінки на Wiki:</label>
+                        <input type="text" class="form-control" id="street-wiki-url"
                                v-model="selectedStreet.wikiUrl">
+                    </div>
+                    <div class="form-group">
+                        <label class="col-form-label">Названо на честь:</label>
+                        <autocomplete v-bind:initial-value="selectedStreet.namedEntity"
+                                      v-bind:apiUrl="'/namedEntities'"
+                                      v-on:selected="setNamedEntity"
+                                      v-on:deselected="unsetNamedEntity"></autocomplete>
                     </div>
                 </form>
             </template>
@@ -104,9 +111,10 @@
     import Search from "../shared/search";
     import BootstrapModal from "../shared/bootstrap-modal";
     import {StreetsServiceMixin, NoticesServiceMixin} from "../../mixins/index";
+    import Autocomplete from "../shared/autocomplete";
 
     export default {
-        components: {Search, CitiesList, Pager, BootstrapModal},
+        components: {Autocomplete, Search, CitiesList, Pager, BootstrapModal},
         mixins: [StreetsServiceMixin, NoticesServiceMixin],
         props: {
             pageLimit: {
@@ -187,6 +195,16 @@
                         this.selectedStreet = undefined;
                     });
                 });
+            },
+            setNamedEntity(namedEntity) {
+                if(this.selectedStreet) {
+                    this.selectedStreet.namedEntity = namedEntity;
+                }
+            },
+            unsetNamedEntity() {
+                if(this.selectedStreet) {
+                    this.selectedStreet.namedEntity = undefined;
+                }
             }
         }
     }

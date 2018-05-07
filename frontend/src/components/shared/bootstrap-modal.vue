@@ -24,11 +24,19 @@
                 default: "exampleModal"
             }
         },
+        mounted: function() {
+            $(`#${this.id}`).on("hidden.bs.modal", () => {
+                this.$emit("modalHidden");
+            });
+        },
+        beforeDestroy: function () {
+            $(`#${this.id}`).modal('dispose');
+        },
         methods: {
-            show() {
+            show: function() {
                 $(`#${this.id}`).modal('show');
             },
-            hide() {
+            hide: function() {
                 $(`#${this.id}`).modal('hide');
             }
         }

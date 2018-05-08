@@ -57,6 +57,13 @@
                     </table>
                 </div>
             </div>
+            <div class="row create-btn-container">
+                <div class="col-1 offset-11">
+                    <button class="btn btn-outline-primary float-right" v-on:click="addNamedEntity">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-12">
                     <div class="pager-container">
@@ -74,7 +81,8 @@
         <!-- Edit modal -->
         <bootstrap-modal ref="editModal" :id="'editModal'" v-if="selectedNamedEntity">
             <template slot="header">
-                <h4 class="mb-0">Редагувати {{selectedNamedEntity.name}}</h4>
+                <h4 class="mb-0">{{selectedNamedEntity.id ? "Редагувати" : "Створити персону"}}
+                    <span v-if="selectedNamedEntity.name">{{selectedNamedEntity.name}}</span></h4>
             </template>
             <template slot="body">
                 <form>
@@ -123,7 +131,10 @@
             </template>
             <template slot="footer">
                 <button type="button" class="btn btn-outline-info" data-dismiss="modal">Закрити</button>
-                <button type="button" class="btn btn-outline-success" v-on:click="save">Зберегти</button>
+                <button v-if="selectedNamedEntity.id" type="button" class="btn btn-outline-success"
+                         v-on:click="save">Зберегти</button>
+                <button v-if="!selectedNamedEntity.id" type="button" class="btn btn-outline-success"
+                         v-on:click="create">Створити</button>
             </template>
         </bootstrap-modal>
         <!--/ Edit modal -->
@@ -135,6 +146,7 @@
             </template>
             <template slot="body">
                 <p>Ви дійсно бажаєте видалити <b>{{selectedNamedEntity.name}}?</b></p>
+                <p>Запис буде повністю видалено із бази даних. Вулиці, що мали зв'язок до цього запису, втратять його.</p>
             </template>
             <template slot="footer">
                 <button type="button" class="btn btn-outline-info" data-dismiss="modal">Ні</button>
@@ -241,6 +253,27 @@
                         this.selectedNamedEntity = undefined;
                     });
                 });
+            },
+            addNamedEntity() {
+                this.selectedNamedEntity = {
+                    tags: []
+                };
+
+                Vue.nextTick(() => {
+                    this.editModal.show();
+                });
+            },
+            create() {
+                this.namedEntitiesService.create(this.selectedNamedEntity).then(() => {
+                    this.namedEntities.splice(0, 0, this.selectedNamedEntity);
+
+                    this.editModal.hide();
+                    this.noticesService.success("Дію успішно виконано", `${this.selectedNamedEntity.name} створено`);
+
+                    Vue.nextTick(() => {
+                        this.selectedNamedEntity = undefined;
+                    });
+                });
             }
         }
     }
@@ -248,6 +281,7 @@
 <style>
     table {
         margin-top: 15px;
+        margin-bottom: 10px !important;
     }
 
     .table td {
@@ -301,5 +335,9 @@
         width: 16px;
         vertical-align: middle;
         margin-left: 5px;
+    }
+
+    .create-btn-container {
+        margin-bottom: 10px;
     }
 </style>

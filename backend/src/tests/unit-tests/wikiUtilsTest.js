@@ -33,27 +33,6 @@ describe("street wiki service utils unit test", function () {
         }
     ];
 
-    it("should crop the wiki content text", (done) => {
-        const maxLength = 50;
-        let text = "koko\n\t";
-        for(let i = 0; i < 20; i++) {
-            text += "koko\n\t";
-        }
-        const formattedText = wikiUtils.formatText(text, maxLength);
-        assert.equal(formattedText.length, maxLength);
-        assert.equal(formattedText.indexOf("\n"), -1);
-        done();
-    });
-
-    it("should return text value when text is empty or null", (done) => {
-        const maxLength = 50;
-        let formattedText = wikiUtils.formatText("", maxLength);
-        assert.equal(formattedText, "");
-        formattedText = wikiUtils.formatText(null, maxLength);
-        assert.equal(formattedText, null);
-        done();
-    });
-
     it("should extract the street name from the full title of the street", (done) => {
         const streetName = "Толочка";
 

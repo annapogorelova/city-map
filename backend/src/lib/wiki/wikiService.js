@@ -1,7 +1,7 @@
 const {optional} = require("tooleks");
 const wikiUtils = require("./wikiUtils");
 const utils = require("../../app/utils");
-const stringUtils = require("./stringUtils");
+const stringUtils = require("../../utils/stringUtils");
 const {common} = require("../../app/constants/index");
 
 /**
@@ -11,10 +11,9 @@ class WikiService {
     constructor(wikiApiService, lang = "uk") {
         this.wikiApiService = wikiApiService;
         this.lang = lang;
-        this.defaultMaxDescriptionLength = common.maxDescriptionLength;
     }
 
-    async getNamedEntityInfo(streetName, namedAfter, maxLength = this.defaultMaxDescriptionLength) {
+    async getNamedEntityInfo(streetName, namedAfter) {
         let namedEntityTitle = await this.getGeneralStreetNamedEntity(streetName);
         let namedEntityInfo;
 
@@ -25,20 +24,20 @@ class WikiService {
             namedEntityInfo = await this.searchNamedEntityArticle(namedEntityTitle);
         }
 
-        return namedEntityInfo ? this.mapPageToNamedEntity(namedEntityInfo, maxLength) : null;
+        return namedEntityInfo ? this.mapPageToNamedEntity(namedEntityInfo) : null;
     }
 
-    mapPageToNamedEntity(page, maxLength = this.defaultMaxDescriptionLength) {
+    mapPageToNamedEntity(page) {
         return {
             name: page.title,
-            description: optional(() => wikiUtils.formatText(page.summary, maxLength), ""),
+            description: page.summary,
             imageUrl: page.imageUrl,
             wikiUrl: page.wikiUrl,
             tags: this.extractTags(page.categories)
         };
     }
 
-    async getStreetInfo(streetName, cityName, maxLength = 500) {
+    async getStreetInfo(streetName, cityName) {
         const exactArticleName = `${streetName} (${cityName})`;
         const exactStreetSearchResults = await this.wikiApiService.search(exactArticleName, this.lang, 1);
         const streetArticle = wikiUtils.filterValidStreetResults(
@@ -53,7 +52,7 @@ class WikiService {
             if (streetInfo && isStreet) {
                 return {
                     wikiUrl: optional(() => streetInfo.wikiUrl, null),
-                    description: optional(() => wikiUtils.formatText(streetInfo.summary, maxLength), null)
+                    description: streetInfo.summary
                 };
             }
         }
@@ -153,10 +152,10 @@ class WikiService {
                 optional(() => wikiUtils.mainImage(page), null)
             ]);
             return {
-                title: stringUtils.cleanText(title),
+                title: title,
                 info: pageContent[0],
-                summary: stringUtils.cleanText(pageContent[1]),
-                content: stringUtils.cleanText(pageContent[2]),
+                summary: pageContent[1],
+                content: pageContent[2],
                 categories: pageContent[3],
                 imageUrl: pageContent[4],
                 wikiUrl: optional(() => page.raw.fullurl, "")

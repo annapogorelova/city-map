@@ -4,11 +4,15 @@ export default class NamedEntitiesService {
     }
 
     search({search, offset, limit}) {
-        return this.apiService.get("/namedEntities/", {
+        return this.apiService.get("/namedEntities", {
             search: search,
             offset: offset,
             limit: limit
         });
+    }
+
+    create(namedEntity) {
+        return this.apiService.post("/namedEntities", namedEntity);
     }
 
     update(namedEntity) {

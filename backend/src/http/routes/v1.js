@@ -45,6 +45,11 @@ function makeRouter(
         authMiddleware.verifyAuth,
         citiesController.createCity);
 
+    router.post("/namedEntities",
+        authMiddleware.extractAuth,
+        authMiddleware.verifyAuth,
+        namedEntitiesController.create);
+
     router.put("/namedEntities/:id",
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,

@@ -7,7 +7,7 @@ const sinon = require("sinon");
 const WikiApiService = require("../../lib/wiki/wikiApiService");
 const WikiService = require("../../lib/wiki/wikiService");
 const utils = require("../../app/utils");
-const stringUtils = require("../../lib/wiki/stringUtils");
+const stringUtils = require("../../utils/stringUtils");
 
 function getPage(searchKey) {
     return testData.pages.filter(p => {return p.searchKey === searchKey})[0];

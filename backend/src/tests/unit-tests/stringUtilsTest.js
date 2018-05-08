@@ -2,7 +2,7 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const stringUtils = require("../../lib/wiki/stringUtils");
+const stringUtils = require("../../utils/stringUtils");
 
 describe("stringUtils test", () => {
     it("should find the best string match for 'Олени Хохол' phrase", (done) => {
@@ -247,6 +247,27 @@ describe("stringUtils test", () => {
         assert.equal("Леся Українка", stringUtils.cleanText("Ле́ся Украї́нка"));
         assert.equal("Семен Степанович Гулак-Артемовський", stringUtils.cleanText("Семе́н Степа́нович Гула́к-Артемо́вський"));
 
+        done();
+    });
+
+    it("should crop the wiki content text", (done) => {
+        const maxLength = 50;
+        let text = "koko\n\t";
+        for(let i = 0; i < 20; i++) {
+            text += "koko\n\t";
+        }
+        const formattedText = stringUtils.formatText(text, maxLength);
+        assert.equal(formattedText.length, maxLength);
+        assert.equal(formattedText.indexOf("\n"), -1);
+        done();
+    });
+
+    it("should return text value when text is empty or null", (done) => {
+        const maxLength = 50;
+        let formattedText = stringUtils.formatText("", maxLength);
+        assert.equal(formattedText, "");
+        formattedText = stringUtils.formatText(null, maxLength);
+        assert.equal(formattedText, null);
         done();
     });
 });

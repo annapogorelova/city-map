@@ -2,7 +2,8 @@
 
 const {optional} = require("tooleks");
 const utils = require("../../app/utils");
-const {errors} = require("../../app/constants/index");
+const {errors, common} = require("../../app/constants/index");
+const stringUtils = require("../../utils/stringUtils");
 
 function makeStreetService(db) {
     return Object.freeze({
@@ -122,6 +123,9 @@ function makeStreetService(db) {
         if (existingStreet) {
             throw new Error(errors.ALREADY_EXISTS.key);
         }
+
+        street.name = stringUtils.cleanText(street.name);
+        street.description = stringUtils.formatText(street.description, common.maxDescriptionLength);
 
         const createdStreet = await db.street.create(street);
         if(ways && ways.length) {

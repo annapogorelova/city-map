@@ -51,22 +51,6 @@ module.exports = {
             });
     },
 
-    formatText(text, maxLength) {
-        if(!text) {
-            return text;
-        }
-
-        const formattedText = text.replace(/\n|\t/g, " ").replace(constants.wikiSummaryCleanRegex, "").trim();
-        const croppedText = formattedText.length < maxLength - 3 ? formattedText : formattedText.substring(0, maxLength - 3);
-        if(croppedText[croppedText.length - 1] === ".") {
-            return croppedText;
-        }
-
-        const lastIndex = croppedText.lastIndexOf(". ");
-        return (lastIndex !== -1 && lastIndex < croppedText.length) ?
-            croppedText.substring(0, lastIndex + 1) : `${croppedText}...`;
-    },
-
     isNamedEntityCategory(categories) {
         const normalizedCategories = categories.map(c => this.normalizeCategoryName(c));
 

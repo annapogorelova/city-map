@@ -1,6 +1,6 @@
 const shevchenko = require("shevchenko");
 const {optional} = require("tooleks");
-const constants = require("../../app/constants/common");
+const constants = require("../app/constants/common");
 
 module.exports = {
     findBestStringsMatch(search, results) {
@@ -58,6 +58,23 @@ module.exports = {
             .replace("Член КПРС?", "")
             .replace("Lib Член ??КПРС??", "")
             .replace("Ukrcenter", "");
+    },
+
+    formatText(text, maxLength) {
+        if(!text) {
+            return text;
+        }
+
+        const formattedText = this.cleanText(text).replace(/\n|\t/g, " ").replace(constants.wikiSummaryCleanRegex, "").trim();
+        const croppedText = formattedText.length < maxLength - 3 ? formattedText : formattedText.substring(0, maxLength - 3);
+        if(croppedText[croppedText.length - 1] === ".") {
+            return croppedText;
+        }
+
+        const lastIndex = croppedText.lastIndexOf(". ");
+        return (lastIndex !== -1 && lastIndex < croppedText.length) ? // if there is period - return text up to the last sentence
+            croppedText.substring(0, lastIndex + 1) :
+                formattedText.length < maxLength ? croppedText : `${croppedText}...`; // else - just text or "text..."
     },
 
     namesInflectionMatch(expectedName, actualName) {

@@ -6,6 +6,7 @@ const constants = require("../constants/constants");
 function makeNamedEntityController(namedEntityService, mapper) {
     return Object.freeze({
         search,
+        create,
         update,
         remove
     });
@@ -21,6 +22,19 @@ function makeNamedEntityController(namedEntityService, mapper) {
         });
         const models = mapper.map(data, "app.namedEntity.list", "api.v1.namedEntity.list");
         return res.json({data: models, count: count});
+    }
+
+    async function create(req, res, next) {
+        const namedEntity = req.body;
+
+        try {
+            await namedEntityService.create(namedEntity);
+            return res
+                .status(constants.statusCodes.OK)
+                .send({ message: "Named entity was successfully created." });
+        } catch (error) {
+            next(error);
+        }
     }
 
     async function update(req, res, next) {

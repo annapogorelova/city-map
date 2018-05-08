@@ -57,11 +57,11 @@ describe("geoDataService test", () => {
 
     it("should correctly parse the json file with geo data and add streets to db", (done) => {
         (async () => {
-            const testDescription = "Street description";
+            const testDescription = "Street description.";
             const testWikiUrl = "https://uk.wikipedia.org/articte";
 
             const testPersonName = "Person name";
-            const testPersonDescription = "Person description";
+            const testPersonDescription = "Person description.";
             const testPersonWikiUrl = "https://uk.wikipedia.org/person";
 
             const city = await db.city.create(testData.cities[1]); // Zhovkva
@@ -196,7 +196,7 @@ describe("geoDataService test", () => {
 
             const namedEntityInfo = {
                 name: "Тарас Шевченко",
-                description: "український поет",
+                description: "Український поет.",
                 wikiUrl: "https://uk.wikipedia.org/shevchenko",
                 tags: []
             };

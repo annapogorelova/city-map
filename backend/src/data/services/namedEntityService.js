@@ -2,6 +2,8 @@
 
 const {optional} = require("tooleks");
 const {errors} = require("../../app/constants/index");
+const stringUtils = require("../../utils/stringUtils");
+const {common} = require("../../app/constants/index");
 
 function makeNamedEntityService(db) {
     return Object.freeze({
@@ -69,15 +71,18 @@ function makeNamedEntityService(db) {
         };
     }
 
-    async function create(namedEntity, tags) {
+    async function create(namedEntity) {
         const existingNamedEntity = await db.namedEntity.findOne({where: {name: namedEntity.name}});
         if (existingNamedEntity) {
             throw new Error(errors.ALREADY_EXISTS.key);
         }
 
+        namedEntity.name = stringUtils.cleanText(namedEntity.name);
+        namedEntity.description = stringUtils.formatText(namedEntity.description, common.maxDescriptionLength);
+
         const createdNamedEntity = await db.namedEntity.create(namedEntity);
-        if (tags && tags.length) {
-            const createdTags = await Promise.all(tags.map(tag => createTag(tag)));
+        if (namedEntity.tags && namedEntity.tags.length) {
+            const createdTags = await Promise.all(namedEntity.tags.map(tag => createTag(tag)));
             await createdNamedEntity.setTags(createdTags);
         }
 

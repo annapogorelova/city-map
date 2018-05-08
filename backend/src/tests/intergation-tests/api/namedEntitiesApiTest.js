@@ -6,6 +6,7 @@ const server = require("../../../app");
 const testUtils = require("../../testUtils");
 const apiRoutes = require("../../apiRoutes");
 const constants = require("../../../http/constants/constants");
+const {errors} = require("../../../app/constants/index");
 const testData = require("../../data/dbTestData");
 const db = require("../../../data/models/index");
 
@@ -247,6 +248,65 @@ describe("named entities route test", () => {
 
                     const street = await db.street.findById(createdStreet.id);
                     assert.isNull(street.namedEntityId);
+
+                    done();
+                });
+        })();
+    });
+
+    it("should return 401 when trying to create named entity unauthorized", (done) => {
+        (async () => {
+            chai.request(server)
+                .post(testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES))
+                .send({name: "Taras Shevchenko"})
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    done();
+                });
+        })();
+    });
+
+    it("should return 400 when trying to create the named entity that already exists", (done) => {
+        (async () => {
+            const namedEntity = Object.assign({}, testData.namedEntities[0]);
+            const createdNamedEntity = await db.namedEntity.create(namedEntity);
+
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const request = testUtils.getAuthenticatedRequest(
+                testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}`),
+                authResponse.headers['set-cookie'][0],
+                server,
+                "post");
+
+            request
+                .send(createdNamedEntity)
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.BAD_REQUEST);
+                    assert.equal(res.body.message, errors.ALREADY_EXISTS.message);
+
+                    done();
+                });
+        })();
+    });
+
+    it("should create the named entity", (done) => {
+        (async () => {
+            const namedEntity = Object.assign({}, testData.namedEntities[0]);
+
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const request = testUtils.getAuthenticatedRequest(
+                testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}`),
+                authResponse.headers['set-cookie'][0],
+                server,
+                "post");
+
+            request
+                .send(namedEntity)
+                .end(async (err, res) => {
+                    assert.equal(res.status, constants.statusCodes.OK);
+
+                    const createdNamedEntity = await db.namedEntity.findOne({where: {name: namedEntity.name}});
+                    assert.exists(createdNamedEntity);
 
                     done();
                 });

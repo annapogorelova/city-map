@@ -198,11 +198,13 @@
             },
             setNamedEntity(namedEntity) {
                 if(this.selectedStreet) {
+                    this.selectedStreet.namedEntityId = namedEntity.id;
                     this.selectedStreet.namedEntity = namedEntity;
                 }
             },
             unsetNamedEntity() {
                 if(this.selectedStreet) {
+                    this.selectedStreet.namedEntityId = null;
                     this.selectedStreet.namedEntity = undefined;
                 }
             }

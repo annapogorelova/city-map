@@ -39,6 +39,7 @@ db.streetWay = require("./streetWay")(sequelize, Sequelize);
 
 db.street.belongsTo(db.city, {foreignKey: "cityId"});
 db.street.belongsTo(db.namedEntity, {foreignKey: "namedEntityId"});
+db.namedEntity.hasMany(db.street);
 
 db.way.belongsToMany(db.street, {through: db.streetWay});
 db.street.belongsToMany(db.way, {through: db.streetWay});

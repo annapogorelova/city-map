@@ -180,4 +180,90 @@ describe("street data service test", () => {
             }
         })();
     });
+
+    it("should set new named entity for the street, that already has a named entity", (done) => {
+        (async () => {
+            const city = await db.city.create(testCity);
+            const oldNamedEntity = await db.namedEntity.create(testData.namedEntities[0]);
+            const newNamedEntity = await db.namedEntity.create(testData.namedEntities[1]);
+
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: city.id, namedEntityId: oldNamedEntity.id}, street);
+            let createdStreet = await db.street.create(testStreet).then(entity => optional(() => entity.get({plain: true})));
+            createdStreet.namedEntityId = newNamedEntity.id;
+
+            await streetService.update(createdStreet.id, createdStreet);
+
+            const updatedStreet = await db.street.findById(createdStreet.id);
+            assert.equal(newNamedEntity.id, updatedStreet.namedEntityId);
+
+            done();
+        })();
+    });
+
+    it("should set new named entity for the street, that does not have the named entity", (done) => {
+        (async () => {
+            const city = await db.city.create(testCity);
+            const oldNamedEntity = await db.namedEntity.create(testData.namedEntities[0]);
+            const newNamedEntity = await db.namedEntity.create(testData.namedEntities[1]);
+
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: city.id, namedEntityId: oldNamedEntity.id}, street);
+            let createdStreet = await db.street.create(testStreet).then(entity => optional(() => entity.get({plain: true})));
+            createdStreet.namedEntityId = newNamedEntity.id;
+
+            await streetService.update(createdStreet.id, createdStreet);
+
+            const updatedStreet = await db.street.findById(createdStreet.id);
+            assert.equal(newNamedEntity.id, updatedStreet.namedEntityId);
+
+            done();
+        })();
+    });
+
+    it("should remove the named entity completely if there are no more streets, depending on it", (done) => {
+        (async () => {
+            const city = await db.city.create(testCity);
+            const namedEntity = await db.namedEntity.create(testData.namedEntities[0]);
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: city.id, namedEntityId: namedEntity.id}, street);
+            let createdStreet = await db.street.create(testStreet).then(entity => optional(() => entity.get({plain: true})));
+            createdStreet.namedEntityId = undefined;
+
+            await streetService.update(createdStreet.id, createdStreet);
+
+            const updatedStreet = await db.street.findById(createdStreet.id);
+            assert.isNull(updatedStreet.namedEntityId);
+
+            const createdNamedEntity = await db.namedEntity.findById(namedEntity.id);
+            assert.notExists(createdNamedEntity);
+
+            done();
+        })();
+    });
+
+    it("should not remove the named entity if there is at least one more street, depending on it", (done) => {
+        (async () => {
+            const city = await db.city.create(testCity);
+            const namedEntity = await db.namedEntity.create(testData.namedEntities[0]);
+            const {ways, ...street} = testData.streets[0];
+            const firstTestStreet = Object.assign({cityId: city.id, namedEntityId: namedEntity.id}, street);
+            let createdStreet = await db.street.create(firstTestStreet).then(entity => optional(() => entity.get({plain: true})));
+
+            const secondTestStreet = Object.assign({cityId: city.id, namedEntityId: namedEntity.id}, street);
+            await db.street.create(secondTestStreet);
+
+            createdStreet.namedEntityId = null;
+
+            await streetService.update(createdStreet.id, createdStreet);
+
+            const updatedStreet = await db.street.findById(createdStreet.id);
+            assert.isNull(updatedStreet.namedEntityId);
+
+            const createdNamedEntity = await db.namedEntity.findById(namedEntity.id);
+            assert.exists(createdNamedEntity);
+
+            done();
+        })();
+    });
 });

@@ -245,7 +245,7 @@ describe("streets route", () => {
             const newTestNamedEntity = testData.namedEntities[1];
             const newNamedEntity = await db.namedEntity.create(newTestNamedEntity)
                 .then(entity => optional(() => entity.get({plain: true})))
-            createdStreet.namedEntity = newNamedEntity;
+            createdStreet.namedEntityId = newNamedEntity.id;
 
             request
                 .send(createdStreet)
@@ -295,7 +295,6 @@ describe("streets route", () => {
         (async () => {
             const testStreet = testData.streets[0];
             const testCity = testData.cities[0];
-            const testNamedEntity = testData.namedEntities[0];
 
             const createdCity = await db.city.create(testCity);
             let createdStreet = await db.street.create({
@@ -311,8 +310,10 @@ describe("streets route", () => {
                 server,
                 "put");
 
+            createdStreet.namedEntityId = 1;
+
             request
-                .send({namedEntity: testNamedEntity, ...createdStreet})
+                .send(createdStreet)
                 .end(async (err, res) => {
                     assert.equal(res.status, constants.statusCodes.NOT_FOUND);
                     done();

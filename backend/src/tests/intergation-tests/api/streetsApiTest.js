@@ -4,8 +4,7 @@ const assert = chai.assert;
 const chaiHttp = require("chai-http");
 const server = require("../../../app");
 const testUtils = require("../../testUtils");
-const apiRoutes = require("../../apiRoutes");
-const constants = require("../../../http/constants/constants");
+const httpConstants = require("../../../app/constants/httpConstants");
 const testData = require("../../data/dbTestData");
 const db = require("../../../data/models/index");
 const mapper = require("../../../helpers/mapper");
@@ -37,13 +36,13 @@ describe("streets route", () => {
                 ...testStreet
             }, createdCity.id);
 
-            const requestUrl = `${apiRoutes.CITIES}/${createdCity.id}/${apiRoutes.STREETS}`;
+            const requestUrl = `${httpConstants.apiRoutes.CITIES}/${createdCity.id}/${httpConstants.apiRoutes.STREETS}`;
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
                 .query({search: street.name})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     const data = res.body.data;
 
                     assert.exists(data);
@@ -67,12 +66,12 @@ describe("streets route", () => {
     it("should return an empty array", (done) => {
         (async () => {
             const createdCity = await db.city.create(testCity);
-            const requestUrl = `${apiRoutes.CITIES}/${createdCity.id}/${apiRoutes.STREETS}`;
+            const requestUrl = `${httpConstants.apiRoutes.CITIES}/${createdCity.id}/${httpConstants.apiRoutes.STREETS}`;
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, 0);
                     done();
@@ -84,14 +83,14 @@ describe("streets route", () => {
         (async () => {
             const createdCity = await db.city.create(testCity);
             const createdStreets = await testUtils.createStreets(testData.streets.slice(), createdCity.id);
-            const requestUrl = `${apiRoutes.CITIES}/${createdCity.id}/${apiRoutes.STREETS}`;
+            const requestUrl = `${httpConstants.apiRoutes.CITIES}/${createdCity.id}/${httpConstants.apiRoutes.STREETS}`;
             const limit = 6;
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
                 .query({limit: limit})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, limit);
 
@@ -112,7 +111,7 @@ describe("streets route", () => {
             const mappedWays = testWays.map(w => mapper.map(w, "app.way", "api.v1.way"));
             const testWay = mappedWays[0];
 
-            const requestUrl = `/${apiRoutes.STREETS}`;
+            const requestUrl = `/${httpConstants.apiRoutes.STREETS}`;
             const testCoordinates = [
                 testWay[0][0] - 0.00001,
                 testWay[0][1] - 0.00001,
@@ -122,7 +121,7 @@ describe("streets route", () => {
                 .get(testUtils.getApiUrl(requestUrl))
                 .query({coordinates: testCoordinates})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, 1);
 
@@ -141,7 +140,7 @@ describe("streets route", () => {
             const closestStreet = streets[0];
             const testWays = await closestStreet.getWays();
 
-            const requestUrl = `/${apiRoutes.STREETS}`;
+            const requestUrl = `/${httpConstants.apiRoutes.STREETS}`;
             const testCoordinates = [
                 testWays[0].coordinates[0][0] - 0.002,
                 testWays[0].coordinates[0][1] - 0.002,
@@ -151,7 +150,7 @@ describe("streets route", () => {
                 .get(testUtils.getApiUrl(requestUrl))
                 .query({coordinates: testCoordinates})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, 0);
                     done();
@@ -161,13 +160,13 @@ describe("streets route", () => {
 
     it("should not update the street unauthorized", (done) => {
         (async () => {
-            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/1`);
+            const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/1`);
 
             chai.request(server)
                 .put(requestUrl)
                 .send({name: "Some name"})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                     done();
                 });
         })();
@@ -176,7 +175,7 @@ describe("streets route", () => {
     it("should not update the non existing street", (done) => {
         (async () => {
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/1`);
+            const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/1`);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -186,7 +185,7 @@ describe("streets route", () => {
             request
                 .send({name: "Non Existing Street", description: "Does not exist"})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.NOT_FOUND);
+                    assert.equal(res.status, httpConstants.statusCodes.NOT_FOUND);
                     done();
                 });
         })();
@@ -198,7 +197,7 @@ describe("streets route", () => {
             const testCity = testData.cities[0];
             const createdCity = await db.city.create(testCity);
             const createdStreet = await db.street.create({cityId: createdCity.id, ...testStreet});
-            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
+            const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/${createdStreet.id}`);
 
             const authResponse = await testUtils.prepareAuthRequest(server);
             const request = testUtils.getAuthenticatedRequest(
@@ -212,7 +211,7 @@ describe("streets route", () => {
             request
                 .send({description: newDescription})
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     const updatedStreet = await db.street.findById(createdStreet.id);
                     assert.equal(updatedStreet.description, newDescription);
                     done();
@@ -234,7 +233,7 @@ describe("streets route", () => {
                 ...testStreet
             }).then(entity => optional(() => entity.get({plain: true})));
 
-            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
+            const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/${createdStreet.id}`);
             const authResponse = await testUtils.prepareAuthRequest(server);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
@@ -250,7 +249,7 @@ describe("streets route", () => {
             request
                 .send(createdStreet)
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     const updatedStreet = await db.street.findById(createdStreet.id);
                     assert.equal(updatedStreet.namedEntityId, newNamedEntity.id);
                     done();
@@ -272,7 +271,7 @@ describe("streets route", () => {
                 ...testStreet
             }).then(entity => optional(() => entity.get({plain: true})));
 
-            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
+            const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/${createdStreet.id}`);
             const authResponse = await testUtils.prepareAuthRequest(server);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
@@ -283,7 +282,7 @@ describe("streets route", () => {
             request
                 .send({namedEntityId: null, ...createdStreet})
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     const updatedStreet = await db.street.findById(createdStreet.id);
                     assert.isNull(updatedStreet.namedEntityId);
                     done();
@@ -302,7 +301,7 @@ describe("streets route", () => {
                 ...testStreet
             }).then(entity => optional(() => entity.get({plain: true})));
 
-            const requestUrl = testUtils.getApiUrl(`/${apiRoutes.STREETS}/${createdStreet.id}`);
+            const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/${createdStreet.id}`);
             const authResponse = await testUtils.prepareAuthRequest(server);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
@@ -315,7 +314,7 @@ describe("streets route", () => {
             request
                 .send(createdStreet)
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.NOT_FOUND);
+                    assert.equal(res.status, httpConstants.statusCodes.NOT_FOUND);
                     done();
                 });
         })();

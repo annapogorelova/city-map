@@ -4,8 +4,7 @@ const assert = chai.assert;
 const chaiHttp = require("chai-http");
 const server = require("../../../app");
 const testUtils = require("../../testUtils");
-const apiRoutes = require("../../apiRoutes");
-const constants = require("../../../http/constants/constants");
+const httpConstants = require("../../../app/constants/httpConstants");
 const userService = testUtils.dc.get("UserService");
 const jwt = require("jsonwebtoken");
 const config = require("config");
@@ -24,14 +23,14 @@ describe("users route", function () {
     });
 
     it("should return 401", (done) => {
-        const requestUrl = `${testUtils.getApiUrl(apiRoutes.GET_USER)}/1`;
+        const requestUrl = `${testUtils.getApiUrl(httpConstants.apiRoutes.USERS)}/1`;
         chai.request(server)
             .get(requestUrl)
             .end((err, res) => {
-                assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                 assert.exists(res.body.message);
                 assert.isTrue(res.unauthorized);
-                assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
+                assert.equal(res.body.message, httpConstants.messages.UNAUTHORIZED);
                 done();
             });
     });
@@ -42,7 +41,7 @@ describe("users route", function () {
             const user = await userService.create({email: testUser.email, password: testUser.password});
             const authResponse = await testUtils.authorize(testUser.email, testUser.password, server);
 
-            const requestUrl = `${testUtils.getApiUrl(apiRoutes.GET_USER)}/${user.id}`;
+            const requestUrl = `${testUtils.getApiUrl(httpConstants.apiRoutes.USERS)}/${user.id}`;
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -50,7 +49,7 @@ describe("users route", function () {
                 "get");
             request
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.isFalse(res.unauthorized);
                     assert.exists(res.body.id);
                     assert.equal(res.body.id, user.id);
@@ -67,14 +66,14 @@ describe("users route", function () {
             const testUser = testUtils.getUser();
 
             chai.request(server)
-                .post(testUtils.getApiUrl(apiRoutes.AUTH))
+                .post(testUtils.getApiUrl(httpConstants.apiRoutes.AUTH))
                 .set('Content-Type', 'application/json')
                 .send({email: testUser.email, password: testUser.password})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                     assert.isTrue(res.unauthorized);
                     assert.exists(res.body.message);
-                    assert.equal(constants.messages.UNAUTHORIZED, res.body.message);
+                    assert.equal(httpConstants.messages.UNAUTHORIZED, res.body.message);
                     done();
                 });
         })();
@@ -92,15 +91,15 @@ describe("users route", function () {
             await createdUser.destroy();
 
             chai.request(server)
-                .post(testUtils.getApiUrl(apiRoutes.AUTH))
+                .post(testUtils.getApiUrl(httpConstants.apiRoutes.AUTH))
                 .set('Content-Type', 'application/json')
                 .set('Cookie', `${config.security.headerName}=${accessToken}`)
                 .send({email: testUser.email, password: testUser.password})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                     assert.isTrue(res.unauthorized);
                     assert.exists(res.body.message);
-                    assert.equal(constants.messages.UNAUTHORIZED, res.body.message);
+                    assert.equal(httpConstants.messages.UNAUTHORIZED, res.body.message);
                     done();
                 });
         })();
@@ -110,7 +109,7 @@ describe("users route", function () {
         (async () => {
             const testUser = testUtils.getUser();
             const createdUser = await userService.create(testUser);
-            const requestUrl = `${testUtils.getApiUrl(apiRoutes.GET_USER)}/${createdUser.id}`;
+            const requestUrl = `${testUtils.getApiUrl(httpConstants.apiRoutes.USERS)}/${createdUser.id}`;
 
             const accessToken = _issueToken(
                 { id: createdUser.id },
@@ -123,10 +122,10 @@ describe("users route", function () {
                 .set('Cookie', `${config.security.headerName}=${accessToken}`)
                 .send({email: testUser.email, password: testUser.password})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                     assert.isTrue(res.unauthorized);
                     assert.exists(res.body.message);
-                    assert.equal(constants.messages.UNAUTHORIZED, res.body.message);
+                    assert.equal(httpConstants.messages.UNAUTHORIZED, res.body.message);
                     done();
                 });
         })();
@@ -138,13 +137,13 @@ describe("users route", function () {
             const user = await userService.create({email: testUser.email, password: testUser.password});
 
             chai.request(server)
-                .post(testUtils.getApiUrl(apiRoutes.AUTH))
+                .post(testUtils.getApiUrl(httpConstants.apiRoutes.AUTH))
                 .set("Content-Type", "application/json")
                 .send({email: user.email, password: "invalid"})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                     assert.isTrue(res.unauthorized);
-                    assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
+                    assert.equal(res.body.message, httpConstants.messages.UNAUTHORIZED);
                     done();
                 });
         })();
@@ -156,23 +155,23 @@ describe("users route", function () {
             const createdUser = await userService.create({email: testUser.email, password: testUser.password});
 
             chai.request(server)
-                .post(testUtils.getApiUrl(apiRoutes.AUTH))
+                .post(testUtils.getApiUrl(httpConstants.apiRoutes.AUTH))
                 .send({email: testUser.email, password: testUser.password})
                 .end((err, res) => {
                     assert.exists(res.headers["set-cookie"]);
 
                     chai.request(server)
-                        .delete(testUtils.getApiUrl(apiRoutes.AUTH))
+                        .delete(testUtils.getApiUrl(httpConstants.apiRoutes.AUTH))
                         .set("Cookie", res.headers["set-cookie"][0])
                         .end((err, res) => {
                             assert.equal(res.headers["set-cookie"], "x-access-token=; Path=/");
 
-                            const requestUrl = `${testUtils.getApiUrl(apiRoutes.GET_USER)}/${createdUser.id}`;
+                            const requestUrl = `${testUtils.getApiUrl(httpConstants.apiRoutes.USERS)}/${createdUser.id}`;
                             chai.request(server)
                                 .get(requestUrl)
                                 .set("Cookie", res.headers["set-cookie"][0])
                                 .end((err, res) => {
-                                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                                     done();
                                 });
                         });

@@ -15,5 +15,5 @@ const wikiService = dc.get("WikiService");
             console.log(`Updated ${namedEntity.name}`);
         }
     }
-    console.log(`Finished updating named entities.`);
+    console.log("Finished updating named entities.");
 })();

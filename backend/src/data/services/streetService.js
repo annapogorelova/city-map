@@ -2,7 +2,7 @@
 
 const {optional} = require("tooleks");
 const utils = require("../../app/utils");
-const {errors, common} = require("../../app/constants/index");
+const {errors, commonConstants} = require("../../app/constants/index");
 const stringUtils = require("../../utils/stringUtils");
 
 function makeStreetService(db) {
@@ -106,10 +106,13 @@ function makeStreetService(db) {
 
         const results = await Promise.all([
             db.street.count(selectParams),
-            db.street.findAll({...selectParams, include: [
+            db.street.findAll({
+                ...selectParams,
+                include: [
                     {model: db.namedEntity, include: [{model: db.tag}]},
                     {model: db.way}
-                ]}).then(rows => getPlainList(rows))
+                ]
+            }).then(rows => getPlainList(rows))
         ]);
 
         return {
@@ -125,11 +128,13 @@ function makeStreetService(db) {
         }
 
         street.name = stringUtils.cleanText(street.name);
-        street.description = stringUtils.formatText(street.description, common.maxDescriptionLength);
+        street.description = stringUtils.formatText(street.description, commonConstants.MAX_DESCRIPTION_LENGTH);
 
         const createdStreet = await db.street.create(street);
-        if(ways && ways.length) {
-            const wayModels = ways.map(w => {return {coordinates: w};});
+        if (ways && ways.length) {
+            const wayModels = ways.map(w => {
+                return {coordinates: w};
+            });
             const createdWays = await db.way.bulkCreate(wayModels);
             await createdStreet.setWays(createdWays);
         }
@@ -139,19 +144,19 @@ function makeStreetService(db) {
 
     async function update(id, newValues) {
         const existingStreet = await getById(id).then(entity => optional(() => entity.get({plain: true})));
-        if(!existingStreet) {
+        if (!existingStreet) {
             throw Error(errors.NOT_FOUND.key);
         }
 
         let streetProps = Object.getOwnPropertyNames(existingStreet);
 
         newValues.namedEntityId = newValues.namedEntityId || null;
-        if(existingStreet.namedEntityId !== newValues.namedEntityId) {
+        if (existingStreet.namedEntityId !== newValues.namedEntityId) {
             await updateNamedEntity(existingStreet.namedEntityId, newValues.namedEntityId);
         }
 
-        for(let propName of streetProps) {
-            if(newValues[propName] !== undefined &&
+        for (let propName of streetProps) {
+            if (newValues[propName] !== undefined &&
                 existingStreet[propName] !== newValues[propName]) {
                 existingStreet[propName] = newValues[propName];
             }
@@ -163,7 +168,7 @@ function makeStreetService(db) {
     }
 
     async function updateNamedEntity(existingNamedEntityId, newNamedEntityId) {
-        if(newNamedEntityId) {
+        if (newNamedEntityId) {
             await validateNamedEntity(newNamedEntityId);
         } else {
             await tryRemoveNamedEntity(existingNamedEntityId);
@@ -172,7 +177,7 @@ function makeStreetService(db) {
 
     async function validateNamedEntity(namedEntityId) {
         const existingNamedEntity = await db.namedEntity.findById(namedEntityId);
-        if(!existingNamedEntity) {
+        if (!existingNamedEntity) {
             throw Error(errors.NOT_FOUND.key);
         }
     }
@@ -180,7 +185,7 @@ function makeStreetService(db) {
     async function tryRemoveNamedEntity(namedEntityId) {
         const existingNamedEntity = await db.namedEntity.findById(namedEntityId);
         const streetsCount = await existingNamedEntity.countStreets();
-        if(streetsCount < 2) {
+        if (streetsCount < 2) {
             return existingNamedEntity.destroy();
         }
     }
@@ -190,7 +195,7 @@ function makeStreetService(db) {
     }
 
     function getPlain(entity) {
-        return optional(() => entity.get({ plain: true }), null);
+        return optional(() => entity.get({plain: true}), null);
     }
 }
 

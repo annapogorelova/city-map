@@ -1,6 +1,6 @@
 const shevchenko = require("shevchenko");
 const {optional} = require("tooleks");
-const constants = require("../app/constants/common");
+const constants = require("../app/constants/commonConstants");
 
 module.exports = {
     findBestStringsMatch(search, results) {
@@ -74,7 +74,7 @@ module.exports = {
         const lastIndex = croppedText.lastIndexOf(". ");
         return (lastIndex !== -1 && lastIndex < croppedText.length) ? // if there is period - return text up to the last sentence
             croppedText.substring(0, lastIndex + 1) :
-                formattedText.length < maxLength ? croppedText : `${croppedText}...`; // else - just text or "text..."
+            formattedText.length < maxLength ? croppedText : `${croppedText}...`; // else - just text or "text..."
     },
 
     namesInflectionMatch(expectedName, actualName) {

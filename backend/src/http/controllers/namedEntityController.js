@@ -1,7 +1,7 @@
 "use strict";
 
 const config = require("config");
-const constants = require("../constants/constants");
+const httpConstants = require("../../app/constants/httpConstants");
 
 function makeNamedEntityController(namedEntityService, mapper) {
     return Object.freeze({
@@ -30,7 +30,7 @@ function makeNamedEntityController(namedEntityService, mapper) {
         try {
             await namedEntityService.create(namedEntity);
             return res
-                .status(constants.statusCodes.OK)
+                .status(httpConstants.statusCodes.OK)
                 .send({ message: "Named entity was successfully created." });
         } catch (error) {
             next(error);
@@ -44,7 +44,7 @@ function makeNamedEntityController(namedEntityService, mapper) {
         try {
             await namedEntityService.update(id, namedEntity);
             return res
-                .status(constants.statusCodes.OK)
+                .status(httpConstants.statusCodes.OK)
                 .send({ message: "Named entity was successfully updated." });
         } catch (error) {
             next(error);
@@ -57,7 +57,7 @@ function makeNamedEntityController(namedEntityService, mapper) {
         try {
             await namedEntityService.remove(id);
             return res
-                .status(constants.statusCodes.OK)
+                .status(httpConstants.statusCodes.OK)
                 .send({ message: "Named entity was deleted." });
         } catch (error) {
             next(error);

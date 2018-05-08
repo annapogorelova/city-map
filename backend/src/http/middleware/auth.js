@@ -1,7 +1,7 @@
 "use strict";
 
 const config = require("config");
-const constants = require("../constants/constants");
+const httpConstants = require("../../app/constants/httpConstants");
 const {optional} = require("tooleks");
 
 function makeAuthMiddleware(userService, jwtService) {
@@ -19,8 +19,8 @@ function makeAuthMiddleware(userService, jwtService) {
         jwtService.verify(accessToken, config.security.secret, async (error, decoded) => {
             if (error || !decoded.id) {
                 return res
-                    .status(constants.statusCodes.UNAUTHORIZED)
-                    .send({message: constants.messages.UNAUTHORIZED});
+                    .status(httpConstants.statusCodes.UNAUTHORIZED)
+                    .send({message: httpConstants.messages.UNAUTHORIZED});
             }
 
             const user = await userService.getById(decoded.id)
@@ -28,8 +28,8 @@ function makeAuthMiddleware(userService, jwtService) {
 
             if (!user) {
                 return res
-                    .status(constants.statusCodes.UNAUTHORIZED)
-                    .send({message: constants.messages.UNAUTHORIZED});
+                    .status(httpConstants.statusCodes.UNAUTHORIZED)
+                    .send({message: httpConstants.messages.UNAUTHORIZED});
             }
 
             req.userId = decoded.id;
@@ -41,8 +41,8 @@ function makeAuthMiddleware(userService, jwtService) {
 
     function verifyAuth(req, res, next) {
         if (!req.user) {
-            return res.status(constants.statusCodes.UNAUTHORIZED)
-                .send({message: constants.messages.UNAUTHORIZED});
+            return res.status(httpConstants.statusCodes.UNAUTHORIZED)
+                .send({message: httpConstants.messages.UNAUTHORIZED});
         }
 
         next();

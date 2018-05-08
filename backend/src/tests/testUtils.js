@@ -4,7 +4,7 @@ process.env.NODE_ENV = "test";
 
 const dc = require("../app/dependencyResolver");
 const db = require("../data/models/index");
-const apiRoutes = require("./apiRoutes");
+const apiRoutes = require("../app/constants/httpConstants").apiRoutes;
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const userService = dc.get("UserService");
@@ -39,7 +39,7 @@ module.exports = {
     },
 
     getApiUrl(url) {
-        return apiRoutes.API + url;
+        return apiRoutes.ROOT + url;
     },
 
     async createStreet(testStreet, cityId) {

@@ -1,9 +1,9 @@
-const common = require("./common");
+const commonConstants = require("./commonConstants");
 const errors = require("./errors");
-const statusCodes = require("./statusCodes");
+const httpConstants = require("./httpConstants");
 
 module.exports = {
-    common,
+    commonConstants,
     errors,
-    statusCodes
+    httpConstants
 };

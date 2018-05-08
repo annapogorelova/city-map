@@ -1,6 +1,6 @@
 "use strict";
 
-const statusCodes = require("./statusCodes");
+const statusCodes = require("./httpConstants").statusCodes;
 
 module.exports = {
     NOT_FOUND: {

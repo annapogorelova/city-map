@@ -2,7 +2,7 @@ const {optional} = require("tooleks");
 const wikiUtils = require("./wikiUtils");
 const utils = require("../../app/utils");
 const stringUtils = require("../../utils/stringUtils");
-const {common} = require("../../app/constants/index");
+const {commonConstants} = require("../../app/constants/index");
 
 /**
  * Class contains methods for searching the streets articles in Wikipedia
@@ -71,7 +71,7 @@ class WikiService {
                 pageContent = await article.content();
             }
 
-            return optional(() => pageContent.match(common.namedAfterArticleRegex)[1], undefined);
+            return optional(() => pageContent.match(commonConstants.namedAfterArticleRegex)[1], undefined);
         }
 
         return null;
@@ -136,7 +136,7 @@ class WikiService {
             return a.priority < b.priority ? 1 : (a.priority > b.priority ? -1 : 0);
         };
 
-        return optional(() => common.namedEntityCategories.filter(c =>
+        return optional(() => commonConstants.namedEntityCategories.filter(c =>
             categories.some(category => wikiUtils.normalizeCategoryName(category).startsWith(c.name)))
             .sort(categoryOrderDescFn)[0], null);
     }
@@ -166,7 +166,7 @@ class WikiService {
     }
 
     extractTags(categories) {
-        return common.tags.filter(tag =>
+        return commonConstants.tags.filter(tag =>
             categories.some(category => category.match(new RegExp(`${tag}`, "i"))));
     }
 }

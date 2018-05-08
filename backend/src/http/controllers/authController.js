@@ -1,7 +1,7 @@
 "use strict";
 
 const config = require("config");
-const constants = require("../constants/constants");
+const constants = require("../../app/constants/httpConstants");
 
 function makeAuthController(userService, jwtService) {
     return Object.freeze({

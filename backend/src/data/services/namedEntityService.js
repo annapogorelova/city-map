@@ -1,9 +1,8 @@
 "use strict";
 
 const {optional} = require("tooleks");
-const {errors} = require("../../app/constants/index");
 const stringUtils = require("../../utils/stringUtils");
-const {common} = require("../../app/constants/index");
+const {commonConstants, errors} = require("../../app/constants/index");
 
 function makeNamedEntityService(db) {
     return Object.freeze({
@@ -78,7 +77,7 @@ function makeNamedEntityService(db) {
         }
 
         namedEntity.name = stringUtils.cleanText(namedEntity.name);
-        namedEntity.description = stringUtils.formatText(namedEntity.description, common.maxDescriptionLength);
+        namedEntity.description = stringUtils.formatText(namedEntity.description, commonConstants.MAX_DESCRIPTION_LENGTH);
 
         const createdNamedEntity = await db.namedEntity.create(namedEntity);
         if (namedEntity.tags && namedEntity.tags.length) {

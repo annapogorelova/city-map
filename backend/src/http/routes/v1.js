@@ -1,5 +1,7 @@
 "use strict";
 
+const apiRoutes = require("../../app/constants/httpConstants").apiRoutes;
+
 function makeRouter(
     router,
     authController,
@@ -10,57 +12,57 @@ function makeRouter(
     authMiddleware
 ) {
 
-    router.post("/auth", authController.postAuth);
+    router.post(apiRoutes.AUTH, authController.postAuth);
 
-    router.delete("/auth",
+    router.delete(apiRoutes.AUTH,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         authController.expireAuth);
 
-    router.get("/users/:id",
+    router.get(`${apiRoutes.USERS}/:id`,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         usersController.getUser);
 
-    router.get("/cities/:cityId/streets", streetsController.searchCityStreets);
+    router.get(`${apiRoutes.CITIES}/:cityId/${apiRoutes.STREETS}`, streetsController.searchCityStreets);
 
-    router.get("/streets", streetsController.searchStreetsByCoordinates);
+    router.get(`/${apiRoutes.STREETS}`, streetsController.searchStreetsByCoordinates);
 
-    router.put("/streets/:id",
+    router.put(`/${apiRoutes.STREETS}/:id`,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         streetsController.update);
 
-    router.get("/cities/:id",
+    router.get(`${apiRoutes.CITIES}/:id`,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         citiesController.getCity);
 
-    router.get("/cities",
+    router.get(apiRoutes.CITIES,
         authMiddleware.extractAuth,
         citiesController.searchCities);
 
-    router.post("/cities",
+    router.post(apiRoutes.CITIES,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         citiesController.createCity);
 
-    router.post("/namedEntities",
+    router.post(apiRoutes.NAMED_ENTITIES,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         namedEntitiesController.create);
 
-    router.put("/namedEntities/:id",
+    router.put(`${apiRoutes.NAMED_ENTITIES}/:id`,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         namedEntitiesController.update);
 
-    router.delete("/namedEntities/:id",
+    router.delete(`${apiRoutes.NAMED_ENTITIES}/:id`,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         namedEntitiesController.remove);
 
-    router.get("/namedEntities",
+    router.get(apiRoutes.NAMED_ENTITIES,
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         namedEntitiesController.search);

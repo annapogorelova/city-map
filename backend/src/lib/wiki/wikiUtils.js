@@ -1,4 +1,4 @@
-const constants = require("../../app/constants/common");
+const constants = require("../../app/constants/commonConstants");
 const utils = require("../../app/utils");
 const {optional} = require("tooleks");
 

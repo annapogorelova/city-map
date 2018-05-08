@@ -4,9 +4,7 @@ const assert = chai.assert;
 const chaiHttp = require("chai-http");
 const server = require("../../../app");
 const testUtils = require("../../testUtils");
-const apiRoutes = require("../../apiRoutes");
-const constants = require("../../../http/constants/constants");
-const {errors} = require("../../../app/constants/index");
+const {errors, httpConstants} = require("../../../app/constants/index");
 const testData = require("../../data/dbTestData");
 const db = require("../../../data/models/index");
 
@@ -20,13 +18,13 @@ describe("named entities route test", () => {
     });
 
     it("should return 401", (done) => {
-        const requestUrl = `${testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES)}`;
+        const requestUrl = `${testUtils.getApiUrl(httpConstants.apiRoutes.NAMED_ENTITIES)}`;
         chai.request(server)
             .get(requestUrl)
             .end((err, res) => {
-                assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                 assert.exists(res.body.message);
-                assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
+                assert.equal(res.body.message, httpConstants.messages.UNAUTHORIZED);
                 done();
             });
     });
@@ -34,7 +32,7 @@ describe("named entities route test", () => {
     it("should return the empty array", (done) => {
         (async () => {
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES);
+            const requestUrl = testUtils.getApiUrl(httpConstants.apiRoutes.NAMED_ENTITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -43,7 +41,7 @@ describe("named entities route test", () => {
 
             request
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, 0);
                     assert.equal(res.body.count, 0);
@@ -55,7 +53,7 @@ describe("named entities route test", () => {
     it("should return n named entities", (done) => {
         (async () => {
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES);
+            const requestUrl = testUtils.getApiUrl(httpConstants.apiRoutes.NAMED_ENTITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -68,7 +66,7 @@ describe("named entities route test", () => {
             request
                 .query({limit: limit})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, limit);
                     assert.equal(res.body.count, testData.namedEntities.length);
@@ -80,7 +78,7 @@ describe("named entities route test", () => {
     it("should return 0 named entities by search", (done) => {
         (async () => {
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES);
+            const requestUrl = testUtils.getApiUrl(httpConstants.apiRoutes.NAMED_ENTITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -90,7 +88,7 @@ describe("named entities route test", () => {
             request
                 .query({search: "Non Existing Name"})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, 0);
                     assert.equal(res.body.count, 0);
@@ -105,7 +103,7 @@ describe("named entities route test", () => {
             const limit = 1;
 
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES);
+            const requestUrl = testUtils.getApiUrl(httpConstants.apiRoutes.NAMED_ENTITIES);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -115,7 +113,7 @@ describe("named entities route test", () => {
             request
                 .query({limit: limit, search: testData.namedEntities[0].name})
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.exists(res.body.data);
                     assert.equal(res.body.data.length, limit);
                     assert.equal(res.body.count, 1);
@@ -127,13 +125,13 @@ describe("named entities route test", () => {
 
     it("should return 401 when trying to update named entity by unauthorized user", (done) => {
         (async () => {
-            const requestUrl = `${testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES)}/1`;
+            const requestUrl = `${testUtils.getApiUrl(httpConstants.apiRoutes.NAMED_ENTITIES)}/1`;
             chai.request(server)
                 .put(requestUrl)
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                     assert.exists(res.body.message);
-                    assert.equal(res.body.message, constants.messages.UNAUTHORIZED);
+                    assert.equal(res.body.message, httpConstants.messages.UNAUTHORIZED);
                     done();
                 });
         })();
@@ -142,7 +140,7 @@ describe("named entities route test", () => {
     it("should return 404 when trying to update the non existing named entity", (done) => {
         (async () => {
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/1`);
+            const requestUrl = testUtils.getApiUrl(`${httpConstants.apiRoutes.NAMED_ENTITIES}/1`);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -152,7 +150,7 @@ describe("named entities route test", () => {
             request
                 .send(testData.namedEntities[0])
                 .end((err, res) => {
-                    assert.equal(res.status, constants.statusCodes.NOT_FOUND);
+                    assert.equal(res.status, httpConstants.statusCodes.NOT_FOUND);
                     done();
                 });
         })();
@@ -170,7 +168,7 @@ describe("named entities route test", () => {
             createdNamedEntity.description = newDescription;
 
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/${createdNamedEntity.id}`);
+            const requestUrl = testUtils.getApiUrl(`${httpConstants.apiRoutes.NAMED_ENTITIES}/${createdNamedEntity.id}`);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -180,7 +178,7 @@ describe("named entities route test", () => {
             request
                 .send(createdNamedEntity)
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
 
                     const namedEntity = await db.namedEntity.findById(createdNamedEntity.id);
                     assert.equal(newName, namedEntity.name);
@@ -194,9 +192,9 @@ describe("named entities route test", () => {
     it("should return 401 when trying to remove the named entity being unauthorized", (done) => {
         (async () => {
             chai.request(server)
-                .delete(testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/1`))
+                .delete(testUtils.getApiUrl(`${httpConstants.apiRoutes.NAMED_ENTITIES}/1`))
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                     done();
                 });
         })();
@@ -205,7 +203,7 @@ describe("named entities route test", () => {
     it("should return 404 when trying to remove the non existing named entity", (done) => {
         (async () => {
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/1`);
+            const requestUrl = testUtils.getApiUrl(`${httpConstants.apiRoutes.NAMED_ENTITIES}/1`);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -214,7 +212,7 @@ describe("named entities route test", () => {
 
             request
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.NOT_FOUND);
+                    assert.equal(res.status, httpConstants.statusCodes.NOT_FOUND);
                     done();
                 });
         })();
@@ -233,7 +231,7 @@ describe("named entities route test", () => {
             const createdStreet = await db.street.create(street);
 
             const authResponse = await testUtils.prepareAuthRequest(server);
-            const requestUrl = testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}/${createdNamedEntity.id}`);
+            const requestUrl = testUtils.getApiUrl(`${httpConstants.apiRoutes.NAMED_ENTITIES}/${createdNamedEntity.id}`);
             const request = testUtils.getAuthenticatedRequest(
                 requestUrl,
                 authResponse.headers['set-cookie'][0],
@@ -242,7 +240,7 @@ describe("named entities route test", () => {
 
             request
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
                     const namedEntity = await db.namedEntity.findById(createdNamedEntity.id);
                     assert.notExists(namedEntity);
 
@@ -257,10 +255,10 @@ describe("named entities route test", () => {
     it("should return 401 when trying to create named entity unauthorized", (done) => {
         (async () => {
             chai.request(server)
-                .post(testUtils.getApiUrl(apiRoutes.NAMED_ENTITIES))
+                .post(testUtils.getApiUrl(httpConstants.apiRoutes.NAMED_ENTITIES))
                 .send({name: "Taras Shevchenko"})
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.UNAUTHORIZED);
+                    assert.equal(res.status, httpConstants.statusCodes.UNAUTHORIZED);
                     done();
                 });
         })();
@@ -273,7 +271,7 @@ describe("named entities route test", () => {
 
             const authResponse = await testUtils.prepareAuthRequest(server);
             const request = testUtils.getAuthenticatedRequest(
-                testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}`),
+                testUtils.getApiUrl(`${httpConstants.apiRoutes.NAMED_ENTITIES}`),
                 authResponse.headers['set-cookie'][0],
                 server,
                 "post");
@@ -281,7 +279,7 @@ describe("named entities route test", () => {
             request
                 .send(createdNamedEntity)
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.BAD_REQUEST);
+                    assert.equal(res.status, httpConstants.statusCodes.BAD_REQUEST);
                     assert.equal(res.body.message, errors.ALREADY_EXISTS.message);
 
                     done();
@@ -295,7 +293,7 @@ describe("named entities route test", () => {
 
             const authResponse = await testUtils.prepareAuthRequest(server);
             const request = testUtils.getAuthenticatedRequest(
-                testUtils.getApiUrl(`${apiRoutes.NAMED_ENTITIES}`),
+                testUtils.getApiUrl(`${httpConstants.apiRoutes.NAMED_ENTITIES}`),
                 authResponse.headers['set-cookie'][0],
                 server,
                 "post");
@@ -303,7 +301,7 @@ describe("named entities route test", () => {
             request
                 .send(namedEntity)
                 .end(async (err, res) => {
-                    assert.equal(res.status, constants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
 
                     const createdNamedEntity = await db.namedEntity.findOne({where: {name: namedEntity.name}});
                     assert.exists(createdNamedEntity);

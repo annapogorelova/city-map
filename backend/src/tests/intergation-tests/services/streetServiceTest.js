@@ -5,7 +5,7 @@ const testData = require("../../data/dbTestData");
 const testUtils = require("../../testUtils");
 const db = require("../../../data/models/index");
 const utils = require("../../../app/utils");
-const {common, errors} = require("../../../app/constants/index");
+const {commonConstants, errors} = require("../../../app/constants/index");
 const {optional} = require("tooleks");
 
 describe("street data service test", () => {
@@ -73,7 +73,7 @@ describe("street data service test", () => {
 
             let similarStreetModel = Object.assign({}, testData.streets[0]);
             const cleanName = utils.extractStreetName(similarStreetModel.name);
-            similarStreetModel.name = `${common.streetTypes[1]} ${cleanName}`;
+            similarStreetModel.name = `${commonConstants.streetTypes[1]} ${cleanName}`;
 
             const secondStreet = await testUtils.createStreet(similarStreetModel, createdCity.id);
 

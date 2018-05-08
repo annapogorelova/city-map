@@ -1,8 +1,8 @@
-const constants = require("./constants/common");
+const commonConstants = require("./constants/commonConstants");
 
 module.exports = {
     extractStreetName(streetName) {
-        const regex = new RegExp(`${constants.streetTypes.join("|")}`, "ig");
+        const regex = new RegExp(`${commonConstants.streetTypes.join("|")}`, "ig");
         return streetName.replace(regex, "").trim();
     }
 };

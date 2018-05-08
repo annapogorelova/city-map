@@ -1,6 +1,6 @@
 "use strict";
 
-const constants = require("../constants/constants");
+const constants = require("../../app/constants/httpConstants");
 const config = require("config");
 
 function makeCitiesController(cityService, mapper) {

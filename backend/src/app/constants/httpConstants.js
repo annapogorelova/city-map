@@ -19,5 +19,13 @@ module.exports = Object.freeze({
     },
     regex: {
         ACCESS_TOKEN: /^(Bearer )([A-Za-z0-9\-._~+/]+=*)$/i
+    },
+    apiRoutes: {
+        ROOT: "/api/v1",
+        AUTH: "/auth",
+        USERS: "/users",
+        CITIES: "/cities",
+        STREETS: "streets",
+        NAMED_ENTITIES: "/namedEntities"
     }
 });

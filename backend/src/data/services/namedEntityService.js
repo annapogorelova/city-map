@@ -89,10 +89,10 @@ function makeNamedEntityService(db) {
         return createdNamedEntity;
     }
 
-    async function createTag(tagName) {
-        let existingTag = await db.tag.findOne({where: {name: tagName}});
+    async function createTag(tag) {
+        let existingTag = await db.tag.findOne({where: {name: tag.name}});
         if (!existingTag) {
-            existingTag = await db.tag.create({name: tagName});
+            existingTag = await db.tag.create(tag);
         }
 
         return existingTag;

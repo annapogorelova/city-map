@@ -3,6 +3,7 @@
 const {optional} = require("tooleks");
 const stringUtils = require("../../utils/stringUtils");
 const {commonConstants, errors} = require("../../app/constants/index");
+const _ = require("lodash");
 
 function makeNamedEntityService(db) {
     return Object.freeze({
@@ -97,7 +98,7 @@ function makeNamedEntityService(db) {
         return existingTag;
     }
 
-    async function update(id, newValues, tags) {
+    async function update(id, {tags, ...newValues}) {
         let existingNamedEntity = await getById(id);
         if (!existingNamedEntity) {
             throw Error(errors.NOT_FOUND.key);
@@ -123,14 +124,44 @@ function makeNamedEntityService(db) {
     async function updateTags(namedEntity, tags) {
         const existingTags = await namedEntity.getTags();
 
-        for (let tag of tags) {
-            if (!existingTags.filter(t => t.name === tag).length) {
-                let existingTag = await db.tag.findOne({where: {name: tag}});
-                if (!existingTag) {
-                    existingTag = await db.tag.create({name: tag});
-                }
+        if(_.isEqual(existingTags.map(t => t.id).sort(), tags.map(t => t.id).sort())) {
+            return;
+        }
 
-                await namedEntity.addTag(existingTag);
+        const tagsToAdd = tags.filter(t => !t.id || existingTags.every(et => et.id !== t.id));
+        const tagsToRemove = existingTags.filter(et => tags.every(t => t.id !== et.id));
+
+        if(tagsToAdd.length) {
+            await addTags(namedEntity, tagsToAdd);
+        }
+
+        if(tagsToRemove.length) {
+            await removeTags(namedEntity, tagsToRemove);
+        }
+    }
+
+    async function addTags(namedEntity, tags) {
+        for (let tag of tags) {
+            let existingTag;
+
+            if(!tag.id) {
+                existingTag = await db.tag.create({name: tag.name.toLowerCase()});
+            } else {
+                existingTag = await db.tag.findById(tag.id);
+            }
+
+            await namedEntity.addTag(existingTag);
+        }
+    }
+
+    async function removeTags(namedEntity, tagsToRemove) {
+        for (let tag of tagsToRemove) {
+            const existingTag = await db.tag.findById(tag.id);
+            await namedEntity.removeTag(existingTag);
+
+            const namedEntities = await existingTag.getNamedEntities();
+            if(!namedEntities.length) {
+                await existingTag.destroy();
             }
         }
     }

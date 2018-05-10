@@ -22,11 +22,19 @@
             id: {
                 type: String,
                 default: "exampleModal"
+            },
+            destroyOnHide: {
+                type: Boolean,
+                default: true
             }
         },
         mounted: function() {
             $(`#${this.id}`).on("hidden.bs.modal", () => {
                 this.$emit("modalHidden");
+
+                if(this.destroyOnHide) {
+                    $(`#${this.id}`).modal('dispose');
+                }
             });
         },
         beforeDestroy: function () {

@@ -97,37 +97,23 @@ describe("named entity data service test", () => {
         })();
     });
 
-    it("should update the named entity, add new tags", (done) => {
+    it("should update the named entity, add 1 new non existing tag", (done) => {
         (async () => {
-            const namedEntity = testData.namedEntities[0];
-            let createdNamedEntity = await db.namedEntity.create(namedEntity).then(e => e.get({plain: true}));
-            const newName = "Король Данило";
-            createdNamedEntity.name = newName;
-
-            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity);
-            const updatedNamedEntity = await db.namedEntity.findOne({
-                where: {id: createdNamedEntity.id}
-            });
-
-            assert.equal(updatedNamedEntity.name, newName);
-
-            done();
-        })();
-    });
-
-    it("should update the named entity, add new tags", (done) => {
-        (async () => {
-            const namedEntity = Object.assign(testData.namedEntities[0], {});
-            const tags = [{name: "князі"}, {name: "рюриковичі"}, {name: "королі"}];
+            const namedEntity = {...testData.namedEntities[0]};
             let createdNamedEntity = await db.namedEntity.create(namedEntity);
-            const createdTags = await db.tag.bulkCreate(tags);
-            await createdNamedEntity.setTags(createdTags.slice(0, 2));
+
+            const tags = [{name: "князі"}, {name: "рюриковичі"}];
+            let createdTags = await db.tag.bulkCreate(tags);
+            await createdNamedEntity.setTags(createdTags);
+
+            const tagToAdd = {name: "воїни"};
+            const newTags = [...createdTags.map(t => t.dataValues), tagToAdd];
 
             const newName = "Король Данило";
             createdNamedEntity.dataValues.name = newName;
-            const newTags = ["князі", "королі", "воїни"];
+            createdNamedEntity.dataValues.tags = newTags;
 
-            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity.dataValues, newTags);
+            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity.dataValues);
             const updatedNamedEntity = await db.namedEntity.findOne({
                 where: {id: createdNamedEntity.id},
                 include: [{model: db.tag}]
@@ -135,8 +121,133 @@ describe("named entity data service test", () => {
 
             assert.equal(updatedNamedEntity.name, newName);
             assert.exists(updatedNamedEntity.tags);
-            assert.includeMembers(updatedNamedEntity.tags.map(tag => tag.name), newTags);
-            assert.includeMembers(updatedNamedEntity.tags.map(tag => tag.name), tags.map(tag => tag.name));
+
+            const newTagsNames = updatedNamedEntity.tags.map(tag => tag.name);
+
+            assert.includeMembers(newTagsNames, newTags.map(tag => tag.name));
+            assert.include(newTagsNames, tagToAdd.name);
+
+            const addedTag = await db.tag.findOne({where: {name: tagToAdd.name}});
+            assert.exists(addedTag);
+            assert.equal(addedTag.name, tagToAdd.name);
+
+            done();
+        })();
+    });
+
+    it("should update the named entity, add 1 existing tag", (done) => {
+        (async () => {
+            const namedEntity = {...testData.namedEntities[0]};
+            let createdNamedEntity = await db.namedEntity.create(namedEntity);
+
+            const tags = [{name: "князі"}, {name: "рюриковичі"}, {name: "воїни"}];
+            let createdTags = await db.tag.bulkCreate(tags);
+            await createdNamedEntity.setTags(createdTags.slice(0, createdTags.length - 1));
+
+            const tagToAdd = createdTags[createdTags.length - 1];
+            const newTags = [...createdTags.map(t => t.dataValues), tagToAdd];
+
+            createdNamedEntity.dataValues.tags = newTags;
+
+            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity.dataValues);
+            const updatedNamedEntity = await db.namedEntity.findOne({
+                where: {id: createdNamedEntity.id},
+                include: [{model: db.tag}]
+            });
+
+            assert.exists(updatedNamedEntity.tags);
+
+            const newTagsNames = updatedNamedEntity.tags.map(tag => tag.name);
+            assert.includeMembers(newTagsNames, newTags.map(tag => tag.name));
+            assert.include(newTagsNames, tagToAdd.name);
+
+            done();
+        })();
+    });
+
+    it("should update the named entity, remove 1 tag (completely)", (done) => {
+        (async () => {
+            const namedEntity = {...testData.namedEntities[0]};
+            let createdNamedEntity = await db.namedEntity.create(namedEntity);
+
+            const tags = [{name: "князі"}, {name: "рюриковичі"}, {name: "воїни"}];
+            let createdTags = await db.tag.bulkCreate(tags);
+            await createdNamedEntity.setTags(createdTags);
+
+            const newTags = createdTags.slice(0, createdTags.length - 1);
+
+            createdNamedEntity.dataValues.tags = newTags;
+
+            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity.dataValues);
+            const updatedNamedEntity = await db.namedEntity.findOne({
+                where: {id: createdNamedEntity.id},
+                include: [{model: db.tag}]
+            });
+
+            assert.exists(updatedNamedEntity.tags);
+
+            const newTagsNames = updatedNamedEntity.tags.map(tag => tag.name);
+            assert.includeMembers(newTagsNames, newTags.map(tag => tag.name));
+            assert.notInclude(newTagsNames, createdTags[createdTags.length - 1].name);
+
+            const removedTag = await db.tag.findById(createdTags[createdTags.length - 1].id);
+            assert.notExists(removedTag);
+
+            done();
+        })();
+    });
+
+    it("should update the named entity, remove 1 tag (not completely)", (done) => {
+        (async () => {
+            const namedEntity = {...testData.namedEntities[0]};
+            let createdNamedEntity = await db.namedEntity.create(namedEntity);
+
+            const anotherNamedEntity = await db.namedEntity.create({...testData.namedEntities[1]});
+
+            const tags = [{name: "князі"}, {name: "рюриковичі"}, {name: "воїни"}];
+            let createdTags = await db.tag.bulkCreate(tags);
+            await createdNamedEntity.setTags(createdTags);
+            await anotherNamedEntity.setTags([createdTags[createdTags.length - 1]]);
+
+            const newTags = createdTags.slice(0, createdTags.length - 1);
+
+            createdNamedEntity.dataValues.tags = newTags;
+
+            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity.dataValues);
+            const updatedNamedEntity = await db.namedEntity.findOne({
+                where: {id: createdNamedEntity.id},
+                include: [{model: db.tag}]
+            });
+
+            assert.exists(updatedNamedEntity.tags);
+
+            const newTagsNames = updatedNamedEntity.tags.map(tag => tag.name);
+            assert.includeMembers(newTagsNames, newTags.map(tag => tag.name));
+            assert.notInclude(newTagsNames, createdTags[createdTags.length - 1].name);
+
+            const removedTag = await db.tag.findById(createdTags[createdTags.length - 1].id);
+            assert.exists(removedTag);
+
+            done();
+        })();
+    });
+
+    it("should not update tags if they are the same", (done) => {
+        (async () => {
+            const namedEntity = {...testData.namedEntities[0]};
+            let createdNamedEntity = await db.namedEntity.create(namedEntity);
+
+            const tags = [{name: "князі"}, {name: "рюриковичі"}, {name: "королі"}];
+            const createdTags = await db.tag.bulkCreate(tags);
+            await createdNamedEntity.setTags(createdTags);
+            createdNamedEntity.dataValues.tags = createdTags.map(t => {return {id: t.id, name: t.name}});
+
+            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity.dataValues);
+
+            const updatedNamedEntity = await db.namedEntity.findById(createdNamedEntity.id);
+            const updatedTags = await updatedNamedEntity.getTags();
+
+            assert.sameMembers(updatedTags.map(t => t.id), createdTags.map(t => t.id));
 
             done();
         })();
@@ -177,7 +288,7 @@ describe("named entity data service test", () => {
         })();
     });
 
-    it("should get only not locked for parsing named entities", (done) => {
+    it("should get only unlocked for parsing named entities", (done) => {
         (async () => {
             const testNamedEntities = testData.namedEntities.slice();
             const unlockedCount = 3;
@@ -188,6 +299,56 @@ describe("named entity data service test", () => {
 
             await db.namedEntity.bulkCreate(testNamedEntities);
             const namedEntities = await namedEntityService.getAll({isLockedForParsing: false});
+
+            assert.sameMembers(
+                testNamedEntities
+                    .filter(namedEntity => namedEntity.isLockedForParsing === false)
+                    .map(namedEntity => namedEntity.name),
+                namedEntities.map(namedEntity => namedEntity.name));
+
+            done();
+        })();
+    });
+
+    it("should search only locked for parsing named entities", (done) => {
+        (async () => {
+            const testNamedEntities = testData.namedEntities.slice();
+            const lockedCount = 3;
+
+            testNamedEntities.map((namedEntity, i) => {
+                namedEntity.isLockedForParsing = i < lockedCount;
+            });
+
+            await db.namedEntity.bulkCreate(testNamedEntities);
+            const {data, count} = await namedEntityService.search({isLockedForParsing: true, limit: 100});
+            const namedEntities = data;
+
+            assert.equal(count, testNamedEntities.filter(e => e.isLockedForParsing).length);
+
+            assert.sameMembers(
+                testNamedEntities
+                    .filter(namedEntity => namedEntity.isLockedForParsing === true)
+                    .map(namedEntity => namedEntity.name),
+                namedEntities.map(namedEntity => namedEntity.name));
+
+            done();
+        })();
+    });
+
+    it("should search only unlocked for parsing named entities", (done) => {
+        (async () => {
+            const testNamedEntities = testData.namedEntities.slice();
+            const lockedCount = 3;
+
+            testNamedEntities.map((namedEntity, i) => {
+                namedEntity.isLockedForParsing = i < lockedCount;
+            });
+
+            await db.namedEntity.bulkCreate(testNamedEntities);
+            const {data, count} = await namedEntityService.search({isLockedForParsing: false, limit: 100});
+            const namedEntities = data;
+
+            assert.equal(count, testNamedEntities.filter(e => e.isLockedForParsing).length);
 
             assert.sameMembers(
                 testNamedEntities

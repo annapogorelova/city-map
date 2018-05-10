@@ -10,49 +10,49 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                        <th>Img</th>
-                        <th>Назва</th>
-                        <th>Опис</th>
-                        <th class="text-right">Теги</th>
-                        <th class="text-right">Оновлено</th>
-                        <th class="text-right">Заблоковано</th>
-                        <th></th>
+                            <th>Img</th>
+                            <th>Назва</th>
+                            <th>Опис</th>
+                            <th class="text-right">Теги</th>
+                            <th class="text-right">Оновлено</th>
+                            <th class="text-right">Заблоковано</th>
+                            <th></th>
                         </thead>
                         <tbody>
-                        <tr v-for="namedEntity in namedEntities">
-                            <td>
-                                <div class="named-entity-image"
-                                     :style="{
-                                                    'background-image': 'url(' + namedEntity.imageUrl + ')',
-                                                    'background-color': 'lightgrey'}"></div>
-                            </td>
-                            <td>{{namedEntity.name}}</td>
-                            <td>
-                                    <span v-if="namedEntity.description">
-                                        {{`${namedEntity.description.substring(0, 30)}...`}}
-                                    </span>
-                            </td>
-                            <td class="text-right">
-                                <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
-                            </td>
-                            <td class="text-right">
-                                <span>{{namedEntity.updatedAt | formatDate }}</span>
-                            </td>
-                            <td class="text-right">
-                                {{namedEntity.isLockedForParsing ? "1" : "0"}}
-                            </td>
-                            <td>
-                                <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
-                                        v-on:click="edit(namedEntity)">
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
-                                        v-on:click="showRemoveConfirmation(namedEntity)">
-                                </button>
-                            </td>
-                        </tr>
-                        <tr v-if="!namedEntities.length">
-                            <td class="no-records" colspan="6">Жодного запису не знайдено</td>
-                        </tr>
+                            <tr v-for="namedEntity in namedEntities">
+                                <td>
+                                    <div class="named-entity-image"
+                                         :style="{
+                                                        'background-image': 'url(' + namedEntity.imageUrl + ')',
+                                                        'background-color': 'lightgrey'}"></div>
+                                </td>
+                                <td>{{namedEntity.name}}</td>
+                                <td>
+                                        <span v-if="namedEntity.description">
+                                            {{`${namedEntity.description.substring(0, 30)}...`}}
+                                        </span>
+                                </td>
+                                <td class="text-right">
+                                    <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span>{{namedEntity.updatedAt | formatDate }}</span>
+                                </td>
+                                <td class="text-right">
+                                    {{namedEntity.isLockedForParsing ? "1" : "0"}}
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
+                                            v-on:click="edit(namedEntity)">
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
+                                            v-on:click="showRemoveConfirmation(namedEntity)">
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-if="!namedEntities.length">
+                                <td class="no-records" colspan="6">Жодного запису не знайдено</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -79,7 +79,8 @@
         </div>
 
         <!-- Edit modal -->
-        <bootstrap-modal ref="editModal" :id="'editModal'" v-if="selectedNamedEntity">
+        <bootstrap-modal ref="editModal" :id="'editModal'" v-if="selectedNamedEntity"
+                         v-on:modalHidden="selectedNamedEntity = undefined">
             <template slot="header">
                 <h4 class="mb-0">{{selectedNamedEntity.id ? "Редагувати" : "Створити персону"}}
                     <span v-if="selectedNamedEntity.name">{{selectedNamedEntity.name}}</span></h4>
@@ -98,12 +99,10 @@
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Теги:</label>
-                        <p v-if="!selectedNamedEntity.tags.length">Немає тегів</p>
-                        <div v-if="selectedNamedEntity.tags.length">
-                            <h6 class="tag-container" v-for="tag in selectedNamedEntity.tags">
-                                <span class="badge badge-dark">{{tag.name}}</span>
-                            </h6>
-                        </div>
+                        <tags-editing-widget
+                                v-bind:initial-tags="selectedNamedEntity.tags.map(t => t.name)"
+                                v-on:tagAdded="addTag" v-on:tagRemoved="removeTag">
+                        </tags-editing-widget>
                     </div>
                     <div class="form-group">
                         <label for="named-entity-image-url" class="col-form-label">Url зображення:</label>
@@ -162,9 +161,10 @@
     import Search from "../shared/search";
     import BootstrapModal from "../shared/bootstrap-modal";
     import {NamedEntitiesServiceMixin, NoticesServiceMixin} from "../../mixins/index";
+    import TagsEditingWidget from "../shared/tags-editing-widget";
 
     export default {
-        components: {Search, Pager, BootstrapModal},
+        components: {TagsEditingWidget, Search, Pager, BootstrapModal},
         mixins: [NamedEntitiesServiceMixin, NoticesServiceMixin],
         props: {
             pageLimit: {
@@ -216,7 +216,10 @@
                     return;
                 }
 
-                this.selectedNamedEntity = {...namedEntity};
+                this.selectedNamedEntity = JSON.parse(JSON.stringify(namedEntity));
+                if(!this.selectedNamedEntity.tags) {
+                    this.selectedNamedEntity.tags = [];
+                }
 
                 Vue.nextTick(() => {
                     this.editModal.show();
@@ -274,6 +277,17 @@
                         this.selectedNamedEntity = undefined;
                     });
                 });
+            },
+            addTag(event) {
+                if(this.selectedNamedEntity) {
+                    this.selectedNamedEntity.tags.push({name: event.tag});
+                }
+            },
+            removeTag(event) {
+                if(this.selectedNamedEntity) {
+                    const tagIndex = this.selectedNamedEntity.tags.findIndex(t => t.name === event.tag);
+                    this.selectedNamedEntity.tags.splice(tagIndex, 1);
+                }
             }
         }
     }
@@ -316,13 +330,6 @@
 
     textarea {
         height: 120px;
-    }
-
-    h6.tag-container {
-        display: inline-block;
-        margin-right: 5px;
-        margin-top: 0;
-        margin-bottom: 3px;
     }
 
     button {

@@ -91,7 +91,7 @@
             goToPage(pageIndex) {
                 this.currentPage = pageIndex;
                 this.$emit("paginate", {offset: this.getOffset(), limit: this.limit});
-                this.$router.push({query: {page: this.currentPage}});
+                this.$router.push({query: {...this.$route.query, page: this.currentPage}});
             },
             nextPage() {
                 this.goToPage(this.currentPage + 1);

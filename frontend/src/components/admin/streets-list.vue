@@ -165,8 +165,7 @@
             onCitySelected(city) {
                 if (city && city.id !== this.cityId) {
                     this.cityId = city.id;
-                    const query = {cityId: this.cityId};
-                    this.$router.push({query: query});
+                    this.$router.push({query: {...this.$route.query, cityId: this.cityId}});
                     this.pager.goToPage(1);
                 }
             },

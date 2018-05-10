@@ -10,49 +10,49 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                            <th>Img</th>
-                            <th>Назва</th>
-                            <th>Опис</th>
-                            <th class="text-right">Теги</th>
-                            <th class="text-right">Оновлено</th>
-                            <th class="text-right">Заблоковано</th>
-                            <th></th>
+                        <th>Img</th>
+                        <th>Назва</th>
+                        <th>Опис</th>
+                        <th class="text-right">Теги</th>
+                        <th class="text-right">Оновлено</th>
+                        <th class="text-right">Заблоковано</th>
+                        <th></th>
                         </thead>
                         <tbody>
-                            <tr v-for="namedEntity in namedEntities">
-                                <td>
-                                    <div class="named-entity-image"
-                                         :style="{
+                        <tr v-for="namedEntity in namedEntities">
+                            <td>
+                                <div class="named-entity-image"
+                                     :style="{
                                                         'background-image': 'url(' + namedEntity.imageUrl + ')',
                                                         'background-color': 'lightgrey'}"></div>
-                                </td>
-                                <td>{{namedEntity.name}}</td>
-                                <td>
+                            </td>
+                            <td>{{namedEntity.name}}</td>
+                            <td>
                                         <span v-if="namedEntity.description">
                                             {{`${namedEntity.description.substring(0, 30)}...`}}
                                         </span>
-                                </td>
-                                <td class="text-right">
-                                    <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span>{{namedEntity.updatedAt | formatDate }}</span>
-                                </td>
-                                <td class="text-right">
-                                    {{namedEntity.isLockedForParsing ? "1" : "0"}}
-                                </td>
-                                <td>
-                                    <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
-                                            v-on:click="edit(namedEntity)">
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
-                                            v-on:click="showRemoveConfirmation(namedEntity)">
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr v-if="!namedEntities.length">
-                                <td class="no-records" colspan="6">Жодного запису не знайдено</td>
-                            </tr>
+                            </td>
+                            <td class="text-right">
+                                <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
+                            </td>
+                            <td class="text-right">
+                                <span>{{namedEntity.updatedAt | formatDate }}</span>
+                            </td>
+                            <td class="text-right">
+                                {{namedEntity.isLockedForParsing ? "1" : "0"}}
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
+                                        v-on:click="edit(namedEntity)">
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
+                                        v-on:click="showRemoveConfirmation(namedEntity)">
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="!namedEntities.length">
+                            <td class="no-records" colspan="6">Жодного запису не знайдено</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -80,6 +80,7 @@
 
         <!-- Edit modal -->
         <bootstrap-modal ref="editModal" :id="'editModal'" v-if="selectedNamedEntity"
+                         :label="'Edit Named Entity Modal'"
                          v-on:modalHidden="selectedNamedEntity = undefined">
             <template slot="header">
                 <h4 class="mb-0">{{selectedNamedEntity.id ? "Редагувати" : "Створити персону"}}
@@ -87,65 +88,86 @@
             </template>
             <template slot="body">
                 <form>
-                    <div class="form-group">
-                        <label for="named-entity-name" class="col-form-label">Назва:</label>
-                        <input type="text" class="form-control" id="named-entity-name"
-                               v-model="selectedNamedEntity.name">
-                    </div>
-                    <div class="form-group">
-                        <label for="named-entity-description" class="col-form-label">Опис:</label>
-                        <textarea class="form-control" id="named-entity-description"
-                                  v-model="selectedNamedEntity.description"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Теги:</label>
-                        <tags-editing-widget
-                                v-bind:initial-tags="selectedNamedEntity.tags.map(t => t.name)"
-                                v-on:tagAdded="addTag" v-on:tagRemoved="removeTag">
-                        </tags-editing-widget>
-                    </div>
-                    <div class="form-group">
-                        <label for="named-entity-image-url" class="col-form-label">Url зображення:</label>
-                        <input type="text" class="form-control" id="named-entity-image-url"
-                               v-model="selectedNamedEntity.imageUrl">
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Зображення:</label>
-                        <div class="named-entity-image edited-image"
-                             :style="{'background-image': 'url(' + selectedNamedEntity.imageUrl + ')',
-                                      'background-color': 'lightgrey'}">
+                    <div class="row">
+                        <div class="col-12 col-lg-6">
+                            <div class="form-group">
+                                <label for="named-entity-name" class="col-form-label">Назва:</label>
+                                <input type="text" class="form-control" id="named-entity-name"
+                                       v-model="selectedNamedEntity.name">
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="form-group">
+                                <label for="named-entity-wiki-url" class="col-form-label">Url сторінки на Wiki:</label>
+                                <input type="text" class="form-control" id="named-entity-wiki-url"
+                                       v-model="selectedNamedEntity.wikiUrl">
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-form-label">Заблоковано:</label>
-                        <input type="checkbox" class="form-control-lg"
-                               v-model="selectedNamedEntity.isLockedForParsing"/>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="named-entity-description" class="col-form-label">Опис:</label>
+                                <textarea class="form-control" id="named-entity-description"
+                                          v-model="selectedNamedEntity.description"></textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="named-entity-wiki-url" class="col-form-label">Url сторінки на Wiki:</label>
-                        <input type="text" class="form-control" id="named-entity-wiki-url"
-                               v-model="selectedNamedEntity.wikiUrl">
+                    <div class="row">
+                        <div class="col-12 col-lg-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Зображення:</label>
+                                <input type="text" class="form-control" id="named-entity-image-url"
+                                       v-model="selectedNamedEntity.imageUrl">
+                                <div class="named-entity-image edited-image"
+                                     :style="{'background-image': 'url(' + selectedNamedEntity.imageUrl + ')',
+                                      'background-color': 'lightgrey'}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Теги:</label>
+                                <tags-editing-widget
+                                        v-bind:initial-tags="selectedNamedEntity.tags.map(t => t.name)"
+                                        v-on:tagAdded="addTag" v-on:tagRemoved="removeTag">
+                                </tags-editing-widget>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="col-form-label">Запис заблоковано:</label>
+                                <input type="checkbox" class="form-control-lg"
+                                       v-model="selectedNamedEntity.isLockedForParsing"/>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </template>
             <template slot="footer">
                 <button type="button" class="btn btn-outline-info" data-dismiss="modal">Закрити</button>
                 <button v-if="selectedNamedEntity.id" type="button" class="btn btn-outline-success"
-                         v-on:click="save">Зберегти</button>
+                        v-on:click="save">Зберегти
+                </button>
                 <button v-if="!selectedNamedEntity.id" type="button" class="btn btn-outline-success"
-                         v-on:click="create">Створити</button>
+                        v-on:click="create">Створити
+                </button>
             </template>
         </bootstrap-modal>
         <!--/ Edit modal -->
 
         <!-- Remove confirmation modal -->
-        <bootstrap-modal ref="removeConfirmationModal" :id="'removeConfirmationModal'" v-if="selectedNamedEntity">
+        <bootstrap-modal ref="removeConfirmationModal" :id="'removeConfirmationModal'" v-if="selectedNamedEntity"
+                         :label="'Remove Named Entity Modal'">
             <template slot="header">
                 <h4 class="mb-0">Видалення {{selectedNamedEntity.name}}</h4>
             </template>
             <template slot="body">
                 <p>Ви дійсно бажаєте видалити <b>{{selectedNamedEntity.name}}?</b></p>
-                <p>Запис буде повністю видалено із бази даних. Вулиці, що мали зв'язок до цього запису, втратять його.</p>
+                <p>Запис буде повністю видалено із бази даних. Вулиці, що мали зв'язок до цього запису, втратять
+                    його.</p>
             </template>
             <template slot="footer">
                 <button type="button" class="btn btn-outline-info" data-dismiss="modal">Ні</button>
@@ -217,7 +239,7 @@
                 }
 
                 this.selectedNamedEntity = JSON.parse(JSON.stringify(namedEntity));
-                if(!this.selectedNamedEntity.tags) {
+                if (!this.selectedNamedEntity.tags) {
                     this.selectedNamedEntity.tags = [];
                 }
 
@@ -279,12 +301,12 @@
                 });
             },
             addTag(event) {
-                if(this.selectedNamedEntity) {
+                if (this.selectedNamedEntity) {
                     this.selectedNamedEntity.tags.push({name: event.tag});
                 }
             },
             removeTag(event) {
-                if(this.selectedNamedEntity) {
+                if (this.selectedNamedEntity) {
                     const tagIndex = this.selectedNamedEntity.tags.findIndex(t => t.name === event.tag);
                     this.selectedNamedEntity.tags.splice(tagIndex, 1);
                 }
@@ -314,6 +336,7 @@
     .edited-image {
         height: 60px;
         width: 60px;
+        margin-top: 8px;
     }
 
     .search-container {
@@ -334,7 +357,6 @@
 
     button {
         margin-right: 5px;
-        margin-bottom: 5px;
     }
 
     input[type=checkbox] {

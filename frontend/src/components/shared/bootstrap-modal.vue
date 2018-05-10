@@ -1,7 +1,7 @@
 <template>
-    <div class="modal fade" v-bind:id="id" tabindex="-1" role="dialog"
-         v-bind:aria-labelledby="id + 'Label'" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade bd-example-modal-lg" v-bind:id="id" tabindex="-1" role="dialog"
+         v-bind:aria-labelledby="label" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <slot name="header"></slot>
@@ -21,7 +21,11 @@
         props: {
             id: {
                 type: String,
-                default: "exampleModal"
+                default: "bsModal"
+            },
+            label: {
+                type: String,
+                default: "Edit Modal"
             },
             destroyOnHide: {
                 type: Boolean,

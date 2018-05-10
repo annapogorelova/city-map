@@ -1,6 +1,5 @@
 <template>
     <div>
-        <label for="tags">Додайте теги. Для додання тегу спочатку введіть текстову назву і натисніть Enter:</label>
         <input type="text" id="tags" class="form-control" v-model="tagText" v-on:keyup.enter="addTag"/>
         <small class="form-text text-muted" v-if="minTagLength">Мінімальна кількість символів: {{minTagLength}}</small>
         <div class="added-tags">

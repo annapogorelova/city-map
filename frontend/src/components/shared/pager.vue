@@ -38,10 +38,6 @@
                 type: Number,
                 default: 10
             },
-            pageNumber: {
-                type: Number,
-                default: 1
-            },
             maxPages: {
                 type: Number,
                 default: 3
@@ -53,12 +49,17 @@
         },
         data: function() {
             return {
-                offset: 0,
                 currentPage: 1
             }
         },
         mounted() {
-            this.currentPage = this.pageNumber;
+            if (!isNaN(this.$route.query.page)) {
+                this.currentPage = parseInt(this.$route.query.page);
+            } else {
+                this.$router.push({query: {page: this.currentPage}});
+            }
+
+            this.$emit("init");
         },
         computed: {
             numberOfPages() {
@@ -89,24 +90,23 @@
         methods: {
             goToPage(pageIndex) {
                 this.currentPage = pageIndex;
-                this.offset = this.limit * (pageIndex - 1);
-                this.$emit("paginate", {offset: this.offset, limit: this.limit});
+                this.$emit("paginate", {offset: this.getOffset(), limit: this.limit});
+                this.$router.push({query: {page: this.currentPage}});
             },
             nextPage() {
-                this.currentPage += 1;
-                this.offset += this.limit;
-                this.$emit("paginate", {offset: this.offset, limit: this.limit});
+                this.goToPage(this.currentPage + 1);
             },
             prevPage() {
-                this.currentPage -= 1;
-                this.offset -= this.limit;
-                this.$emit("paginate", {offset: this.offset, limit: this.limit});
+                this.goToPage(this.currentPage - 1);
             },
             firstPage() {
                 this.goToPage(1);
             },
             lastPage() {
                 this.goToPage(this.numberOfPages);
+            },
+            getOffset() {
+                return (this.currentPage - 1) * this.limit;
             }
         }
     }

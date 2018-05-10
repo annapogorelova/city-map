@@ -71,8 +71,8 @@
                                ref="pager"
                                :limit="pageLimit"
                                :count="namedEntitiesCount"
-                               :pageNumber="pageNumber"
-                               v-on:paginate="getNamedEntities"></pager>
+                               v-on:paginate="getNamedEntities"
+                               v-on:init="preloadData"></pager>
                     </div>
                 </div>
             </div>
@@ -203,7 +203,6 @@
                 cityId: undefined,
                 namedEntities: [],
                 namedEntitiesCount: 0,
-                pageNumber: 1,
                 selectedNamedEntity: undefined
             }
         },
@@ -218,14 +217,10 @@
                 return this.$refs.removeConfirmationModal;
             }
         },
-        mounted: function () {
-            if (!isNaN(this.$route.query.page)) {
-                this.pageNumber = parseInt(this.$route.query.page);
-            }
-
-            this.getNamedEntities({offset: this.pager.offset, limit: this.pager.limit});
-        },
         methods: {
+            preloadData() {
+                this.getNamedEntities({offset: this.pager.getOffset(), limit: this.pager.limit});
+            },
             getNamedEntities({offset, limit, search = null}) {
                 this.namedEntitiesService.search({search: search, offset: offset, limit: limit})
                     .then(response => {

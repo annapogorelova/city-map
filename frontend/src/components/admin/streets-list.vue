@@ -61,7 +61,7 @@
                                ref="pager"
                                :limit="pageLimit"
                                :count="streetsCount"
-                               :pageNumber="pageNumber"
+                               v-on:init="preloadData"
                                v-on:paginate="getStreets"></pager>
                     </div>
                 </div>
@@ -127,7 +127,6 @@
                 cityId: undefined,
                 streets: [],
                 streetsCount: 0,
-                pageNumber: 1,
                 selectedStreet: undefined
             }
         },
@@ -144,15 +143,14 @@
                 this.cityId = parseInt(this.$route.query.cityId);
             }
 
-            if (!isNaN(this.$route.query.page)) {
-                this.pageNumber = parseInt(this.$route.query.page);
-            }
-
             if (this.cityId) {
                 this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
             }
         },
         methods: {
+            preloadData() {
+                this.getStreets({offset: this.pager.getOffset(), limit: this.pageLimit});
+            },
             getStreets({offset, limit, search = null}) {
                 this.streetsService.search({cityId: this.cityId, search: search, offset: offset, limit: limit})
                     .then(response => {

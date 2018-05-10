@@ -36,7 +36,7 @@
         methods: {
             addTag: function () {
                 if (this.isTagValid(this.tagText)) {
-                    this.tags.push(this.tagText.toLowerCase());
+                    this.tags.push(this.tagText);
                     this.$emit("tagAdded", {tag: this.tagText, tagsList: this.tags});
                     this.tagText = "";
                 }

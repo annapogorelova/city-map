@@ -253,6 +253,26 @@ describe("named entity data service test", () => {
         })();
     });
 
+    it("should not create the tag if it already exists", (done) => {
+        (async () => {
+            const namedEntity = {...testData.namedEntities[0]};
+            let createdNamedEntity = await db.namedEntity.create(namedEntity);
+
+            const tags = [{name: "князі"}, {name: "рюриковичі"}, {name: "королі"}];
+            const createdTags = await db.tag.bulkCreate(tags);
+            createdNamedEntity.dataValues.tags = createdTags.map(t => {return {id: t.id, name: t.name}});
+
+            await namedEntityService.update(createdNamedEntity.id, createdNamedEntity.dataValues);
+
+            const updatedNamedEntity = await db.namedEntity.findById(createdNamedEntity.id);
+            const updatedTags = await updatedNamedEntity.getTags();
+
+            assert.sameMembers(updatedTags.map(t => t.id), createdTags.map(t => t.id));
+
+            done();
+        })();
+    });
+
     it("should get all named entities", (done) => {
         (async () => {
             await db.namedEntity.bulkCreate(testData.namedEntities);

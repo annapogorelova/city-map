@@ -145,7 +145,10 @@ function makeNamedEntityService(db) {
             let existingTag;
 
             if(!tag.id) {
-                existingTag = await db.tag.create({name: tag.name.toLowerCase()});
+                existingTag = await db.tag.findOne({where: {name: tag.name}});
+                if(!existingTag) {
+                    existingTag = await db.tag.create({name: tag.name});
+                }
             } else {
                 existingTag = await db.tag.findById(tag.id);
             }

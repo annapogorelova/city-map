@@ -167,7 +167,7 @@
                     this.cityId = city.id;
                     const query = {cityId: this.cityId};
                     this.$router.push({query: query});
-                    this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
+                    this.pager.goToPage(1);
                 }
             },
             edit(street) {

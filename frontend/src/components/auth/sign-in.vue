@@ -22,10 +22,10 @@
     </div>
 </template>
 <script>
-    import {AuthMixin} from "../../mixins/index";
+    import {AuthMixin, NavigationMixin} from "../../mixins/index";
 
     export default {
-        mixins: [AuthMixin],
+        mixins: [AuthMixin, NavigationMixin],
         data: function () {
             return {
                 formData: {email: "", password: ""},
@@ -52,9 +52,9 @@
                         email: this.formData.email,
                         password: this.formData.password
                     }).then(() => {
-                        this.$router.push({name: "admin-streets"});
+                        this.goToPath(this.$route.query.redirect_uri);
                     }).catch((error) => {
-                        this.$dc.get("notices").error("Failed to sign in", "Please try again");
+                        this.$dc.get("notices").error("Не вдалось здійснити вхід", "Спробуйте будь ласка ще раз");
                     });
                 }
             }

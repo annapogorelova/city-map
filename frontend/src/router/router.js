@@ -19,7 +19,8 @@ router.beforeEach((to, from, next) => {
     if (to.matched.some((route) => route.meta.requiresAuth) &&
         !dc.get("auth").isAuthenticated()) {
         next({
-            name: "sign-in"
+            name: "sign-in",
+            query: {redirect_uri: to.fullPath}
         });
     } else {
         next();

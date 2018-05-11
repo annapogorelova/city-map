@@ -1,33 +1,40 @@
 <template>
-    <ul class="pagination">
-        <li class="page-item" :class="{'disabled': isFirstPage}">
-            <a class="page-link" v-on:click="firstPage" aria-label="First">
-                <span aria-hidden="true">&laquo;</span>
-                <span class="sr-only">First</span>
-            </a>
-        </li>
-        <li class="page-item" :class="{'disabled': !hasPreviousPage}">
-            <a class="page-link" v-on:click="prevPage" aria-label="Previous">
-                <span aria-hidden="true">&lsaquo;</span>
-                <span class="sr-only">Previous</span>
-            </a>
-        </li>
-        <li class="page-item" v-for="page in pages" :class="{'disabled': page === currentPage}">
-            <a class="page-link" v-on:click="goToPage(page)">{{page}}</a>
-        </li>
-        <li class="page-item" :class="{'disabled': !hasNextPage}">
-            <a class="page-link" v-on:click="nextPage" aria-label="Next">
-                <span aria-hidden="true">&rsaquo;</span>
-                <span class="sr-only">Next</span>
-            </a>
-        </li>
-        <li class="page-item" :class="{'disabled': isLastPage}">
-            <a class="page-link" v-on:click="lastPage" aria-label="Last">
-                <span aria-hidden="true">&raquo;</span>
-                <span class="sr-only">Last</span>
-            </a>
-        </li>
-    </ul>
+    <div>
+        <div v-if="showTotalPages" class="number-of-pages-title-container">
+            Сторінок: {{numberOfPages}}
+        </div>
+        <div class="d-inline-block">
+            <ul class="pagination">
+                <li class="page-item" :class="{'disabled': isFirstPage}">
+                    <a class="page-link" v-on:click="firstPage" aria-label="First">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">First</span>
+                    </a>
+                </li>
+                <li class="page-item" :class="{'disabled': !hasPreviousPage}">
+                    <a class="page-link" v-on:click="prevPage" aria-label="Previous">
+                        <span aria-hidden="true">&lsaquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item" v-for="page in pages" :class="{'disabled': page === currentPage}">
+                    <a class="page-link" v-on:click="goToPage(page)">{{page}}</a>
+                </li>
+                <li class="page-item" :class="{'disabled': !hasNextPage}">
+                    <a class="page-link" v-on:click="nextPage" aria-label="Next">
+                        <span aria-hidden="true">&rsaquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
+                <li class="page-item" :class="{'disabled': isLastPage}">
+                    <a class="page-link" v-on:click="lastPage" aria-label="Last">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Last</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </template>
 <script>
     import _ from "lodash";
@@ -45,9 +52,13 @@
             count: {
                 type: Number,
                 default: 0
+            },
+            showTotalPages: {
+                type: Boolean,
+                default: true
             }
         },
-        data: function() {
+        data: function () {
             return {
                 currentPage: 1
             }
@@ -78,7 +89,7 @@
                 return this.currentPage === this.numberOfPages;
             },
             pages() {
-                if((this.currentPage + this.maxPages) > this.numberOfPages &&
+                if ((this.currentPage + this.maxPages) > this.numberOfPages &&
                     this.numberOfPages - this.maxPages > 0) {
                     return _.range(this.numberOfPages - this.maxPages + 1, this.numberOfPages + 1);
                 }
@@ -111,3 +122,9 @@
         }
     }
 </script>
+<style>
+    .number-of-pages-title-container {
+        margin-right: 10px;
+        display: inline-block;
+    }
+</style>

@@ -7,6 +7,7 @@ import {CitiesService} from "../services/cities";
 import {NamedEntitiesService} from "../services/named-entities";
 import {NoticesService} from "../services/notices";
 import axios from "axios";
+import {optional} from "tooleks";
 
 const dc = new DependencyContainer;
 
@@ -24,7 +25,14 @@ dc.registerBinding("api", () => new ApiService(
     (error) => {
         if(error && error.code === "ECONNABORTED") {
             dc.get("notices").error("Час запиту вийшов", "Спробуйте будь ласка пізніше");
+        } else if(optional(() => error.response.status >= 400 && error.response.status < 500)) {
+            const message = optional(() => error.response.data.message,
+                "Перевірте будь ласка дані, що відправляються у запиті");
+            dc.get("notices").error("Помилка запиту", message);
+        } else if(optional(() => error.response.status >= 500)) {
+            dc.get("notices").error("Помилка сервера", "Спробуйте будь ласка пізніше");
         }
+
         return Promise.reject({error: error.message});
     }),
 {

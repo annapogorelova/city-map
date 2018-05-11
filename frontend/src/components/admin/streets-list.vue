@@ -138,14 +138,14 @@
                 return this.$refs.modal;
             }
         },
-        mounted: function () {
+        created: function () {
             if (!isNaN(this.$route.query.cityId)) {
                 this.cityId = parseInt(this.$route.query.cityId);
             }
         },
         methods: {
             preloadData() {
-                this.getStreets({cityId: this.cityId, offset: this.pager.getOffset(), limit: this.pageLimit});
+                this.getStreets({offset: this.pager.getOffset(), limit: this.pageLimit});
             },
             getStreets({offset, limit, search = null}) {
                 this.streetsService.search({cityId: this.cityId, search: search, offset: offset, limit: limit})

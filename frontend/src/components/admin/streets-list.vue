@@ -142,14 +142,10 @@
             if (!isNaN(this.$route.query.cityId)) {
                 this.cityId = parseInt(this.$route.query.cityId);
             }
-
-            if (this.cityId) {
-                this.getStreets({offset: this.pager.offset, limit: this.pager.limit});
-            }
         },
         methods: {
             preloadData() {
-                this.getStreets({offset: this.pager.getOffset(), limit: this.pageLimit});
+                this.getStreets({cityId: this.cityId, offset: this.pager.getOffset(), limit: this.pageLimit});
             },
             getStreets({offset, limit, search = null}) {
                 this.streetsService.search({cityId: this.cityId, search: search, offset: offset, limit: limit})

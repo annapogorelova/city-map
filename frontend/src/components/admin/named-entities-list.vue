@@ -188,6 +188,7 @@
     import BootstrapModal from "../shared/bootstrap-modal";
     import {NamedEntitiesServiceMixin, NoticesServiceMixin} from "../../mixins/index";
     import TagsEditingWidget from "../shared/tags-editing-widget";
+    import moment from "moment";
 
     export default {
         components: {TagsEditingWidget, Search, Pager, BootstrapModal},
@@ -289,6 +290,9 @@
             },
             create() {
                 this.namedEntitiesService.create(this.selectedNamedEntity).then(() => {
+                    this.selectedNamedEntity.createdAt = moment.utc().format('YYYY-DD-MMTHH:mm:ss.000');
+                    this.selectedNamedEntity.updatedAt = moment.utc().format('YYYY-DD-MMTHH:mm:ss.000');
+
                     this.namedEntities.splice(0, 0, this.selectedNamedEntity);
 
                     this.editModal.hide();

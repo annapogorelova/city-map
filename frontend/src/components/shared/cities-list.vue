@@ -54,7 +54,7 @@
                 return optional(() => this.selectedCity.id === city.id);
             },
             loadCities: function () {
-                this.citiesService.getCities().then(response => {
+                this.citiesService.getCities({limit: 10}).then(response => {
                     this.cities = response.data;
                     this.preselectCity();
                 });

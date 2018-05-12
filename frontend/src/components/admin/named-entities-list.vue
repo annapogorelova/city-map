@@ -42,12 +42,13 @@
                                     {{namedEntity.isLockedForParsing ? "1" : "0"}}
                                 </td>
                                 <td>
-                                    <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
+                                    <button v-if="namedEntity.id" class="btn btn-outline-success btn-sm float-right fa fa-edit"
                                             v-on:click="edit(namedEntity)">
                                     </button>
-                                    <button class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
+                                    <button v-if="namedEntity.id" class="btn btn-outline-danger btn-sm float-right fa fa-trash-alt"
                                             v-on:click="showRemoveConfirmation(namedEntity)">
                                     </button>
+                                    <span v-if="!namedEntity.id">Щойно додано</span>
                                 </td>
                             </tr>
                             <tr v-if="!namedEntities.length">

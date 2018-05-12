@@ -3,7 +3,7 @@ export default class CitiesService {
         this.apiService = apiService;
     }
 
-    getCities() {
-        return this.apiService.get("/cities");
+    getCities(params) {
+        return this.apiService.get("/cities", params);
     }
 }

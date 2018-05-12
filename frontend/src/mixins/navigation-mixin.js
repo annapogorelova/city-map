@@ -17,4 +17,4 @@ export default {
             this.$router.push({name: "404"});
         },
     },
-}
+};

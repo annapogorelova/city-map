@@ -1,4 +1,4 @@
-import {DependencyContainer, EventEmitter} from "tooleks";
+import {optional, DependencyContainer, EventEmitter} from "tooleks";
 import {ApiService} from "../services/api";
 import {LocalStorageService} from "../services/local-storage";
 import {AuthService} from "../services/auth";
@@ -7,12 +7,13 @@ import {CitiesService} from "../services/cities";
 import {NamedEntitiesService} from "../services/named-entities";
 import {NoticesService} from "../services/notices";
 import axios from "axios";
-import {optional} from "tooleks";
 import AppConfig from "../app.config";
 
 const dc = new DependencyContainer;
 
 dc.registerInstance("dc", dc);
+
+dc.registerInstance("eventBus", new EventEmitter());
 
 dc.registerBinding("api", () => new ApiService(
     axios,

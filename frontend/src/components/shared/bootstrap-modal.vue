@@ -40,9 +40,13 @@
                     $(`#${this.id}`).modal('dispose');
                 }
             });
+
+            this.$dc.get("eventBus").on("sign-out", () => {
+                this.destroy();
+            });
         },
         beforeDestroy: function () {
-            $(`#${this.id}`).modal('dispose');
+            this.destroy();
         },
         methods: {
             show: function() {
@@ -50,6 +54,13 @@
             },
             hide: function() {
                 $(`#${this.id}`).modal('hide');
+            },
+            destroy() {
+                $(`#${this.id}`).modal('hide');
+                this.$emit("modalHidden")
+                $(`#${this.id}`).modal('dispose');
+                $('body').removeClass('modal-open');
+                $('.modal-backdrop').remove();
             }
         }
     }

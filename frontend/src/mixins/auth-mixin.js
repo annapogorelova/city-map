@@ -15,8 +15,9 @@ export default {
 
         setInterval(() => {
             if(this.$route.meta.requiresAuth && !this.$dc.get("auth").isAuthenticated()) {
-                this.$emit("sign-out");
+                this.$dc.get("eventBus").emit("sign-out");
                 this.goToSignInPage();
+                this.$dc.get("notices").info("Час сесії минув", "Увійдіть будь ласка знову.")
             }
         }, 5000);
     },

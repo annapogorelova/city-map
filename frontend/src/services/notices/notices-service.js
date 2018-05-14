@@ -30,6 +30,15 @@ export default class NoticesService {
         });
     }
 
+    info(title, text) {
+        this.eventEmitter.emit("notice", {
+            title: title,
+            text: text,
+            type: "info",
+            createdAt: Date.now()
+        });
+    }
+
     onNotice(callback) {
         this.eventEmitter.on("notice", callback);
     }

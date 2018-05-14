@@ -24,12 +24,13 @@ describe("streets route", () => {
     it("should return 1 street", (done) => {
         (async () => {
             const createdCity = await db.city.create(testCity);
+
             const testNamedEntity = Object.assign({}, testData.namedEntities.filter(e => e.tags.length)[0]);
             const namedEntity = await db.namedEntity.create(testNamedEntity);
-            const tags = await db.tag.bulkCreate(testNamedEntity.tags.map(tag => {
-                return {name: tag}
-            }));
+
+            const tags = await db.tag.bulkCreate(testNamedEntity.tags);
             await namedEntity.setTags(tags);
+
             const testStreet = testData.streets[0];
             const street = await testUtils.createStreet({
                 namedEntityId: namedEntity.id,
@@ -119,13 +120,12 @@ describe("streets route", () => {
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
-                .query({coordinates: testCoordinates})
+                .query({cityId: createdCity.id, coordinates: testCoordinates})
                 .end((err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
-                    assert.exists(res.body.data);
-                    assert.equal(res.body.data.length, 1);
 
-                    const foundStreet = res.body.data[0];
+                    const foundStreet = res.body.data;
+                    assert.exists(foundStreet);
                     assert.equal(foundStreet.name, closestStreet.name);
                     assert.equal(foundStreet.ways.length, mappedWays.length);
                     done();
@@ -148,11 +148,10 @@ describe("streets route", () => {
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
-                .query({coordinates: testCoordinates})
+                .query({cityId: createdCity.id, coordinates: testCoordinates})
                 .end((err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
-                    assert.exists(res.body.data);
-                    assert.equal(res.body.data.length, 0);
+                    assert.notExists(res.body.data);
                     done();
                 });
         })();

@@ -67,25 +67,48 @@ function makeStreetService(db) {
         });
     }
 
-    async function searchByCoordinates(coordinates, threshold = 0.0002, limit = 1) {
+    async function searchByCoordinates(cityId, coordinates, threshold = 0.0003) {
+        if(isNaN(cityId)) {
+            throw new Error(errors.BAD_REQUEST.key);
+        }
+
         const location = db.sequelize.fn("ST_GeomFromText",
             db.sequelize.literal(`'POINT(${coordinates[0]} ${coordinates[1]})'`), 4326);
-        const asText = db.sequelize.fn("ST_AsText", db.sequelize.literal("coordinates"));
-        const geomFromText = db.sequelize.fn("ST_GeomFromText", asText, 4326);
-        const buffer = db.sequelize.fn("ST_Buffer", geomFromText, threshold);
-        const stWithin = db.sequelize.fn("ST_Within", location, buffer);
 
-        const ways = await db.way.findAll({
-            where: db.sequelize.where(stWithin, 1),
-            limit: limit
+        const query = `
+            SELECT street.id     
+            FROM way
+	        inner join street on way.streetId = street.id
+
+            WHERE street.cityId = :cityId and
+                ST_Within(ST_GeomFromText(${location.args[0].val}, 4326),
+	            ST_Buffer(ST_GeomFromText(ST_AsText(way.coordinates), 4326), :threshold)) = 1
+	            group by street.id, way.id;`;
+
+        const options = {
+            type: db.sequelize.QueryTypes.SELECT,
+            replacements: {
+                cityId: cityId,
+                threshold: threshold
+            }
+        };
+        return db.sequelize.query(query, options).then(data => {
+            if(!data.length) {
+                return null;
+            }
+
+            return db.street.findOne({
+                where: {id: data[0].id},
+                include: [{
+                    model: db.way
+                }, {
+                    model: db.namedEntity,
+                    include: [{
+                        model: db.tag
+                    }]
+                }]
+            });
         });
-
-        return optional(() => ways[0].getStreets({
-            include: [
-                {model: db.namedEntity, include: [{model: db.tag}]},
-                {model: db.way}
-            ]
-        }), []);
     }
 
     async function search(search, cityId = null, offset = 0, limit = 5) {
@@ -133,10 +156,10 @@ function makeStreetService(db) {
         const createdStreet = await db.street.create(street);
         if (ways && ways.length) {
             const wayModels = ways.map(w => {
-                return {coordinates: w};
+                return {streetId: createdStreet.id, coordinates: w};
             });
-            const createdWays = await db.way.bulkCreate(wayModels);
-            await createdStreet.setWays(createdWays);
+
+            await db.way.bulkCreate(wayModels);
         }
 
         return createdStreet;

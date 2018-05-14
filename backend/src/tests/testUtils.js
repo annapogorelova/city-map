@@ -17,7 +17,6 @@ module.exports = {
     async cleanDB() {
         return Promise.all([
             await db.user.destroy({where: {}, truncate: false}),
-            await db.streetWay.destroy({where: {}, truncate: false}),
             await db.way.destroy({where: {}, truncate: false}),
             await db.street.destroy({where: {}, truncate: false}),
             await db.tag.destroy({where: {}, truncate: false}),
@@ -46,8 +45,9 @@ module.exports = {
         const {ways, ...street} = testStreet;
         const createdStreet = await db.street.create({cityId, ...street});
         if(ways) {
-            const createdWays = await db.way.bulkCreate(ways.map(w => { return {coordinates: w}}));
-            await createdStreet.setWays(createdWays);
+            await db.way.bulkCreate(ways.map(w => {
+                return {streetId: createdStreet.id, coordinates: w}
+            }));
         }
         return createdStreet;
     },

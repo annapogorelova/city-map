@@ -41,7 +41,7 @@ describe("named entity data service test", () => {
             assert.equal(createdNamedEntity.imageUrl, namedEntity.imageUrl);
             assert.equal(createdNamedEntity.wikiUrl, namedEntity.wikiUrl);
             assert.exists(createdNamedEntity.tags);
-            assert.sameMembers(namedEntity.tags, createdNamedEntity.tags.map(tag => tag.name));
+            assert.sameMembers(namedEntity.tags.map(t => t.name), createdNamedEntity.tags.map(tag => tag.name));
 
             done();
         })();
@@ -50,9 +50,7 @@ describe("named entity data service test", () => {
     it("should bind the created named entity to the existing tags", (done) => {
         (async () => {
             const namedEntity = testData.namedEntities.filter(n => n.tags.length > 0)[0];
-            const createdTags = await db.tag.bulkCreate(namedEntity.tags.map(tag => {
-                return {name: tag}
-            }));
+            const createdTags = await db.tag.bulkCreate(namedEntity.tags);
 
             await namedEntityService.create(namedEntity);
             const createdNamedEntity = await namedEntityService.getByName(namedEntity.name);

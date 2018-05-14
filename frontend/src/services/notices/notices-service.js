@@ -12,6 +12,15 @@ export default class NoticesService {
         });
     }
 
+    warning(title, text) {
+        this.eventEmitter.emit("notice", {
+            title: title,
+            text: text,
+            type: "warning",
+            createdAt: Date.now()
+        });
+    }
+
     success(title, text) {
         this.eventEmitter.emit("notice", {
             title: title,

@@ -16,8 +16,7 @@ let router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.matched.some((route) => route.meta.requiresAuth) &&
-        !dc.get("auth").isAuthenticated()) {
+    if (to.matched.some((route) => route.meta.requiresAuth) && !dc.get("auth").isAuthenticated()) {
         next({
             name: "sign-in",
             query: {redirect_uri: to.fullPath}

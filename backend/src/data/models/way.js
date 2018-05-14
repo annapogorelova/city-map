@@ -6,6 +6,10 @@ module.exports = function (sequelize, DataTypes) {
             primaryKey: true,
             autoIncrement: true
         },
+        streetId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
         coordinates: {
             type: DataTypes.GEOMETRY("LINESTRING"),
             allowNull: false,

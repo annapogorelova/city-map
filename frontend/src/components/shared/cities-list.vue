@@ -23,12 +23,17 @@
 <script>
     import {optional} from "tooleks";
     import {CitiesServiceMixin} from "../../mixins/index";
+    import AppConfig from "../../app.config";
 
     export default {
         props: {
             selectedCityId: {
                 type: Number,
                 default: undefined
+            },
+            preselectDefault: {
+                type: Boolean,
+                default: false
             }
         },
         mixins: [CitiesServiceMixin],
@@ -60,7 +65,12 @@
                 });
             },
             preselectCity: function () {
-                if(this.selectedCityId) {
+                if(!this.selectedCityId && this.preselectDefault) {
+                    const defaultCity = optional(() =>
+                        this.cities.find(c => c.name === AppConfig.defaultCityName), this.cities[0]);
+                    this.selectedCityId = defaultCity.id;
+                    this.selectCity(defaultCity);
+                } else {
                     const city = this.cities.filter(c => c.id === this.selectedCityId)[0];
                     this.selectCity(city);
                 }

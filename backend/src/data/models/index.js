@@ -35,14 +35,13 @@ db.namedEntity = require("./namedEntity")(sequelize, Sequelize);
 db.tag = require("./tag")(sequelize, Sequelize);
 db.tagNamedEntity = require("./tagNamedEntity")(sequelize, Sequelize);
 db.way = require("./way")(sequelize, Sequelize);
-db.streetWay = require("./streetWay")(sequelize, Sequelize);
 
 db.street.belongsTo(db.city, {foreignKey: "cityId"});
 db.street.belongsTo(db.namedEntity, {foreignKey: "namedEntityId"});
 db.namedEntity.hasMany(db.street);
 
-db.way.belongsToMany(db.street, {through: db.streetWay});
-db.street.belongsToMany(db.way, {through: db.streetWay});
+db.way.belongsTo(db.street, {foreignKey: "streetId"});
+db.street.hasMany(db.way);
 
 db.namedEntity.belongsToMany(db.tag,  {through: db.tagNamedEntity});
 db.tag.belongsToMany(db.namedEntity,  {through: db.tagNamedEntity});

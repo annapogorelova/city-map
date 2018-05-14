@@ -21,10 +21,15 @@ function makeStreetsController(streetService, mapper) {
     }
 
     async function searchStreetsByCoordinates(req, res) {
+        const cityId = parseInt(req.query.cityId);
         const coordinates = req.query.coordinates;
-        const streets = await streetService.searchByCoordinates(coordinates);
-        const models = mapper.map(streets, "app.street.list", "api.v1.street.list");
-        return res.json({data: models});
+        const street = await streetService.searchByCoordinates(cityId, coordinates);
+        if(street) {
+            const model = mapper.map(street, "app.street", "api.v1.street");
+            return res.json({data: model});
+        }
+
+        return res.json({data: null});
     }
 
     async function update(req, res, next) {

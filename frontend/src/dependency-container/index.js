@@ -8,6 +8,7 @@ import {NamedEntitiesService} from "../services/named-entities";
 import {NoticesService} from "../services/notices";
 import axios from "axios";
 import {optional} from "tooleks";
+import AppConfig from "../app.config";
 
 const dc = new DependencyContainer;
 
@@ -15,7 +16,8 @@ dc.registerInstance("dc", dc);
 
 dc.registerBinding("api", () => new ApiService(
     axios,
-    process.env.API_URL,
+    AppConfig.apiUrl,
+    AppConfig.requestTimeout,
     (response) => {
         return Promise.resolve({
             data: response.data.data,

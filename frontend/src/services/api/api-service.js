@@ -1,7 +1,8 @@
 export default class ApiService {
-    constructor(httpClient, apiUrl, dataHandler, errorHandler) {
+    constructor(httpClient, apiUrl, requestTimeout, dataHandler, errorHandler) {
         this.httpClient = httpClient;
         this.apiUrl = apiUrl;
+        this.requestTimeout = requestTimeout;
         this.dataHandler = dataHandler;
         this.errorHandler = errorHandler;
     }
@@ -9,7 +10,7 @@ export default class ApiService {
     get(url, params) {
         return this.httpClient.get(this.getFullUrl(url), {
             params: params,
-            timeout: process.env.REQUEST_TIMEOUT,
+            timeout: this.requestTimeout,
             withCredentials: true
         }).then(this.dataHandler).catch(this.errorHandler);
     }
@@ -17,21 +18,21 @@ export default class ApiService {
     post(url, data) {
         return this.httpClient.post(this.getFullUrl(url), data, {
             withCredentials: true,
-            timeout: process.env.REQUEST_TIMEOUT,
+            timeout: this.requestTimeout,
         }).then(this.dataHandler).catch(this.errorHandler);
     }
 
     put(url, data) {
         return this.httpClient.put(this.getFullUrl(url), data, {
             withCredentials: true,
-            timeout: process.env.REQUEST_TIMEOUT,
+            timeout: this.requestTimeout,
         }).then(this.dataHandler).catch(this.errorHandler);
     }
 
     delete(url) {
         return this.httpClient.delete(this.getFullUrl(url), {
             withCredentials: true,
-            timeout: process.env.REQUEST_TIMEOUT,
+            timeout: this.requestTimeout,
         }).then(this.dataHandler).catch(this.errorHandler);
     }
 

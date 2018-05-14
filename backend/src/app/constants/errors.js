@@ -13,5 +13,10 @@ module.exports = {
         status: statusCodes.BAD_REQUEST,
         message: "Entity already exists"
     },
+    BAD_REQUEST: {
+        key: "BAD_REQUEST",
+        status: statusCodes.BAD_REQUEST,
+        message: "Invalid parameters"
+    },
     defaultErrorMessage: "Something went wrong"
 };

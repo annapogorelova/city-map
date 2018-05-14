@@ -176,7 +176,7 @@ describe("named entities route test", () => {
                 "put");
 
             request
-                .send(createdNamedEntity)
+                .send(createdNamedEntity.dataValues)
                 .end(async (err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
 
@@ -277,7 +277,7 @@ describe("named entities route test", () => {
                 "post");
 
             request
-                .send(createdNamedEntity)
+                .send(createdNamedEntity.dataValues)
                 .end(async (err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.BAD_REQUEST);
                     assert.equal(res.body.message, errors.ALREADY_EXISTS.message);

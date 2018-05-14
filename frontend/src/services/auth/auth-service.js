@@ -42,7 +42,10 @@ export default class AuthService {
     }
 
     isAuthenticated() {
-        return this.localStorageService.exists(this.key);
+        const user = this.getUser();
+        return this.localStorageService.exists(this.key) &&
+            this.isUserValid(user) &&
+            !this.isAuthExpired(user);
     }
 
     isUserValid(user) {

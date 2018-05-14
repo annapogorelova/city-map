@@ -3,8 +3,10 @@
         <div class="col-12">
             <div class="row">
                 <div class="col-12">
-                    <cities-list ref="cities" v-on:citySelected="onCitySelected"
-                                 v-bind:selected-city-id="cityId"></cities-list>
+                    <cities-list ref="cities"
+                                 v-on:citySelected="onCitySelected"
+                                 v-bind:selected-city-id="cityId"
+                                 v-bind:preselect-default="true"></cities-list>
                 </div>
             </div>
             <div class="row searchbox">
@@ -106,8 +108,11 @@
         },
         methods: {
             findClosestStreet: function (coordinates) {
-                return this.streetsService.getStreetByCoordinates(coordinates).then(response => {
-                    return optional(() => response.data[0], null);
+                return this.streetsService.getStreetByCoordinates({
+                    cityId: this.cityId,
+                    coordinates: coordinates
+                }).then(response => {
+                    return optional(() => response.data, null);
                 });
             },
             setMarker(coordinates) {
@@ -170,10 +175,12 @@
             },
             onCitySelected(city) {
                 if (city && city.id !== this.cityId) {
+                    this.cityId = city.id;
                     this.selectedStreet = null;
-                    this.clearMap();
                     const query = {cityId: city.id};
                     this.$router.push({query: query});
+
+                    this.clearMap();
                     this.$refs.map.setCenter(city.coordinates[0], city.coordinates[1], this.zoom);
                 }
             },

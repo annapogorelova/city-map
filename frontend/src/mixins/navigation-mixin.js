@@ -10,8 +10,8 @@ export default {
         goToHomePage: function () {
             this.$router.push({name: "map"});
         },
-        goToSignInPage: function () {
-            this.$router.push({name: "sign-in"});
+        goToSignInPage: function (query) {
+            this.$router.push({name: "sign-in", query: query});
         },
         goToNotFoundPage: function () {
             this.$router.push({name: "404"});

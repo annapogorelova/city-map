@@ -17,7 +17,7 @@ export default {
             if(this.$route.meta.requiresAuth && !this.$dc.get("auth").isAuthenticated()) {
                 this.$dc.get("eventBus").emit("sign-out");
                 this.goToSignInPage({redirect_uri: this.$route.fullPath});
-                this.$dc.get("notices").info("Час сесії минув", "Увійдіть будь ласка знову.")
+                this.$dc.get("notices").info("Час сесії минув", "Увійдіть будь ласка знову.");
             }
         }, 5000);
     },

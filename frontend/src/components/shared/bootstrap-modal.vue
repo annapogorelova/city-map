@@ -65,3 +65,14 @@
         }
     }
 </script>
+<style>
+    .modal {
+        padding-right: 0 !important;
+        overflow: auto !important;
+    }
+
+    .modal-open {
+        padding-right: 0 !important;
+        overflow: auto !important;
+    }
+</style>

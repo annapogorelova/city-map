@@ -51,7 +51,9 @@ module.exports = {
     },
 
     cleanText(text) {
-        return text.replace(constants.clearSpecialSymbolsRegex, "")
+        return text
+            .trim()
+            .replace(constants.clearSpecialSymbolsRegex, "")
             .replace("Lib\n", "")
             .replace("Lib", "")
             .replace("Примітки", "")

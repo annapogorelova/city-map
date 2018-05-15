@@ -8,13 +8,28 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const config = require("config");
 const errorHandler = require("./http/middleware/errorHandler");
+const fs = require("fs");
+const rfs = require("rotating-file-stream");
 
 const routes = dc.get("Router");
 const app = express();
 
+if(process.env.NODE_ENV === "production") {
+    const logDirectory = path.join(__dirname, "../log");
+    fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
+
+    const logStream = rfs(config.get("logFileName"), {
+        interval: '1d',
+        path: logDirectory
+    });
+
+    app.use(logger("combined", {stream: logStream}))
+} else {
+    app.use(logger("dev"));
+}
+
 app.use(cookieParser());
 app.use(helmet());
-app.use(logger("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, "public")));

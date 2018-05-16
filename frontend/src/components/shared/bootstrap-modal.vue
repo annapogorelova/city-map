@@ -66,6 +66,10 @@
     }
 </script>
 <style>
+    body {
+        padding-right: 0 !important;
+    }
+
     .modal {
         padding-right: 0 !important;
         overflow: auto !important;

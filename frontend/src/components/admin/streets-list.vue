@@ -87,6 +87,10 @@
                         <label for="street-wiki-url" class="col-form-label">Url сторінки на Wiki:</label>
                         <input type="text" class="form-control" id="street-wiki-url"
                                v-model="selectedStreet.wikiUrl">
+                        <a class="street-wiki-link" v-if="selectedStreet.wikiUrl" target="_blank"
+                           :href="selectedStreet.wikiUrl">
+                            {{selectedStreet.name}} на Wiki
+                        </a>
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Названо на честь:</label>
@@ -232,5 +236,10 @@
 
     .pager-container {
         float: right;
+    }
+
+    a.street-wiki-link {
+        margin-top: 8px;
+        display: block;
     }
 </style>

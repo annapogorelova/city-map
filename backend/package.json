@@ -9,7 +9,8 @@
     "parse-city-test": "export NODE_ENV=test && node ./src/lib/scripts/cityParser.js",
     "update-named-entities-dev": "export NODE_ENV=dev && node ./src/lib/scripts/namedEntitiesUpdater.js",
     "update-named-entities-test": "export NODE_ENV=test && node ./src/lib/scripts/namedEntitiesUpdater.js",
-    "lint": "./node_modules/.bin/eslint --fix ./src"
+    "lint": "./node_modules/.bin/eslint --fix ./src",
+    "debug": "node --nolazy --inspect=56745 ./bin/www"
   },
   "nyc": {
     "exclude": [
@@ -26,6 +27,7 @@
     "dotenv": "^5.0.0",
     "event-stream": "^3.3.4",
     "express": "^4.16.3",
+    "file-stream-rotator": "^0.2.1",
     "helmet": "^3.12.0",
     "jsonwebtoken": "^8.2.1",
     "morgan": "~1.9.0",

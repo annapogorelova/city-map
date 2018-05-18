@@ -18,12 +18,12 @@ if(process.env.NODE_ENV === "production") {
     const logDirectory = path.join(__dirname, "../log");
     fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
-    const logStream = rfs(config.get("logFileName"), {
-        interval: '1d',
+    let stream = rfs('access.log', {
+        interval: '1d', // rotate daily
         path: logDirectory
     });
 
-    app.use(logger("combined", {stream: logStream}))
+    app.use(logger("combined", {stream: stream}));
 } else {
     app.use(logger("dev"));
 }

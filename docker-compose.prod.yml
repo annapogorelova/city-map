@@ -1,0 +1,43 @@
+version: '3.3'
+
+services:
+  cm-backend.docker:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    image: cm-backend-node
+    container_name: cm-backend
+    restart: always
+    ports:
+      - 3001:3000
+    env_file:
+      - backend/.env
+    environment:
+      - NODE_ENV=production
+
+  cm-frontend.docker:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    image: cm-frontend-node
+    container_name: cm-frontend
+    restart: always
+    ports:
+      - 8082:82
+    env_file:
+      - frontend/.env
+    environment:
+      - NODE_ENV=production
+
+  cm-mysql.docker:
+    image: mysql:5.7
+    container_name: cm-mysql
+    restart: always
+    env_file:
+      - backend/.env
+    ports:
+      - 3307:3306
+    volumes:
+      - ./docker/storage/mysql/var/lib/mysql/:/var/lib/mysql/
+      - ./docker/config/mysql/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
+      - ./docker/config/mysql/my.cnf:/etc/mysql/my.cnf

@@ -70,8 +70,10 @@ module.exports = {
             }
         ];
 
-        for (let way of ways) {
-            await db.way.create(way);
+        const streets = await db.street.findAll({limit: ways.length});
+
+        for (let i = 0; i < ways.length; i++) {
+            await db.way.create({streetId: streets[0].id, ...ways[i]});
         }
     },
 

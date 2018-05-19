@@ -226,9 +226,10 @@ describe("named entities route test", () => {
             const city = Object.assign({}, testData.cities[0]);
             const createdCity = await db.city.create(city);
 
-            const street = Object.assign({cityId: createdCity.id, namedEntityId: createdNamedEntity.id},
-                testData.streets[0]);
+            const street = Object.assign({cityId: createdCity.id}, testData.streets[0]);
             const createdStreet = await db.street.create(street);
+
+            await createdStreet.addNamedEntity(createdNamedEntity);
 
             const authResponse = await testUtils.prepareAuthRequest(server);
             const requestUrl = testUtils.getApiUrl(`${httpConstants.apiRoutes.NAMED_ENTITIES}/${createdNamedEntity.id}`);
@@ -244,8 +245,8 @@ describe("named entities route test", () => {
                     const namedEntity = await db.namedEntity.findById(createdNamedEntity.id);
                     assert.notExists(namedEntity);
 
-                    const street = await db.street.findById(createdStreet.id);
-                    assert.isNull(street.namedEntityId);
+                    const streetNamedEntity = await db.streetNamedEntity.findOne({namedEntityId: createdNamedEntity.id});
+                    assert.notExists(streetNamedEntity);
 
                     done();
                 });

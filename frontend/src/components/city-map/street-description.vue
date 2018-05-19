@@ -2,23 +2,25 @@
     <div class="description-container">
         <h5><b>Назва:</b> {{street.name}}</h5>
         <h5 v-if="street.oldName"><b>Стара назва:</b> {{street.oldName}}</h5>
-        <div v-if="street.namedEntity" class="mt-10">
-            <h5><b>Названа на честь:</b> {{street.namedEntity.name}}</h5>
-            <div v-if="street.namedEntity.tags">
-                <h5 class="tag-container" v-for="tag in street.namedEntity.tags">
-                    <span class="badge badge-dark">{{tag.name}}</span>
-                </h5>
+        <div v-if="street.namedEntities.length" class="mt-10">
+            <h5><b>Названа на честь:</b> {{street.namedEntities.map(n => n.name).join(', ')}}</h5>
+            <div v-for="namedEntity in street.namedEntities">
+                <div v-if="namedEntity.tags">
+                    <h5 class="tag-container" v-for="tag in namedEntity.tags">
+                        <span class="badge badge-dark">{{tag.name}}</span>
+                    </h5>
+                </div>
+                <p class="description">{{namedEntity.description}}</p>
             </div>
-            <p class="description">{{street.namedEntity.description}}</p>
         </div>
-        <div class="links-container" v-if="street.wikiUrl || (street.namedEntity && street.namedEntity.wikiUrl)">
+        <div class="links-container" v-if="street.wikiUrl || street.namedEntities.length">
             <h5>Посилання (Wikipedia)</h5>
             <a v-if="street.wikiUrl" class="btn btn-light" v-bind:href="street.wikiUrl" target="_blank">
                 {{street.name}}
             </a>
-            <a v-if="street.namedEntity && street.namedEntity.wikiUrl"
-               class="btn btn-light" v-bind:href="street.namedEntity.wikiUrl" target="_blank">
-                {{street.namedEntity.name}}
+            <a v-for="namedEntity in street.namedEntities"
+               class="btn btn-light" v-bind:href="namedEntity.wikiUrl" target="_blank">
+                {{namedEntity.name}}
             </a>
         </div>
     </div>

@@ -27,11 +27,12 @@
                             <tr v-for="street in streets">
                                 <td>
                                     <div class="street-image"
-                                         v-if="street.namedEntity"
+                                         v-for="namedEntity in street.namedEntities"
+                                         v-if="street.namedEntities.length"
                                          :style="{
-                                                    'background-image': 'url(' + street.namedEntity.imageUrl + ')',
+                                                    'background-image': 'url(' + namedEntity.imageUrl + ')',
                                                     'background-color': 'lightgrey'}"></div>
-                                    <div class="street-image" v-if="!street.namedEntity"></div>
+                                    <div class="street-image" v-if="!street.namedEntities.length"></div>
                                 </td>
                                 <td>{{street.name}}</td>
                                 <td>{{street.namedEntity ? street.namedEntity.name : ""}}</td>
@@ -94,10 +95,19 @@
                     </div>
                     <div class="form-group">
                         <label class="col-form-label">Названо на честь:</label>
-                        <autocomplete v-bind:initial-value="selectedStreet.namedEntity"
-                                      v-bind:apiUrl="'/namedEntities'"
-                                      v-on:selected="setNamedEntity"
-                                      v-on:deselected="unsetNamedEntity"></autocomplete>
+                        <autocomplete v-bind:apiUrl="'/namedEntities'"
+                                      v-bind:clear-after-select="true"
+                                      v-on:selected="addNamedEntity"></autocomplete>
+                        <div class="added-named-entity-container" v-for="namedEntity in selectedStreet.namedEntities">
+                            <div class="street-image named-entity-image"
+                                 :style="{'background-image': 'url(' + namedEntity.imageUrl + ')',
+                                          'background-color': 'lightgrey'}"></div>
+                            <span class="named-entity-name">{{namedEntity.name}}</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger float-right" title="Видалити"
+                                    v-on:click="removeNamedEntity(namedEntity)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </template>
@@ -116,6 +126,7 @@
     import BootstrapModal from "../shared/bootstrap-modal";
     import {StreetsServiceMixin, NoticesServiceMixin} from "../../mixins/index";
     import Autocomplete from "../shared/autocomplete";
+    import {optional} from "tooleks";
 
     export default {
         components: {Autocomplete, Search, CitiesList, Pager, BootstrapModal},
@@ -193,17 +204,22 @@
                     });
                 });
             },
-            setNamedEntity(namedEntity) {
-                if(this.selectedStreet) {
-                    this.selectedStreet.namedEntityId = namedEntity.id;
-                    this.selectedStreet.namedEntity = namedEntity;
+            addNamedEntity(namedEntity) {
+                if(this.selectedStreet && !this.hasNamedEntity(namedEntity)) {
+                    if(!optional(() => this.selectedStreet.namedEntities.length)) {
+                        this.selectedStreet.namedEntities = [];
+                    }
+
+                    this.selectedStreet.namedEntities.push(namedEntity);
                 }
             },
-            unsetNamedEntity() {
+            removeNamedEntity(namedEntity) {
                 if(this.selectedStreet) {
-                    this.selectedStreet.namedEntityId = null;
-                    this.selectedStreet.namedEntity = undefined;
+                    this.selectedStreet.namedEntities = this.selectedStreet.namedEntities.filter(ne => ne.id !== namedEntity.id);
                 }
+            },
+            hasNamedEntity(namedEntity) {
+                return optional(() => this.selectedStreet.namedEntities.some(n => n.id === namedEntity.id));
             }
         }
     }
@@ -224,6 +240,8 @@
         border-radius: 200%;
         background-position: center;
         background-size: contain;
+        display: inline-block;
+        margin-right: 5px;
     }
 
     .search-container {
@@ -241,5 +259,13 @@
     a.street-wiki-link {
         margin-top: 8px;
         display: block;
+    }
+
+    .added-named-entity-container {
+        padding-top: 10px;
+    }
+
+    .named-entity-image, .named-entity-name {
+        vertical-align: middle;
     }
 </style>

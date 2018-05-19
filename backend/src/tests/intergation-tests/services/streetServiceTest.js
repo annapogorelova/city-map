@@ -36,15 +36,18 @@ describe("street data service test", () => {
             const createdCity = await db.city.create(testCity);
             const {ways, ...street} = testData.streets[0];
             const testStreet = Object.assign({cityId: createdCity.id}, street);
-            const createdStreet = await streetService.create(testStreet, ways);
+            const createdStreet = await streetService.create({street: testStreet, ways: ways});
+
             assert(createdStreet);
             assert.equal(createdStreet.name, testStreet.name);
             assert.equal(createdStreet.description, testStreet.description);
             assert.equal(createdStreet.cityId, testStreet.cityId);
+
             const streetWays = await createdStreet.getWays();
             ways.map((w, i) => {
                 assert.deepEqual(w, streetWays[i].coordinates);
             });
+
             done();
         })();
     });
@@ -55,7 +58,7 @@ describe("street data service test", () => {
             const existingStreet = await testUtils.createStreet(testData.streets[0], createdCity.id);
 
             try {
-                await streetService.create(existingStreet.dataValues, []);
+                await streetService.create({street: existingStreet.dataValues, ways: []});
             } catch (error) {
                 assert.exists(error);
                 assert.equal(error.message, errors.ALREADY_EXISTS.key);
@@ -140,7 +143,7 @@ describe("street data service test", () => {
             await db.street.create(testStreet);
 
             try {
-                await streetService.create(testStreet, ways);
+                await streetService.create({street: testStreet, ways: ways});
             } catch (error) {
                 assert.exists(error);
                 assert.equal(error.message, errors.ALREADY_EXISTS.key);
@@ -188,14 +191,20 @@ describe("street data service test", () => {
             const newNamedEntity = await db.namedEntity.create(testData.namedEntities[1]);
 
             const {ways, ...street} = testData.streets[0];
-            const testStreet = Object.assign({cityId: city.id, namedEntityId: oldNamedEntity.id}, street);
-            let createdStreet = await db.street.create(testStreet).then(entity => optional(() => entity.get({plain: true})));
-            createdStreet.namedEntityId = newNamedEntity.id;
+            const testStreet = Object.assign({cityId: city.id}, street);
+            let createdStreet = await db.street.create(testStreet);
+            await createdStreet.addNamedEntity(oldNamedEntity);
 
-            await streetService.update(createdStreet.id, createdStreet);
+            await streetService.update(createdStreet.id, {
+                street: createdStreet.dataValues,
+                namedEntities: [newNamedEntity]
+            });
 
             const updatedStreet = await db.street.findById(createdStreet.id);
-            assert.equal(newNamedEntity.id, updatedStreet.namedEntityId);
+            const streetNamedEntities = await updatedStreet.getNamedEntities();
+
+            assert.equal(streetNamedEntities.length, 1);
+            assert.equal(streetNamedEntities[0].id, newNamedEntity.id);
 
             done();
         })();
@@ -204,64 +213,185 @@ describe("street data service test", () => {
     it("should set new named entity for the street, that does not have the named entity", (done) => {
         (async () => {
             const city = await db.city.create(testCity);
-            const oldNamedEntity = await db.namedEntity.create(testData.namedEntities[0]);
-            const newNamedEntity = await db.namedEntity.create(testData.namedEntities[1]);
+            const namedEntity = await db.namedEntity.create(testData.namedEntities[1]);
 
             const {ways, ...street} = testData.streets[0];
-            const testStreet = Object.assign({cityId: city.id, namedEntityId: oldNamedEntity.id}, street);
-            let createdStreet = await db.street.create(testStreet).then(entity => optional(() => entity.get({plain: true})));
-            createdStreet.namedEntityId = newNamedEntity.id;
+            const testStreet = Object.assign({cityId: city.id}, street);
+            let createdStreet = await db.street.create(testStreet);
 
-            await streetService.update(createdStreet.id, createdStreet);
+            await streetService.update(createdStreet.id, {street: createdStreet, namedEntities: [namedEntity]});
 
             const updatedStreet = await db.street.findById(createdStreet.id);
-            assert.equal(newNamedEntity.id, updatedStreet.namedEntityId);
+            const streetNamedEntities = await updatedStreet.getNamedEntities();
+
+            assert.equal(streetNamedEntities.length, 1);
+            assert.equal(streetNamedEntities[0].id, namedEntity.id);
 
             done();
         })();
     });
-
-    it("should remove the named entity completely if there are no more streets, depending on it", (done) => {
-        (async () => {
-            const city = await db.city.create(testCity);
-            const namedEntity = await db.namedEntity.create(testData.namedEntities[0]);
-            const {ways, ...street} = testData.streets[0];
-            const testStreet = Object.assign({cityId: city.id, namedEntityId: namedEntity.id}, street);
-            let createdStreet = await db.street.create(testStreet).then(entity => optional(() => entity.get({plain: true})));
-            createdStreet.namedEntityId = undefined;
-
-            await streetService.update(createdStreet.id, createdStreet);
-
-            const updatedStreet = await db.street.findById(createdStreet.id);
-            assert.isNull(updatedStreet.namedEntityId);
-
-            const createdNamedEntity = await db.namedEntity.findById(namedEntity.id);
-            assert.notExists(createdNamedEntity);
-
-            done();
-        })();
-    });
-
+    
     it("should not remove the named entity if there is at least one more street, depending on it", (done) => {
         (async () => {
             const city = await db.city.create(testCity);
             const namedEntity = await db.namedEntity.create(testData.namedEntities[0]);
             const {ways, ...street} = testData.streets[0];
-            const firstTestStreet = Object.assign({cityId: city.id, namedEntityId: namedEntity.id}, street);
-            let createdStreet = await db.street.create(firstTestStreet).then(entity => optional(() => entity.get({plain: true})));
 
-            const secondTestStreet = Object.assign({cityId: city.id, namedEntityId: namedEntity.id}, street);
-            await db.street.create(secondTestStreet);
+            const firstTestStreet = Object.assign({cityId: city.id}, street);
+            let createdFirstStreet = await db.street.create(firstTestStreet);
+            await createdFirstStreet.addNamedEntity(namedEntity);
 
-            createdStreet.namedEntityId = null;
+            const secondTestStreet = Object.assign({cityId: city.id}, street);
+            const createdSecondStreet = await db.street.create(secondTestStreet);
+            await createdSecondStreet.addNamedEntity(namedEntity);
 
-            await streetService.update(createdStreet.id, createdStreet);
+            await streetService.update(createdFirstStreet.id, {street: createdFirstStreet, namedEntities: []});
 
-            const updatedStreet = await db.street.findById(createdStreet.id);
-            assert.isNull(updatedStreet.namedEntityId);
+            const updatedStreet = await db.street.findById(createdFirstStreet.id);
+            const streetNamedEntities = await updatedStreet.getNamedEntities();
+
+            assert.equal(streetNamedEntities.length, 0);
 
             const createdNamedEntity = await db.namedEntity.findById(namedEntity.id);
             assert.exists(createdNamedEntity);
+
+            done();
+        })();
+    });
+
+    it("should add 2 new named entities to the street", (done) => {
+        (async () => {
+            const city = await db.city.create(testCity);
+            const namedEntities = await db.namedEntity.bulkCreate(testData.namedEntities.slice(0, 2));
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: city.id}, street);
+            let createdStreet = await db.street.create(testStreet);
+
+            await streetService.update(createdStreet.id, {
+                street: createdStreet.dataValues,
+                namedEntities: namedEntities
+            });
+
+            const updatedStreet = await db.street.findById(createdStreet.id);
+            const streetNamedEntities = await updatedStreet.getNamedEntities();
+
+            assert.equal(streetNamedEntities.length, 2);
+            assert.sameMembers(streetNamedEntities.map(e => e.id), namedEntities.map(e => e.id));
+
+            done();
+        })();
+    });
+
+    it("should not update named entities if they haven't changed", (done) => {
+        (async () => {
+            const city = await db.city.create(testCity);
+            const namedEntities = await db.namedEntity.bulkCreate(testData.namedEntities.slice(0, 2));
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: city.id}, street);
+            let createdStreet = await db.street.create(testStreet);
+
+            await createdStreet.setNamedEntities(namedEntities);
+
+            await streetService.update(createdStreet.id, {
+                street: createdStreet.dataValues,
+                namedEntities: namedEntities
+            });
+
+            const updatedStreet = await db.street.findById(createdStreet.id);
+            const streetNamedEntities = await updatedStreet.getNamedEntities();
+
+            assert.equal(streetNamedEntities.length, 2);
+            assert.sameMembers(streetNamedEntities.map(e => e.id), namedEntities.map(e => e.id));
+
+            done();
+        })();
+    });
+
+    it("should throw error when trying to add non existing named entity", (done) => {
+        (async () => {
+            const city = await db.city.create(testCity);
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: city.id}, street);
+            let createdStreet = await db.street.create(testStreet);
+
+            const namedEntity = testData.namedEntities[0];
+
+            try {
+                await streetService.update(createdStreet.id, {
+                    street: createdStreet.dataValues,
+                    namedEntities: [namedEntity]
+                });
+            } catch (error) {
+                assert.exists(error);
+                assert.equal(error.message, errors.NOT_FOUND.key);
+            }
+
+            done();
+        })();
+    });
+
+    it("should get the street by name", (done) => {
+        (async () => {
+            const city = await db.city.create(testCity);
+            const {ways, ...street} = testData.streets[0];
+            const testStreet = Object.assign({cityId: city.id}, street);
+            let createdStreet = await db.street.create(testStreet);
+
+            const streetByName = await streetService.getByName(createdStreet.name);
+            assert.exists(streetByName);
+            assert.equal(streetByName.id, createdStreet.id);
+
+            done();
+        })();
+    });
+
+    it("should get the street by name and cityId", (done) => {
+        (async () => {
+            const firstCity = await db.city.create(testCity);
+            const secondCity = await db.city.create(testData.cities[1]);
+
+            const {firstWays, ...firstTestStreet} = testData.streets[0];
+            const firstStreet = await db.street.create(Object.assign({cityId: firstCity.id}, firstTestStreet));
+
+            const {secondWays, ...secondTestStreet} = testData.streets[0];
+            await db.street.create(Object.assign({cityId: secondCity.id}, secondTestStreet));
+
+            const streetByName = await streetService.getByName(firstStreet.name, firstCity.id);
+            assert.exists(streetByName);
+            assert.equal(streetByName.id, firstStreet.id);
+            assert.equal(streetByName.cityId, firstCity.id);
+
+            done();
+        })();
+    });
+
+    it("should search street by cityId", (done) => {
+        (async () => {
+            const firstCity = await db.city.create(testCity);
+            const secondCity = await db.city.create(testData.cities[1]);
+
+            const {firstWays, ...firstTestStreet} = testData.streets[0];
+            const firstStreet = await db.street.create(Object.assign({cityId: firstCity.id}, firstTestStreet));
+
+            const {secondWays, ...secondTestStreet} = testData.streets[0];
+            await db.street.create(Object.assign({cityId: secondCity.id}, secondTestStreet));
+
+            const {count, data} = await streetService.search({search: firstStreet.name, cityId: firstCity.id});
+            assert.equal(count, 1);
+            assert.include(data.map(s => s.id), firstStreet.id);
+
+            done();
+        })();
+    });
+
+    it("should search street just by name", (done) => {
+        (async () => {
+            const createdCity = await db.city.create(testCity);
+            const createdStreets = await db.street.bulkCreate(testData.streets.map(street => {return {...street, cityId: createdCity.id}}));
+
+            const {count, data} = await streetService.search({search: testData.streets[0].name, cityId: createdCity.id});
+            assert.equal(count, 1);
+            assert.include(data.map(s => s.id), createdStreets[0].id);
 
             done();
         })();

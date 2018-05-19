@@ -34,6 +34,10 @@
             },
             initialValue: {
                 type: Object
+            },
+            clearAfterSelect: {
+                type: Boolean,
+                default: false
             }
         },
         mixins: [ApiServiceMixin],
@@ -64,7 +68,12 @@
                 }
             }, this.debounceTime),
             select: function (item) {
-                this.searchText = item.name;
+                if(this.clearAfterSelect) {
+                    this.searchText = "";
+                } else {
+                    this.searchText = item.name;
+                }
+
                 this.displayAutoComplete = false;
                 this.$emit("selected", item);
             }

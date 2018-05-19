@@ -29,16 +29,17 @@ mapper.registerResolver("app.way", "api.v1.way", (way) => {
     return way.coordinates;
 });
 
-mapper.registerResolver("app.street", "api.v1.street", (street) => {
+mapper.registerResolver("app.street", "api.v1.street", async (street) => {
+    const namedEntities = await street.getNamedEntities();
+
     return {
         id: street.id,
         cityId: street.cityId,
-        personId: street.personId,
         name: street.name,
         nameEn: street.nameEn,
         oldName: street.oldName,
         description: street.description,
-        namedEntity: optional(() => mapper.map(street.namedEntity, "app.namedEntity", "api.v1.namedEntity"), null),
+        namedEntities: await mapper.map(namedEntities, "app.namedEntity.list", "api.v1.namedEntity.list"),
         wikiUrl: street.wikiUrl,
         ways: optional(() => street.ways.map(w => w.coordinates), []),
         updatedAt: street.updatedAt
@@ -61,10 +62,12 @@ mapper.registerResolver("app.city.list", "api.v1.city.list", (cities) => {
 });
 
 mapper.registerResolver("app.street.list", "api.v1.street.list", (streets) => {
-    return streets.map(street => mapper.map(street, "app.street", "api.v1.street"));
+    return Promise.all(streets.map(street => mapper.map(street, "app.street", "api.v1.street")));
 });
 
-mapper.registerResolver("app.namedEntity", "api.v1.namedEntity", (namedEntity) => {
+mapper.registerResolver("app.namedEntity", "api.v1.namedEntity", async (namedEntity) => {
+    const tags = await optional(async () => namedEntity.getTags(), []);
+
     return {
         id: namedEntity.id,
         name: namedEntity.name,
@@ -72,14 +75,14 @@ mapper.registerResolver("app.namedEntity", "api.v1.namedEntity", (namedEntity) =
         imageUrl: namedEntity.imageUrl,
         wikiUrl: namedEntity.wikiUrl,
         tags: optional(() =>
-            mapper.map(namedEntity.tags, "app.tag.list", "api.v1.tag.list"), []),
+            mapper.map(tags, "app.tag.list", "api.v1.tag.list"), []),
         updatedAt: namedEntity.updatedAt,
         isLockedForParsing: namedEntity.isLockedForParsing
     };
 });
 
 mapper.registerResolver("app.namedEntity.list", "api.v1.namedEntity.list", (namedEntities) => {
-    return namedEntities.map(namedEntity => mapper.map(namedEntity, "app.namedEntity", "api.v1.namedEntity"));
+    return Promise.all(namedEntities.map(namedEntity => mapper.map(namedEntity, "app.namedEntity", "api.v1.namedEntity")));
 });
 
 mapper.registerResolver("app.tag.list", "api.v1.tag.list", (tags) => {

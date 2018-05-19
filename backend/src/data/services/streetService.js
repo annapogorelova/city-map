@@ -4,6 +4,7 @@ const {optional} = require("tooleks");
 const utils = require("../../app/utils");
 const {errors, commonConstants} = require("../../app/constants/index");
 const stringUtils = require("../../utils/stringUtils");
+const _ = require("lodash");
 
 function makeStreetService(db) {
     return Object.freeze({
@@ -31,7 +32,7 @@ function makeStreetService(db) {
             where: filter, include: [{
                 model: db.namedEntity
             }]
-        }).then(street => optional(() => getPlain(street)), null);
+        });
     }
 
     function getBySimilarName(name) {
@@ -48,7 +49,7 @@ function makeStreetService(db) {
             include: [{
                 model: db.namedEntity
             }]
-        }).then(streets => getPlainList(streets));
+        });
     }
 
     function getByCity(cityId, orderByColumn = "id") {
@@ -111,7 +112,7 @@ function makeStreetService(db) {
         });
     }
 
-    async function search(search, cityId = null, offset = 0, limit = 5) {
+    async function search({search, cityId = null, offset = 0, limit = 5} = {}) {
         let selectParams = {
             offset: offset,
             limit: limit,
@@ -135,7 +136,7 @@ function makeStreetService(db) {
                     {model: db.namedEntity, include: [{model: db.tag}]},
                     {model: db.way}
                 ]
-            }).then(rows => getPlainList(rows))
+            })
         ]);
 
         return {
@@ -144,7 +145,7 @@ function makeStreetService(db) {
         };
     }
 
-    async function create(street, ways) {
+    async function create({street, namedEntities, ways}) {
         const existingStreet = await getByName(street.name, street.cityId);
         if (existingStreet) {
             throw new Error(errors.ALREADY_EXISTS.key);
@@ -154,6 +155,11 @@ function makeStreetService(db) {
         street.description = stringUtils.formatText(street.description, commonConstants.MAX_DESCRIPTION_LENGTH);
 
         const createdStreet = await db.street.create(street);
+
+        if(optional(() => namedEntities.length)) {
+            await createdStreet.setNamedEntities(namedEntities);
+        }
+
         if (ways && ways.length) {
             const wayModels = ways.map(w => {
                 return {streetId: createdStreet.id, coordinates: w};
@@ -165,60 +171,66 @@ function makeStreetService(db) {
         return createdStreet;
     }
 
-    async function update(id, newValues) {
-        const existingStreet = await getById(id).then(entity => optional(() => entity.get({plain: true})));
+    async function update(id, {namedEntities, ...newValues}) {
+        const existingStreet = await getById(id);
         if (!existingStreet) {
             throw Error(errors.NOT_FOUND.key);
         }
 
-        let streetProps = Object.getOwnPropertyNames(existingStreet);
-
-        newValues.namedEntityId = newValues.namedEntityId || null;
-        if (existingStreet.namedEntityId !== newValues.namedEntityId) {
-            await updateNamedEntity(existingStreet.namedEntityId, newValues.namedEntityId);
-        }
+        let streetProps = Object.getOwnPropertyNames(existingStreet.dataValues);
 
         for (let propName of streetProps) {
             if (newValues[propName] !== undefined &&
-                existingStreet[propName] !== newValues[propName]) {
-                existingStreet[propName] = newValues[propName];
+                existingStreet.dataValues[propName] !== newValues[propName]) {
+                existingStreet.dataValues[propName] = newValues[propName];
             }
+        }
+
+        if(namedEntities) {
+            await updateNamedEntities(existingStreet, namedEntities);
         }
 
         existingStreet.updatedAt = Date.now();
 
-        return db.street.update(existingStreet, {where: {id: id}});
+        return db.street.update(existingStreet.dataValues, {where: {id: id}});
     }
 
-    async function updateNamedEntity(existingNamedEntityId, newNamedEntityId) {
-        if (newNamedEntityId) {
-            await validateNamedEntity(newNamedEntityId);
-        } else {
-            await tryRemoveNamedEntity(existingNamedEntityId);
+    async function updateNamedEntities(street, namedEntities) {
+        const existingNamedEntities = await street.getNamedEntities();
+
+        if(_.isEqual(existingNamedEntities.map(t => t.id).sort(), namedEntities.map(t => t.id).sort())) {
+            return;
+        }
+
+        const namedEntitiesToAdd = namedEntities.filter(t => !t.id || existingNamedEntities.every(et => et.id !== t.id));
+        const namedEntitiesToRemove = existingNamedEntities.filter(et => namedEntities.every(t => t.id !== et.id));
+
+        if(namedEntitiesToAdd.length) {
+            await addNamedEntities(street, namedEntitiesToAdd);
+        }
+
+        if(namedEntitiesToRemove.length) {
+            await removeNamedEntities(street, namedEntitiesToRemove);
         }
     }
 
-    async function validateNamedEntity(namedEntityId) {
-        const existingNamedEntity = await db.namedEntity.findById(namedEntityId);
-        if (!existingNamedEntity) {
-            throw Error(errors.NOT_FOUND.key);
+    async function addNamedEntities(street, namedEntities) {
+        for (let namedEntity of namedEntities) {
+            let existingNamedEntity = await db.namedEntity.findOne({where: {name: namedEntity.name}});
+
+            if(!existingNamedEntity) {
+                throw Error(errors.NOT_FOUND.key);
+            }
+
+            await street.addNamedEntity(existingNamedEntity);
         }
     }
 
-    async function tryRemoveNamedEntity(namedEntityId) {
-        const existingNamedEntity = await db.namedEntity.findById(namedEntityId);
-        const streetsCount = await existingNamedEntity.countStreets();
-        if (streetsCount < 2) {
-            return existingNamedEntity.destroy();
+    async function removeNamedEntities(street, namedEntitiesToRemove) {
+        for (let namedEntity of namedEntitiesToRemove) {
+            const existingNamedEntity = await db.namedEntity.findById(namedEntity.id);
+            await street.removeNamedEntity(existingNamedEntity);
         }
-    }
-
-    function getPlainList(entities) {
-        return optional(() => entities.map(entity => getPlain(entity)), null);
-    }
-
-    function getPlain(entity) {
-        return optional(() => entity.get({plain: true}), null);
     }
 }
 

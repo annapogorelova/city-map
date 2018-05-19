@@ -22,6 +22,7 @@ module.exports = {
             await db.tag.destroy({where: {}, truncate: false}),
             await db.namedEntity.destroy({where: {}, truncate: false}),
             await db.tagNamedEntity.destroy({where: {}, truncate: false}),
+            await db.streetNamedEntity.destroy({where: {}, truncate: false}),
             await db.city.destroy({where: {}, truncate: false}),
         ]);
     },

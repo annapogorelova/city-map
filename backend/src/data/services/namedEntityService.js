@@ -1,6 +1,5 @@
 "use strict";
 
-const {optional} = require("tooleks");
 const stringUtils = require("../../utils/stringUtils");
 const {commonConstants, errors} = require("../../app/constants/index");
 const _ = require("lodash");
@@ -26,7 +25,7 @@ function makeNamedEntityService(db) {
             include: [{
                 model: db.tag
             }]
-        }).then(entity => optional(() => entity.get({plain: true}), null));
+        });
     }
 
     function getAll({isLockedForParsing = null} = {}) {
@@ -40,7 +39,7 @@ function makeNamedEntityService(db) {
             };
         }
 
-        return db.namedEntity.findAll(selectParams).then(entities => entities.map(entity => entity.get({plain: true})));
+        return db.namedEntity.findAll(selectParams);
     }
 
     async function search({search, offset, limit, isLockedForParsing = null} = {}) {
@@ -62,7 +61,6 @@ function makeNamedEntityService(db) {
         const results = await Promise.all([
             db.namedEntity.count(selectParams),
             db.namedEntity.findAll({...selectParams, include: [{model: db.tag}]})
-                .then(entities => entities.map(entity => entity.get({plain: true})))
         ]);
 
         return {

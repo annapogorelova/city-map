@@ -4,7 +4,7 @@ const assert = chai.assert;
 const chaiHttp = require("chai-http");
 const server = require("../../../app");
 const testUtils = require("../../testUtils");
-const httpConstants = require("../../../app/constants/httpConstants");
+const {httpConstants, errors} = require("../../../app/constants/index");
 const testData = require("../../data/dbTestData");
 const db = require("../../../data/models/index");
 const mapper = require("../../../helpers/mapper");
@@ -32,10 +32,9 @@ describe("streets route", () => {
             await namedEntity.setTags(tags);
 
             const testStreet = testData.streets[0];
-            const street = await testUtils.createStreet({
-                namedEntityId: namedEntity.id,
-                ...testStreet
-            }, createdCity.id);
+            const street = await testUtils.createStreet(testStreet, createdCity.id);
+
+            await street.addNamedEntity(namedEntity);
 
             const requestUrl = `${httpConstants.apiRoutes.CITIES}/${createdCity.id}/${httpConstants.apiRoutes.STREETS}`;
 
@@ -44,20 +43,22 @@ describe("streets route", () => {
                 .query({search: street.name})
                 .end((err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
-                    const data = res.body.data;
+                    assert.equal(1, res.body.data.length);
+                    const data = res.body.data[0];
 
                     assert.exists(data);
-                    assert.equal(1, data.length);
-                    assert.equal(street.name, data[0].name);
-                    assert.equal(street.description, data[0].description);
+                    assert.equal(street.name, data.name);
+                    assert.equal(street.description, data.description);
 
-                    assert.exists(data[0].namedEntity);
-                    assert.equal(namedEntity.id, data[0].namedEntity.id);
-                    assert.equal(namedEntity.name, data[0].namedEntity.name);
-                    assert.equal(namedEntity.description, data[0].namedEntity.description);
+                    assert.exists(data.namedEntities);
+                    const resultNamedEntity = data.namedEntities[0];
 
-                    assert.exists(data[0].namedEntity.tags);
-                    assert.sameMembers(tags.map(t => t.name), data[0].namedEntity.tags.map(t => t.name));
+                    assert.equal(namedEntity.id, resultNamedEntity.id);
+                    assert.equal(namedEntity.name, resultNamedEntity.name);
+                    assert.equal(namedEntity.description, resultNamedEntity.description);
+
+                    assert.exists(resultNamedEntity.tags);
+                    assert.sameMembers(tags.map(t => t.name), resultNamedEntity.tags.map(t => t.name));
 
                     done();
                 });
@@ -97,6 +98,22 @@ describe("streets route", () => {
 
                     let matchingStreets = createdStreets.filter(street => res.body.data.some(s => s.name === street.name));
                     assert.sameMembers(matchingStreets.map(s => s.name), res.body.data.map(s => s.name));
+
+                    done();
+                });
+        })();
+    });
+
+    it("should return 400 when cityId is not specified", (done) => {
+        (async () => {
+            const requestUrl = `/${httpConstants.apiRoutes.STREETS}`;
+
+            chai.request(server)
+                .get(testUtils.getApiUrl(requestUrl))
+                .query({coordinates: [42.2, 29.1]})
+                .end((err, res) => {
+                    assert.equal(res.status, httpConstants.statusCodes.BAD_REQUEST);
+                    assert.equal(res.body.message, errors.BAD_REQUEST.message);
 
                     done();
                 });
@@ -225,12 +242,13 @@ describe("streets route", () => {
             const testNamedEntity = testData.namedEntities[0];
 
             const createdCity = await db.city.create(testCity);
-            const createdNamedEntity = await db.namedEntity.create(testNamedEntity);
+            const oldNamedEntity = await db.namedEntity.create(testNamedEntity);
             let createdStreet = await db.street.create({
                 cityId: createdCity.id,
-                namedEntity: createdNamedEntity.id,
                 ...testStreet
-            }).then(entity => optional(() => entity.get({plain: true})));
+            });
+
+            await createdStreet.addNamedEntity(oldNamedEntity);
 
             const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/${createdStreet.id}`);
             const authResponse = await testUtils.prepareAuthRequest(server);
@@ -241,16 +259,66 @@ describe("streets route", () => {
                 "put");
 
             const newTestNamedEntity = testData.namedEntities[1];
-            const newNamedEntity = await db.namedEntity.create(newTestNamedEntity)
-                .then(entity => optional(() => entity.get({plain: true})))
-            createdStreet.namedEntityId = newNamedEntity.id;
+            const newNamedEntity = await db.namedEntity.create(newTestNamedEntity);
+
+            let street = createdStreet.dataValues;
+            street.namedEntities = [newNamedEntity];
 
             request
-                .send(createdStreet)
+                .send(street)
                 .end(async (err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
                     const updatedStreet = await db.street.findById(createdStreet.id);
-                    assert.equal(updatedStreet.namedEntityId, newNamedEntity.id);
+                    const namedEntities = await updatedStreet.getNamedEntities();
+
+                    assert.exists(namedEntities);
+                    assert.equal(namedEntities.length, 1);
+                    assert.equal(namedEntities[0].id, newNamedEntity.id);
+
+                    done();
+                });
+        })();
+    });
+
+    it("should remove 1 oldNamedEntity and add two new named entities to the street", (done) => {
+        (async () => {
+            const testStreet = testData.streets[0];
+            const testCity = testData.cities[0];
+            const testNamedEntities = testData.namedEntities.slice(0, 3);
+
+            const createdCity = await db.city.create(testCity);
+            const oldNamedEntity = await db.namedEntity.create(testNamedEntities[0]);
+            let createdStreet = await db.street.create({
+                cityId: createdCity.id,
+                ...testStreet
+            });
+
+            await createdStreet.addNamedEntity(oldNamedEntity);
+
+            const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/${createdStreet.id}`);
+            const authResponse = await testUtils.prepareAuthRequest(server);
+            const request = testUtils.getAuthenticatedRequest(
+                requestUrl,
+                authResponse.headers['set-cookie'][0],
+                server,
+                "put");
+
+            const newNamedEntities = await db.namedEntity.bulkCreate(testData.namedEntities.slice(1, 3));
+
+            let street = createdStreet.dataValues;
+            street.namedEntities = newNamedEntities;
+
+            request
+                .send(street)
+                .end(async (err, res) => {
+                    assert.equal(res.status, httpConstants.statusCodes.OK);
+                    const updatedStreet = await db.street.findById(createdStreet.id);
+                    const namedEntities = await updatedStreet.getNamedEntities();
+
+                    assert.exists(namedEntities);
+                    assert.equal(namedEntities.length, 2);
+                    assert.sameMembers(namedEntities.map(e => e.id), newNamedEntities.map(e => e.id));
+
                     done();
                 });
         })();
@@ -266,9 +334,10 @@ describe("streets route", () => {
             const createdNamedEntity = await db.namedEntity.create(testNamedEntity);
             let createdStreet = await db.street.create({
                 cityId: createdCity.id,
-                namedEntity: createdNamedEntity.id,
                 ...testStreet
-            }).then(entity => optional(() => entity.get({plain: true})));
+            });
+
+            await createdStreet.addNamedEntity(createdNamedEntity);
 
             const requestUrl = testUtils.getApiUrl(`/${httpConstants.apiRoutes.STREETS}/${createdStreet.id}`);
             const authResponse = await testUtils.prepareAuthRequest(server);
@@ -279,11 +348,18 @@ describe("streets route", () => {
                 "put");
 
             request
-                .send({namedEntityId: null, ...createdStreet})
+                .send({...createdStreet.dataValues, namedEntities: []})
                 .end(async (err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
-                    const updatedStreet = await db.street.findById(createdStreet.id);
-                    assert.isNull(updatedStreet.namedEntityId);
+                    const streetNamedEntity = await db.streetNamedEntity.findOne({
+                        where: {
+                            streetId: createdStreet.id,
+                            namedEntityId: createdNamedEntity.id
+                        }
+                    });
+
+                    assert.notExists(streetNamedEntity);
+
                     done();
                 });
         })();
@@ -308,7 +384,7 @@ describe("streets route", () => {
                 server,
                 "put");
 
-            createdStreet.namedEntityId = 1;
+            createdStreet.namedEntities = [testData.namedEntities[0]];
 
             request
                 .send(createdStreet)

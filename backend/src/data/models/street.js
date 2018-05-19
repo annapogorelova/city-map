@@ -10,10 +10,6 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        namedEntityId: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-        },
         name: {
             type: DataTypes.STRING(100),
             allowNull: false

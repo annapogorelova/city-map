@@ -20,7 +20,7 @@ function makeNamedEntityController(namedEntityService, mapper) {
             offset: offset,
             limit: limit
         });
-        const models = mapper.map(data, "app.namedEntity.list", "api.v1.namedEntity.list");
+        const models = await mapper.map(data, "app.namedEntity.list", "api.v1.namedEntity.list");
         return res.json({data: models, count: count});
     }
 

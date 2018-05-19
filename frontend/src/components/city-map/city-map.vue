@@ -151,11 +151,11 @@
                 }
             },
             setStreetMarker(coordinates, street) {
-                if(street.namedEntity && street.namedEntity.imageUrl) {
+                if(street.namedEntities.length && street.namedEntities.some(n => n.imageUrl)) {
                     this.marker = this.renderImageMarker(coordinates, {
-                        imageUrl: street.namedEntity.imageUrl,
-                        title: street.namedEntity.name,
-                        linkUrl: street.namedEntity.wikiUrl
+                        imageUrl: street.namedEntities[0].imageUrl,
+                        title: street.namedEntities[0].name,
+                        linkUrl: street.namedEntities[0].wikiUrl
                     });
                 } else {
                     this.marker = L.marker(coordinates, {title: street.name});
@@ -185,7 +185,7 @@
                 }
             },
             onSearchStreet(streetName) {
-                this.streetService.search({cityId: this.cityId, search: streetName}).then(response => {
+                this.streetsService.search({cityId: this.cityId, search: streetName}).then(response => {
                     const street = optional(() => response.data[0], null);
 
                     if(street) {

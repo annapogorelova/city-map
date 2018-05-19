@@ -18,8 +18,8 @@ if(process.env.NODE_ENV === "production") {
     const logDirectory = path.join(__dirname, "../log");
     fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
-    let stream = rfs('access.log', {
-        interval: '1d', // rotate daily
+    let stream = rfs("access.log", {
+        interval: "1d", // rotate daily
         path: logDirectory
     });
 

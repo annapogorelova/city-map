@@ -41,12 +41,13 @@ class GeoDataService {
         const namedEntity = await this.processNamedEntity(streetGeoData.name,
             optional(() => streetInfo.info[constants.namedAfterInfoBoxProperty]));
 
-        if(namedEntity) {
-            street.namedEntityId = namedEntity.id;
-        }
-
         street.cityId = city.id;
-        return this.streetService.create(street, streetModel.ways);
+
+        return this.streetService.create({
+            street: street,
+            namedEntities: namedEntity ? [namedEntity] : [],
+            ways: streetModel.ways
+        });
     }
 
     async processNamedEntity(streetName, namedAfter) {

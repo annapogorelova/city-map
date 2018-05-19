@@ -14,6 +14,7 @@ describe("geoDataService test", () => {
     const jsonGeoParser = testUtils.dc.get("GeoParser");
     const streetService = testUtils.dc.get("StreetService");
     const namedEntityService = testUtils.dc.get("NamedEntityService");
+    const mapper = testUtils.dc.get("Mapper");
 
     before((done) => {
         // Replacing the data directory path
@@ -96,17 +97,21 @@ describe("geoDataService test", () => {
             const addedStreets = await streetService.getByCity(city.id);
 
             for(let i = 0; i < addedStreets.length; i++) {
-                assert.equal(loadedStreets[i].name, addedStreets[i].name);
-                assert.equal(addedStreets[i].description, testDescription);
-                assert.equal(addedStreets[i].wikiUrl, testWikiUrl);
-                assert.exists(addedStreets[i].ways);
+                const addedStreet = await mapper.map(addedStreets[i], "app.street", "api.v1.street");
+
+                assert.equal(addedStreet.name, loadedStreets[i].name);
+                assert.equal(addedStreet.description, testDescription);
+                assert.equal(addedStreet.wikiUrl, testWikiUrl);
+                assert.exists(addedStreet.ways);
 
                 if(i % 2) {
-                    assert.equal(addedStreets[i].namedEntity.name, testPersonName);
-                    assert.equal(addedStreets[i].namedEntity.wikiUrl, testPersonWikiUrl);
-                    assert.equal(addedStreets[i].namedEntity.description, testPersonDescription);
+                    assert.equal(addedStreet.namedEntities.length, 1);
+
+                    assert.equal(addedStreet.namedEntities[0].name, testPersonName);
+                    assert.equal(addedStreet.namedEntities[0].wikiUrl, testPersonWikiUrl);
+                    assert.equal(addedStreet.namedEntities[0].description, testPersonDescription);
                 } else {
-                    assert.isNull(addedStreets[i].namedEntity);
+                    assert.equal(addedStreet.namedEntities.length, 0);
                 }
             }
             done();
@@ -214,18 +219,22 @@ describe("geoDataService test", () => {
             assert(firstCityStreet);
             assert.equal(cities[0].id, firstCityStreet.cityId);
             assert.equal(testStreet.name, firstCityStreet.name);
-            assert.exists(firstCityStreet.namedEntityId);
+
+            const firstStreetNamedEntities = await firstCityStreet.getNamedEntities();
+            assert.equal(firstStreetNamedEntities.length, 1);
 
             // create the street for the second city
             const secondCityStreet = await geoDataService.processStreet(testStreet, cities[1]);
             assert(secondCityStreet);
             assert.equal(cities[1].id, secondCityStreet.cityId);
             assert.equal(testStreet.name, secondCityStreet.name);
-            assert.exists(secondCityStreet.namedEntityId);
 
-            assert.equal(firstCityStreet.namedEntityId, secondCityStreet.namedEntityId);
+            const secondStreetNamedEntities = await secondCityStreet.getNamedEntities();
+            assert.equal(secondStreetNamedEntities.length, 1);
 
-            const namedEntity = await namedEntityService.getById(firstCityStreet.namedEntityId);
+            assert.equal(firstStreetNamedEntities[0].id, secondStreetNamedEntities[0].id);
+
+            const namedEntity = await namedEntityService.getById(firstStreetNamedEntities[0].id);
 
             assert.equal(namedEntityInfo.name, namedEntity.name);
             assert.equal(namedEntityInfo.description, namedEntity.description);

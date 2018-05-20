@@ -2,7 +2,7 @@
 const path = require("path");
 const utils = require("./utils");
 const config = require("../config");
-const vueLoaderConfig = require("./vue-loader.conf");
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const Dotenv = require("dotenv-webpack");
 
 function resolve(dir) {
@@ -33,8 +33,7 @@ module.exports = {
         rules: [
             {
                 test: /\.vue$/,
-                loader: "vue-loader",
-                options: vueLoaderConfig
+                loader: "vue-loader"
             },
             {
                 test: /\.js$/,
@@ -68,7 +67,8 @@ module.exports = {
         ]
     },
     plugins: [
-        new Dotenv()
+        new Dotenv(),
+        new VueLoaderPlugin()
     ],
     node: {
         // prevent webpack from injecting useless setImmediate polyfill because Vue

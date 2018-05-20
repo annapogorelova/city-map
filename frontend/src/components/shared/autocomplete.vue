@@ -52,6 +52,8 @@
             if (this.initialValue) {
                 this.searchText = this.initialValue[this.displayPropertyName];
             }
+
+            this.debounce = this.debounceTime;
         },
         methods: {
             search: _.debounce(function(searchText) {
@@ -66,7 +68,7 @@
                         this.$emit("deselected");
                     }
                 }
-            }, this.debounceTime),
+            }, () => this.debounceTime),
             select: function (item) {
                 if(this.clearAfterSelect) {
                     this.searchText = "";

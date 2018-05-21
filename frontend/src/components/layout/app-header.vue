@@ -49,7 +49,7 @@
                 this.eventBus.emit("search", search);
             },
             onCitySelected: function(city) {
-                this.eventBus.emit("city-selected", city);
+                this.eventBus .emit("city-selected", city);
             }
         }
     }

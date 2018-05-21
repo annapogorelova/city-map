@@ -40,6 +40,6 @@ export default class NoticesService {
     }
 
     onNotice(callback) {
-        this.eventEmitter.on("notice", callback);
+        return this.eventEmitter.on("notice", callback);
     }
 }

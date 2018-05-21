@@ -5,6 +5,7 @@ import NoticesServiceMixin from "./notices-service-mixin";
 import NamedEntitiesServiceMixin from "./named-entities-service-mixin";
 import CitiesServiceMixin from "./city-service-mixin";
 import NavigationMixin from "./navigation-mixin";
+import EventBusMixin from "./event-bus-mixin";
 
 export {
     AuthMixin,
@@ -13,5 +14,6 @@ export {
     NoticesServiceMixin,
     NamedEntitiesServiceMixin,
     CitiesServiceMixin,
-    NavigationMixin
+    NavigationMixin,
+    EventBusMixin
 };

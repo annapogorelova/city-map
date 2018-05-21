@@ -23,16 +23,20 @@
         },
         data: function () {
             return {
-                notices: []
+                notices: [],
+                noticeEventOff: undefined
             }
         },
         created: function () {
-            this.$dc.get("notices").onNotice((notice) => {
+            this.noticeEventOff = this.$dc.get("notices").onNotice((notice) => {
                 this.notices.push(notice);
             });
         },
         mounted: function () {
             setInterval(() => this.deleteOutdated(), this.deleteInterval);
+        },
+        beforeDestroy: function () {
+            this.noticeEventOff();
         },
         methods: {
             deleteOutdated: function () {

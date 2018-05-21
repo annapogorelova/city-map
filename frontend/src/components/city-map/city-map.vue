@@ -22,9 +22,11 @@
     .slide-fade-enter-active {
         transition: all .5s ease-in;
     }
+
     .slide-fade-leave-active {
         transition: all .8s ease-out;
     }
+
     .slide-fade-enter, .slide-fade-leave-to {
         transform: translateX(100px);
         opacity: 0;
@@ -62,11 +64,11 @@
     import Search from "../shared/search";
     import {optional} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
-    import {StreetsServiceMixin, NoticesServiceMixin} from "../../mixins/index";
+    import {StreetsServiceMixin, NoticesServiceMixin, EventBusMixin} from "../../mixins/index";
 
     export default {
         components: {BasicMap, CitiesList, StreetDescription, Search},
-        mixins: [StreetsServiceMixin, NoticesServiceMixin],
+        mixins: [StreetsServiceMixin, NoticesServiceMixin, EventBusMixin],
         props: {
             zoom: {
                 type: Number,
@@ -91,23 +93,32 @@
                 return require("../../../assets/images/default-image.png");
             }
         },
-        mounted: function() {
-            if(!isNaN(this.$route.query.cityId)) {
+        mounted: function () {
+            if (!isNaN(this.$route.query.cityId)) {
                 this.cityId = parseInt(this.$route.query.cityId);
             }
 
-            if(Array.isArray(this.$route.query.coordinates)) {
+            if (Array.isArray(this.$route.query.coordinates)) {
                 this.coordinates = this.$route.query.coordinates.map(c => parseFloat(c));
                 this.setMarker(this.coordinates);
             }
 
-            this.$dc.get("eventBus").on("search", (search) => {
+            this.searchEventOff = this.eventBus.on("search", (search) => {
                 this.onSearchStreet(search);
             });
 
-            this.$dc.get("eventBus").on("city-selected", (city) => {
+            this.citySelectOff = this.eventBus.on("city-selected", (city) => {
                 this.onCitySelected(city);
             });
+        },
+        beforeDestroy: function () {
+            if (this.searchEventOff) {
+                this.searchEventOff();
+            }
+
+            if (this.citySelectOff) {
+                this.citySelectOff();
+            }
         },
         methods: {
             findClosestStreet: function (coordinates) {
@@ -142,14 +153,14 @@
                     this.selectedStreet = street;
                     this.clearMap();
                     this.drawStreet(street);
-                    if(coordinates) {
+                    if (coordinates) {
                         this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
                         this.setStreetMarker(coordinates, street);
                     }
                 });
             },
             drawStreet(street) {
-                    street.ways.map(way => {
+                street.ways.map(way => {
                     this.polyLines.push(this.drawPolyline(way));
                 });
             },
@@ -171,9 +182,9 @@
                 this.polyLines = [];
             },
             setStreetMarker(coordinates, street) {
-                if(street.namedEntities.length) {
+                if (street.namedEntities.length) {
                     const namedEntities = _.sortBy(street.namedEntities, n => n.imageUrl !== null);
-                    for(let i = 0; i <  namedEntities.length; i++) {
+                    for (let i = 0; i < namedEntities.length; i++) {
                         this.markers.push(this.renderImageMarker({
                             coordinates: coordinates,
                             imageProps: {
@@ -217,7 +228,7 @@
                 this.streetsService.search({cityId: this.cityId, search: streetName}).then(response => {
                     const street = optional(() => response.data[0], null);
 
-                    if(street) {
+                    if (street) {
                         this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
                     } else {
                         this.clearMap();

@@ -37,19 +37,19 @@
     </nav>
 </template>
 <script>
-    import {AuthMixin} from "../../mixins";
+    import {AuthMixin, EventBusMixin} from "../../mixins";
     import CitiesList from "../shared/cities-list";
     import Search from "../shared/search";
 
     export default {
         components: {CitiesList, Search},
-        mixins: [AuthMixin],
+        mixins: [AuthMixin, EventBusMixin],
         methods: {
             onSearchStreet: function(search) {
-                this.$dc.get("eventBus").emit("search", search);
+                this.eventBus.emit("search", search);
             },
             onCitySelected: function(city) {
-                this.$dc.get("eventBus").emit("city-selected", city);
+                this.eventBus.emit("city-selected", city);
             }
         }
     }

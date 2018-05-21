@@ -4,9 +4,10 @@
 
 <style>
     .map {
-        height: 500px;
+        height: 380px;
         width: 100%;
         margin-top: 15px;
+        cursor: default;
     }
 </style>
 
@@ -27,14 +28,14 @@
                 type: Object,
                 default: () => {
                     return {
-                        maxZoom: 18,
+                        minZoom: 11,
                         attribution: `&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>`,
                     };
                 },
             },
             tileLayerUrl: {
                 type: String,
-                default: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                default: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
             },
             lat: {
                 type: Number,

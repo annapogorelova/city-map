@@ -325,8 +325,12 @@
     }
 
     .table td {
-        vertical-align: middle;
+        vertical-align: middle !important;
         padding: 8px;
+    }
+
+    .table td > * {
+        vertical-align: middle;
     }
 
     .named-entity-image {
@@ -335,6 +339,8 @@
         border-radius: 200%;
         background-position: center;
         background-size: contain;
+        background-repeat: no-repeat;
+        background-color: #e5e5e5;
     }
 
     .edited-image {

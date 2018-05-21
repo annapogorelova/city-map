@@ -27,6 +27,8 @@
     @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,700,800');
     body {
         font-family: 'Montserrat', sans-serif !important;
+        min-width: 300px;
+        overflow-x: auto;
     }
 
     .app-content {

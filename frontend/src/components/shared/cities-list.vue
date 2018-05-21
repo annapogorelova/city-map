@@ -1,11 +1,11 @@
 <template>
     <div class="row">
         <div class="col-12">
-            <button v-for="city in cities" type="button" class="btn btn-info"
-                    v-bind:class="{'active': isCitySelected(city)}"
-                    v-on:click="selectCity(city)">
-                {{city.name}}
-            </button>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <button class="dropdown-item btn-link" :class="{'active': isCitySelected(city)}"
+                        v-for="city in cities"
+                   v-on:click="selectCity(city)">{{city.name}}</button>
+            </div>
         </div>
     </div>
 </template>
@@ -13,6 +13,7 @@
     button {
         margin-right: 10px;
         margin-bottom: 5px;
+        cursor: pointer;
     }
 
     .btn.active {
@@ -27,7 +28,7 @@
 
     export default {
         props: {
-            selectedCityId: {
+            preselectedCityId: {
                 type: Number,
                 default: undefined
             },
@@ -47,7 +48,7 @@
             this.loadCities();
         },
         watch: {
-            selectedCityId: function(cityId) {
+            preselectedCityId: function(cityId) {
                 if(!isNaN(cityId)) {
                     const city = this.cities.filter(c => c.id === cityId)[0];
                     this.selectCity(city);
@@ -65,13 +66,12 @@
                 });
             },
             preselectCity: function () {
-                if(!this.selectedCityId && this.preselectDefault) {
+                if(!this.preselectedCityId && this.preselectDefault) {
                     const defaultCity = optional(() =>
                         this.cities.find(c => c.name === AppConfig.defaultCityName), this.cities[0]);
-                    this.selectedCityId = defaultCity.id;
                     this.selectCity(defaultCity);
                 } else {
-                    const city = this.cities.filter(c => c.id === this.selectedCityId)[0];
+                    const city = this.cities.filter(c => c.id === this.preselectedCityId)[0];
                     this.selectCity(city);
                 }
             },

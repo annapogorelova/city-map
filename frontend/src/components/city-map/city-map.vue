@@ -1,27 +1,13 @@
 <template>
     <div class="row">
         <div class="col-12">
-            <div class="row">
-                <div class="col-12">
-                    <cities-list ref="cities"
-                                 v-on:citySelected="onCitySelected"
-                                 v-bind:selected-city-id="cityId"
-                                 v-bind:preselect-default="true"></cities-list>
-                </div>
-            </div>
-            <div class="row searchbox">
-                <div class="col-12 col-lg-9">
-                    <search v-on:search="onSearchStreet"
-                            v-bind:placeholder="'Введіть назву вулиці та натисніть Enter'"></search>
-                </div>
-            </div>
             <div class="row sections-container">
-                <div class="col-12 col-lg-9">
+                <div class="col-12 col-xxl-9">
                     <div class="map-wrapper">
                         <basic-map ref="map" v-on:init="onMapInit" v-bind:zoom="zoom"></basic-map>
                     </div>
                 </div>
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-xxl-3">
                     <transition name="slide-fade">
                         <div v-if="selectedStreet">
                             <street-description v-bind:street="selectedStreet"></street-description>
@@ -58,8 +44,14 @@
         margin-top: 15px;
     }
 
-    .searchbox {
-        margin-top: 15px;
+    .leaflet-div-icon {
+        background: none;
+        border: none;
+    }
+
+    .default-image-marker .image-marker {
+        border: 1px solid #000000;
+        background-color: #e5e5e5;
     }
 </style>
 <script>
@@ -70,11 +62,11 @@
     import Search from "../shared/search";
     import {optional} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
-    import {StreetsServiceMixin} from "../../mixins/index";
+    import {StreetsServiceMixin, NoticesServiceMixin} from "../../mixins/index";
 
     export default {
         components: {BasicMap, CitiesList, StreetDescription, Search},
-        mixins: [StreetsServiceMixin],
+        mixins: [StreetsServiceMixin, NoticesServiceMixin],
         props: {
             zoom: {
                 type: Number,
@@ -84,7 +76,7 @@
 
         data: function () {
             return {
-                marker: undefined,
+                markers: [],
                 selectedStreet: undefined,
                 polyLines: [],
                 cityId: undefined,
@@ -95,6 +87,9 @@
             map: function () {
                 return this.$refs.map.getMap();
             },
+            defaultImage: function () {
+                return require("../../../assets/images/default-image.png");
+            }
         },
         mounted: function() {
             if(!isNaN(this.$route.query.cityId)) {
@@ -105,6 +100,14 @@
                 this.coordinates = this.$route.query.coordinates.map(c => parseFloat(c));
                 this.setMarker(this.coordinates);
             }
+
+            this.$dc.get("eventBus").on("search", (search) => {
+                this.onSearchStreet(search);
+            });
+
+            this.$dc.get("eventBus").on("city-selected", (city) => {
+                this.onCitySelected(city);
+            });
         },
         methods: {
             findClosestStreet: function (coordinates) {
@@ -116,9 +119,19 @@
                 });
             },
             setMarker(coordinates) {
+                this.selectedStreet = null;
+                this.clearMap();
+                this.addMarker(coordinates);
+                this.map.setView(coordinates);
+                this.coordinates = coordinates;
+
                 this.findClosestStreet(coordinates).then(street => {
                     if (street) {
                         this.setSelectedStreet(street, coordinates);
+                    } else {
+                        this.removeMarkers();
+                        this.addMarker(coordinates);
+                        this.map.setView(coordinates);
                     }
                 });
             },
@@ -130,7 +143,6 @@
                     this.clearMap();
                     this.drawStreet(street);
                     if(coordinates) {
-                        this.coordinates = coordinates;
                         this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
                         this.setStreetMarker(coordinates, street);
                     }
@@ -141,27 +153,44 @@
                     this.polyLines.push(this.drawPolyline(way));
                 });
             },
+            addMarker(coordinates, icon = null) {
+                const marker = L.marker(coordinates, icon ? {icon: icon} : {});
+                this.markers.push(marker);
+                marker.addTo(this.map);
+            },
             clearMap() {
-                if (this.marker) {
-                    this.map.removeLayer(this.marker);
-                }
-
-                if (this.polyLines) {
-                    this.polyLines.map(p => this.map.removeLayer(p));
-                }
+                this.removeMarkers();
+                this.removePolyLines();
+            },
+            removeMarkers() {
+                this.markers.map(m => this.map.removeLayer(m));
+                this.markers = [];
+            },
+            removePolyLines() {
+                this.polyLines.map(p => this.map.removeLayer(p));
+                this.polyLines = [];
             },
             setStreetMarker(coordinates, street) {
-                if(street.namedEntities.length && street.namedEntities.some(n => n.imageUrl)) {
-                    this.marker = this.renderImageMarker(coordinates, {
-                        imageUrl: street.namedEntities[0].imageUrl,
-                        title: street.namedEntities[0].name,
-                        linkUrl: street.namedEntities[0].wikiUrl
-                    });
+                if(street.namedEntities.length) {
+                    const namedEntities = _.sortBy(street.namedEntities, n => n.imageUrl !== null);
+                    for(let i = 0; i <  namedEntities.length; i++) {
+                        this.markers.push(this.renderImageMarker({
+                            coordinates: coordinates,
+                            imageProps: {
+                                imageUrl: namedEntities[i].imageUrl || this.defaultImage,
+                                title: namedEntities[i].name,
+                                linkUrl: namedEntities[i].wikiUrl,
+                                styles: namedEntities.length > 1 ? {"margin-left": `-${i * 50}px`} : null
+                            },
+                            className: namedEntities[i].imageUrl ? "" : "default-image-marker"
+                        }));
+                    }
+
+                    this.markers.map(m => m.addTo(this.map));
                 } else {
-                    this.marker = L.marker(coordinates, {title: street.name});
+                    this.addMarker(coordinates, this.defaultMarkerIcon);
                 }
 
-                this.marker.addTo(this.map);
                 this.map.setView(coordinates);
             },
             drawPolyline(coordinates) {
@@ -190,11 +219,17 @@
 
                     if(street) {
                         this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
+                    } else {
+                        this.clearMap();
+                        this.selectedStreet = null;
+                        this.coordinates = [];
+                        this.$router.push({query: {...this.$route.query, coordinates: []}});
+                        this.noticesService.info("Вулицю не знайдено", "Перевірте будь ласка назву вулиці та повторіть пошук.");
                     }
                 });
             },
-            renderImageMarker(coordinates, imageProps) {
-                let icon = L.divIcon({html: provideImageMarkerHtml(imageProps)});
+            renderImageMarker({coordinates, imageProps, className} = {}) {
+                let icon = L.divIcon({html: provideImageMarkerHtml(imageProps), className: className});
                 return L.marker(coordinates, {icon, riseOnHover: true});
             }
         }

@@ -22,7 +22,7 @@
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
-        background-color: darkgrey;
+        background-color: #e5e5e5;
         transition: 0.2s;
     }
     .image-marker:hover, .image-marker:focus {
@@ -39,11 +39,13 @@
             imageUrl: {type: String},
             linkUrl: {type: String},
             title: {type: String},
+            styles: {type: Object, default: {}}
         },
         computed: {
             style: function () {
                 return {
                     "background-image": `url(${this.imageUrl})`,
+                    ...this.styles,
                 };
             },
         },

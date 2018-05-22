@@ -22,15 +22,14 @@
                             <tr v-for="namedEntity in namedEntities">
                                 <td>
                                     <div class="named-entity-image"
-                                         :style="{
-                                                            'background-image': 'url(' + namedEntity.imageUrl + ')',
-                                                            'background-color': 'lightgrey'}"></div>
+                                         :style="{'background-image':
+                                         'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
                                 </td>
                                 <td>{{namedEntity.name}}</td>
                                 <td>
-                                            <span v-if="namedEntity.description">
-                                                {{`${namedEntity.description.substring(0, 30)}...`}}
-                                            </span>
+                                    <span v-if="namedEntity.description">
+                                        {{`${namedEntity.description.substring(0, 30)}...`}}
+                                    </span>
                                 </td>
                                 <td class="text-right">
                                     <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
@@ -125,8 +124,7 @@
                                 <input type="text" class="form-control" id="named-entity-image-url"
                                        v-model="selectedNamedEntity.imageUrl">
                                 <div class="named-entity-image edited-image"
-                                     :style="{'background-image': 'url(' + selectedNamedEntity.imageUrl + ')',
-                                      'background-color': 'lightgrey'}">
+                                     :style="{'background-image': 'url(' + selectedNamedEntity.imageUrl + ')'}">
                                 </div>
                             </div>
                         </div>
@@ -209,14 +207,17 @@
             }
         },
         computed: {
-            pager() {
+            pager: function () {
                 return this.$refs.pager;
             },
-            editModal() {
+            editModal: function () {
                 return this.$refs.editModal;
             },
-            removeConfirmationModal() {
+            removeConfirmationModal: function () {
                 return this.$refs.removeConfirmationModal;
+            },
+            defaultImage: function () {
+                return require("../../../assets/images/default-image.png");
             }
         },
         methods: {

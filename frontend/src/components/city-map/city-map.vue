@@ -1,10 +1,10 @@
 <template>
-    <div class="row">
+    <div class="row page-wrapper">
         <div class="col-12">
-            <div class="row sections-container">
+            <div class="row">
                 <div class="col-12 col-xxl-9">
                     <div class="map-wrapper">
-                        <basic-map ref="map" v-on:init="onMapInit" v-bind:zoom="zoom"></basic-map>
+                        <basic-map ref="map" v-on:init="onMapInit" :zoom="zoom" :bounds="bounds"></basic-map>
                     </div>
                 </div>
                 <div class="col-12 col-xxl-3">
@@ -18,7 +18,11 @@
         </div>
     </div>
 </template>
-<style>
+<style scoped>
+    .page-wrapper {
+        overflow-x: hidden;
+    }
+
     .slide-fade-enter-active {
         transition: all .5s ease-in;
     }
@@ -64,25 +68,49 @@
     import Search from "../shared/search";
     import {optional} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
-    import {StreetsServiceMixin, NoticesServiceMixin, EventBusMixin} from "../../mixins/index";
+    import {
+        StreetsServiceMixin,
+        NoticesServiceMixin,
+        EventBusMixin,
+        CitiesServiceMixin
+    } from "../../mixins/index";
 
     export default {
         components: {BasicMap, CitiesList, StreetDescription, Search},
-        mixins: [StreetsServiceMixin, NoticesServiceMixin, EventBusMixin],
+        mixins: [
+            StreetsServiceMixin,
+            NoticesServiceMixin,
+            EventBusMixin,
+            CitiesServiceMixin
+        ],
         props: {
             zoom: {
                 type: Number,
-                default: 15
+                default: 13
+            },
+            focusZoom: {
+                type: Number,
+                default: 16
             }
         },
-
         data: function () {
             return {
                 markers: [],
                 selectedStreet: undefined,
                 polyLines: [],
                 cityId: undefined,
+                city: undefined,
                 coordinates: undefined
+            }
+        },
+        watch: {
+            '$route.query.cityId': function(cityId) {
+                if (!isNaN(cityId) && this.cityId !== cityId || !this.city) {
+                    this.cityId = parseInt(cityId);
+                    this.citiesService.getCity(this.cityId).then(response => {
+                        this.selectCity(response.data);
+                    });
+                }
             }
         },
         computed: {
@@ -91,24 +119,32 @@
             },
             defaultImage: function () {
                 return require("../../../assets/images/default-image.png");
+            },
+            bounds: function () {
+                return optional(() => this.city.bounds);
             }
+        },
+        created: function () {
+            this.searchEventOff = this.eventBus.on("search", (search) => {
+                this.onSearchStreet(search);
+            });
+
+            this.citySelectOff = this.eventBus.on("city-selected", (city) => {
+                this.selectCity(city);
+            });
         },
         mounted: function () {
             if (!isNaN(this.$route.query.cityId)) {
                 this.cityId = parseInt(this.$route.query.cityId);
             }
 
-            if (Array.isArray(this.$route.query.coordinates)) {
-                this.coordinates = this.$route.query.coordinates.map(c => parseFloat(c));
-                this.setMarker(this.coordinates);
-            }
-
-            this.searchEventOff = this.eventBus.on("search", (search) => {
-                this.onSearchStreet(search);
-            });
-
-            this.citySelectOff = this.eventBus.on("city-selected", (city) => {
-                this.onCitySelected(city);
+            this.getLocation().then(coordinates => {
+                if(coordinates.length) {
+                    this.coordinates = coordinates;
+                    this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
+                    this.map.setView(this.coordinates, this.focusZoom);
+                    this.setMarker(this.coordinates);
+                }
             });
         },
         beforeDestroy: function () {
@@ -121,6 +157,22 @@
             }
         },
         methods: {
+            getLocation: function () {
+                if (Array.isArray(this.$route.query.coordinates)) {
+                    return new Promise(resolve => resolve(this.$route.query.coordinates.map(c => parseFloat(c))));
+                } else {
+                    return new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition((position) => {
+                            resolve([position.coords.latitude, position.coords.longitude]);
+                        }, () => {
+                            this.noticesService.error(
+                                "Не вдалось отримати ваші координати",
+                                "Перевірте налаштування вашого браузера та спробуйте знову.");
+                            reject();
+                        }, {timeout: 3000});
+                    });
+                }
+            },
             findClosestStreet: function (coordinates) {
                 return this.streetsService.getStreetByCoordinates({
                     cityId: this.cityId,
@@ -132,17 +184,13 @@
             setMarker(coordinates) {
                 this.selectedStreet = null;
                 this.clearMap();
-                this.addMarker(coordinates);
-                this.map.setView(coordinates);
-                this.coordinates = coordinates;
 
                 this.findClosestStreet(coordinates).then(street => {
                     if (street) {
                         this.setSelectedStreet(street, coordinates);
                     } else {
-                        this.removeMarkers();
-                        this.addMarker(coordinates);
-                        this.map.setView(coordinates);
+                        let marker = this.addMarker({coordinates: coordinates});
+                        marker.bindPopup("<b>Це не вулиця</b><br>Оберіть будь ласка інші координати.").openPopup();
                     }
                 });
             },
@@ -150,13 +198,14 @@
                 this.selectedStreet = null;
 
                 Vue.nextTick(() => {
-                    this.selectedStreet = street;
                     this.clearMap();
+
+                    this.selectedStreet = street;
+                    this.coordinates = coordinates;
+                    this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
+
                     this.drawStreet(street);
-                    if (coordinates) {
-                        this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
-                        this.setStreetMarker(coordinates, street);
-                    }
+                    this.setStreetMarker(coordinates, street);
                 });
             },
             drawStreet(street) {
@@ -164,10 +213,11 @@
                     this.polyLines.push(this.drawPolyline(way));
                 });
             },
-            addMarker(coordinates, icon = null) {
+            addMarker({coordinates, icon} = {}) {
                 const marker = L.marker(coordinates, icon ? {icon: icon} : {});
                 this.markers.push(marker);
                 marker.addTo(this.map);
+                return marker;
             },
             clearMap() {
                 this.removeMarkers();
@@ -199,10 +249,10 @@
 
                     this.markers.map(m => m.addTo(this.map));
                 } else {
-                    this.addMarker(coordinates, this.defaultMarkerIcon);
+                    this.addMarker({coordinates: coordinates});
                 }
 
-                this.map.setView(coordinates);
+                this.map.setView(coordinates, this.focusZoom);
             },
             drawPolyline(coordinates) {
                 return L.polyline(coordinates, {opacity: 0.6, weight: 5}).addTo(this.map);
@@ -213,18 +263,19 @@
                     this.$emit("init");
                 }.bind(this));
             },
-            onCitySelected(city) {
-                if (city && city.id !== this.cityId) {
-                    this.cityId = city.id;
-                    this.selectedStreet = null;
-                    const query = {cityId: city.id};
-                    this.$router.push({query: query});
+            selectCity(city) {
+                this.cityId = city.id;
+                this.city = city;
+                this.selectedStreet = null;
 
-                    this.clearMap();
-                    this.$refs.map.setCenter(city.coordinates[0], city.coordinates[1], this.zoom);
-                }
+                this.clearMap();
+                this.map.setView(city.coordinates, this.zoom);
             },
             onSearchStreet(streetName) {
+                if(!streetName) {
+                    return;
+                }
+
                 this.streetsService.search({cityId: this.cityId, search: streetName}).then(response => {
                     const street = optional(() => response.data[0], null);
 

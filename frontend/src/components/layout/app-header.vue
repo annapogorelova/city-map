@@ -1,6 +1,6 @@
 <template>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <router-link class="navbar-brand" to="/map">City Map</router-link>
+    <nav class="app-navbar navbar navbar-expand-lg navbar-dark bg-dark">
+        <router-link class="navbar-brand" to="/map">ReadTheStreet</router-link>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item dropdown">
@@ -44,12 +44,35 @@
     export default {
         components: {CitiesList, Search},
         mixins: [AuthMixin, EventBusMixin],
+        data: function () {
+            return {
+                city: undefined
+            }
+        },
+        watch: {
+            '$route': function (route) {
+                if(route.name !== "map" && route.name !== "admin-streets") {
+                    return;
+                }
+
+                const cityId = parseInt(route.query.cityId);
+                if(this.city && cityId !== this.city.id) {
+                    this.$router.push({query: {cityId: this.city.id, ...route.query}});
+                    this.eventBus.emit("city-selected", this.city);
+                }
+            }
+        },
         methods: {
             onSearchStreet: function(search) {
                 this.eventBus.emit("search", search);
             },
             onCitySelected: function(city) {
-                this.eventBus .emit("city-selected", city);
+                this.city = city;
+                let query = {...this.$route.query};
+                query.cityId = city.id;
+                query.coordinates = undefined;
+                this.$router.push({query: query});
+                this.eventBus.emit("city-selected", city);
             }
         }
     }
@@ -61,5 +84,13 @@
 
     .btn-search {
         margin-left: 5px;
+    }
+
+    .app-navbar .nav-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .app-navbar .nav-link.router-link-active, .nav-item.dropdown.show .nav-link {
+        color: #ffffff !important;
     }
 </style>

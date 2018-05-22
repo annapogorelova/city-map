@@ -49,6 +49,10 @@
                 type: Number,
                 default: 8,
             },
+            bounds: {
+                type: Array,
+                default: () => []
+            },
             id: {
                 type: String,
                 default: () => {
@@ -77,6 +81,9 @@
             },
             init() {
                 this.map = L.map(this.id).setView([this.lat, this.lng], this.zoom);
+                if(this.bounds && this.bounds.length) {
+                    this.map.setMaxBounds(this.bounds);
+                }
                 L.tileLayer(this.tileLayerUrl, this.tileLayerOptions).addTo(this.map);
                 this.$emit("init");
             },

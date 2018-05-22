@@ -1,15 +1,9 @@
 <template>
     <div class="row">
         <div class="col-12">
-            <div class="row">
-                <div class="col-12">
-                    <cities-list v-bind:selected-city-id="cityId"
-                                 v-on:citySelected="onCitySelected"></cities-list>
-                </div>
-            </div>
             <div class="row search-container">
                 <div class="col-12">
-                    <search v-on:search="search"></search>
+                    <search v-on:search="search" v-bind:min-length="1"></search>
                 </div>
             </div>
             <div class="row">
@@ -35,7 +29,7 @@
                                     <div class="street-image" v-if="!street.namedEntities.length"></div>
                                 </td>
                                 <td>{{street.name}}</td>
-                                <td>{{street.namedEntity ? street.namedEntity.name : ""}}</td>
+                                <td>{{street.namedEntities.length ? street.namedEntities.map(n => n.name).join(', ') : ''}}</td>
                                 <td>
                                         <span v-if="street.description">
                                         {{`${street.description.substring(0, 30)}...`}}
@@ -124,13 +118,13 @@
     import Pager from "../shared/pager";
     import Search from "../shared/search";
     import BootstrapModal from "../shared/bootstrap-modal";
-    import {StreetsServiceMixin, NoticesServiceMixin} from "../../mixins/index";
+    import {StreetsServiceMixin, NoticesServiceMixin, EventBusMixin} from "../../mixins/index";
     import Autocomplete from "../shared/autocomplete";
     import {optional} from "tooleks";
 
     export default {
         components: {Autocomplete, Search, CitiesList, Pager, BootstrapModal},
-        mixins: [StreetsServiceMixin, NoticesServiceMixin],
+        mixins: [StreetsServiceMixin, NoticesServiceMixin, EventBusMixin],
         props: {
             pageLimit: {
                 type: Number,
@@ -157,6 +151,15 @@
             if (!isNaN(this.$route.query.cityId)) {
                 this.cityId = parseInt(this.$route.query.cityId);
             }
+
+            this.citySelectOff = this.eventBus.on("city-selected", (city) => {
+                this.selectCity(city.id);
+            });
+        },
+        beforeDestroy: function () {
+            if(this.citySelectOff) {
+                this.citySelectOff();
+            }
         },
         methods: {
             preloadData() {
@@ -173,10 +176,9 @@
                 this.pager.currentPage = 1;
                 this.getStreets({offset: 0, limit: this.pager.limit, search: text});
             },
-            onCitySelected(city) {
-                if (city && city.id !== this.cityId) {
-                    this.cityId = city.id;
-                    this.$router.push({query: {...this.$route.query, cityId: this.cityId}});
+            selectCity(cityId) {
+                if(this.cityId !== cityId) {
+                    this.cityId = cityId;
                     this.pager.goToPage(1);
                 }
             },

@@ -4,21 +4,19 @@
             <div class="street-description-container">
                 <div class="row street-description-header">
                     <div class="col-12">
-                        <h5><b>Назва:</b> {{street.name}}</h5>
-                        <h5 v-if="street.oldName"><b>Стара назва:</b> {{street.oldName}}</h5>
                         <h6 class="no-named-entity-info-message" v-if="!street.namedEntities.length">
                             На жаль, на даний момент відсутні дані про назву цієї вулиці.
                         </h6>
                     </div>
                 </div>
-                <div class="row street-description-body" v-for="namedEntity of street.namedEntities">
+                <div class="row">
                     <div class="col-12">
-                        <div class="row">
+                        <div class="row street-description-body" v-for="namedEntity of street.namedEntities">
                             <div class="col-12">
                                 <div class="named-entity">
                                     <div class="named-entity-image-container">
                                         <div class="named-entity-image"
-                                             :style="{'background-image': 'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
+                                             :style="{'background-image': 'url(' + namedEntity.imageUrl + ')'}"></div>
                                     </div>
                                     <div class="named-entity-description-container">
                                         <div class="row">
@@ -29,9 +27,9 @@
                                         <div class="row tags-container">
                                             <div class="col-12">
                                                 <div v-if="namedEntity.tags">
-                                                    <h5 class="tag-container" v-for="tag in namedEntity.tags">
+                                                    <h6 class="tag-container" v-for="tag in namedEntity.tags">
                                                         <span class="badge badge-dark">{{tag.name}}</span>
-                                                    </h5>
+                                                    </h6>
                                                 </div>
                                                 <p class="description">{{namedEntity.description}}</p>
                                             </div>
@@ -81,6 +79,10 @@
         margin-bottom: 0;
     }
 
+    p {
+        font-size: 14px;
+    }
+
     a.btn {
         margin: 5px 0;
         display: inline-block;
@@ -90,10 +92,10 @@
     }
 
     .description {
-        margin-top: 15px;
+        margin-top: 10px;
     }
 
-    h5.tag-container {
+    h6.tag-container {
         display: inline-block;
         margin-right: 5px;
         margin-top: 5px;
@@ -122,10 +124,6 @@
         width: auto;
     }
 
-    .street-description-body {
-        margin-top: 20px;
-    }
-
     .street-description-header h5 {
         margin-top: 5px;
     }
@@ -142,6 +140,14 @@
         align-items: flex-start;
     }
 
+    .street-description-body {
+        margin-top: 20px;
+    }
+
+    .street-description-body:first-child {
+        margin-top: 0;
+    }
+
     .named-entity > div {
         flex: 1;
     }
@@ -155,7 +161,7 @@
     }
 
     .named-entity .tags-container {
-        margin-top: 10px;
+        margin-top: 5px;
     }
 
     .named-entity .named-entity-description-container {
@@ -186,10 +192,6 @@
             width: 150px;
             margin: auto;
         }
-    }
-
-    .no-named-entity-info-message {
-        margin-top: 10px;
     }
 </style>
 <script>

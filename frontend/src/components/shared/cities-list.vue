@@ -76,7 +76,7 @@
                 }
             },
             selectCity: function (city) {
-                if(city) {
+                if(city && !this.isCitySelected(city)) {
                     this.selectedCity = city;
                     this.$emit("citySelected", this.selectedCity);
                 }

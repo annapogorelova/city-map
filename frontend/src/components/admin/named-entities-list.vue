@@ -188,6 +188,7 @@
     import {NamedEntitiesServiceMixin, NoticesServiceMixin} from "../../mixins/index";
     import TagsEditingWidget from "../shared/tags-editing-widget";
     import moment from "moment";
+    import constants from "../../constants";
 
     export default {
         components: {TagsEditingWidget, Search, Pager, BootstrapModal},
@@ -255,7 +256,9 @@
                     this.namedEntities[namedEntityIndex] = this.selectedNamedEntity;
 
                     this.editModal.hide();
-                    this.noticesService.success("Дію успішно виконано", `${this.selectedNamedEntity.name} оновлено`);
+                    this.noticesService.success(
+                        constants.NOTICES.UPDATE_ACTION_SUCCESS.title,
+                        constants.NOTICES.UPDATE_ACTION_SUCCESS.message);
 
                     Vue.nextTick(() => {
                         this.selectedNamedEntity = undefined;
@@ -274,7 +277,10 @@
                     this.namedEntities = this.namedEntities.filter(entity => entity.id !== this.selectedNamedEntity.id);
 
                     this.removeConfirmationModal.hide();
-                    this.noticesService.success("Дію успішно виконано", `${this.selectedNamedEntity.name} видалено`);
+                    this.noticesService.success(
+                        constants.NOTICES.DELETE_ACTION_SUCCESS.title,
+                        constants.NOTICES.DELETE_ACTION_SUCCESS.message
+                    );
 
                     Vue.nextTick(() => {
                         this.selectedNamedEntity = undefined;
@@ -298,7 +304,10 @@
                     this.namedEntities.splice(0, 0, this.selectedNamedEntity);
 
                     this.editModal.hide();
-                    this.noticesService.success("Дію успішно виконано", `${this.selectedNamedEntity.name} створено`);
+                    this.noticesService.success(
+                        constants.NOTICES.CREATE_ACTION_SUCCESS.title,
+                        constants.NOTICES.CREATE_ACTION_SUCCESS.message
+                    );
 
                     Vue.nextTick(() => {
                         this.selectedNamedEntity = undefined;

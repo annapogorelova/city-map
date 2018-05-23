@@ -121,6 +121,7 @@
     import {StreetsServiceMixin, NoticesServiceMixin, EventBusMixin} from "../../mixins/index";
     import Autocomplete from "../shared/autocomplete";
     import {optional} from "tooleks";
+    import constants from "../../constants";
 
     export default {
         components: {Autocomplete, Search, CitiesList, Pager, BootstrapModal},
@@ -199,7 +200,10 @@
 
                 this.streetsService.update(this.selectedStreet).then(() => {
                     this.modal.hide();
-                    this.noticesService.success("Дію успішно виконано", `${this.selectedStreet.name} оновлено`);
+                    this.noticesService.success(
+                        constants.NOTICES.UPDATE_ACTION_SUCCESS.title,
+                        constants.NOTICES.UPDATE_ACTION_SUCCESS.message
+                    );
 
                     Vue.nextTick(() => {
                         this.selectedStreet = undefined;

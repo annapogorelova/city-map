@@ -74,6 +74,7 @@
         EventBusMixin,
         CitiesServiceMixin
     } from "../../mixins/index";
+    import constants from "../../constants";
 
     export default {
         components: {BasicMap, CitiesList, StreetDescription, Search},
@@ -177,8 +178,8 @@
                             resolve([position.coords.latitude, position.coords.longitude]);
                         }, () => {
                             this.noticesService.error(
-                                "Не вдалось отримати ваші координати",
-                                "Перевірте налаштування вашого браузера та спробуйте знову.");
+                                constants.NOTICES.FAILED_TO_GET_LOCATION.title,
+                                constants.NOTICES.FAILED_TO_GET_LOCATION.message);
                             reject();
                         }, {timeout: 3000});
                     });
@@ -205,7 +206,11 @@
                         this.setSelectedStreet(street, coordinates);
                     } else {
                         let marker = this.addMarker({coordinates: coordinates});
-                        marker.bindPopup("<b>Це не вулиця</b><br>Оберіть будь ласка інші координати.").openPopup();
+                        console.log(constants)
+                        marker.bindPopup(`
+                            <b>${constants.NOTICES.NOT_A_STREET.title}</b>
+                            <br>${constants.NOTICES.NOT_A_STREET.message}`)
+                            .openPopup();
                     }
                 });
             },
@@ -308,7 +313,10 @@
                         this.selectedStreet = null;
                         this.coordinates = [];
                         this.$router.push({query: {...this.$route.query, coordinates: []}});
-                        this.noticesService.info("Вулицю не знайдено", "Перевірте будь ласка назву вулиці та повторіть пошук.");
+                        this.noticesService.info(
+                            constants.NOTICES.STREET_NOT_FOUND.title,
+                            constants.NOTICES.STREET_NOT_FOUND.message
+                        );
                     }
                 });
             },

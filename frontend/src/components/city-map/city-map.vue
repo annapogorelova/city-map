@@ -4,7 +4,7 @@
             <div class="row">
                 <div class="col-12 col-xxl-9">
                     <div class="map-wrapper">
-                        <basic-map ref="map" v-on:init="onMapInit" :zoom="zoom" :bounds="bounds"></basic-map>
+                        <basic-map ref="map" v-on:init="onMapInit" :zoom="zoom"></basic-map>
                     </div>
                 </div>
                 <div class="col-12 col-xxl-3">
@@ -98,18 +98,25 @@
                 markers: [],
                 selectedStreet: undefined,
                 polyLines: [],
-                cityId: undefined,
                 city: undefined,
                 coordinates: undefined
             }
         },
         watch: {
             '$route.query.cityId': function(cityId) {
-                if (!isNaN(cityId) && this.cityId !== cityId || !this.city) {
-                    this.cityId = parseInt(cityId);
-                    this.citiesService.getCity(this.cityId).then(response => {
+                console.log('$route.query.cityId');
+                if (!isNaN(cityId) && optional(() => this.city.id !== cityId)) {
+                    this.citiesService.getCity(cityId).then(response => {
                         this.selectCity(response.data);
                     });
+                }
+            },
+            city: function (city) {
+                if(city && this.map) {
+                    const bounds = optional(() =>[city.bounds[0][0], city.bounds[0][2]]);
+                    this.map.setMaxBounds(bounds);
+                } else {
+                    this.map.setMaxBounds([]);
                 }
             }
         },
@@ -120,8 +127,14 @@
             defaultImage: function () {
                 return require("../../../assets/images/default-image.png");
             },
-            bounds: function () {
-                return optional(() => this.city.bounds);
+            cityId: function () {
+                if(this.city) {
+                    return this.city.id;
+                } else if(!isNaN(this.$route.query.cityId)) {
+                    return this.$route.query.cityId;
+                }
+
+                return null;
             }
         },
         created: function () {
@@ -130,16 +143,14 @@
             });
 
             this.citySelectOff = this.eventBus.on("city-selected", (city) => {
+                console.log("city-selected");
                 this.selectCity(city);
             });
         },
         mounted: function () {
-            if (!isNaN(this.$route.query.cityId)) {
-                this.cityId = parseInt(this.$route.query.cityId);
-            }
-
             this.getLocation().then(coordinates => {
                 if(coordinates.length) {
+                    console.log("getLocation");
                     this.coordinates = coordinates;
                     this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
                     this.map.setView(this.coordinates, this.focusZoom);
@@ -174,6 +185,10 @@
                 }
             },
             findClosestStreet: function (coordinates) {
+                if(!this.cityId) {
+                    return Promise.reject();
+                }
+
                 return this.streetsService.getStreetByCoordinates({
                     cityId: this.cityId,
                     coordinates: coordinates
@@ -217,7 +232,13 @@
                 const marker = L.marker(coordinates, icon ? {icon: icon} : {});
                 this.markers.push(marker);
                 marker.addTo(this.map);
+                this.setMapView(coordinates);
                 return marker;
+            },
+            setMapView(coordinates) {
+                const mapZoom = this.map.getZoom();
+                const zoom = mapZoom > this.focusZoom ? mapZoom : this.focusZoom;
+                this.map.setView(coordinates, zoom);
             },
             clearMap() {
                 this.removeMarkers();
@@ -252,7 +273,7 @@
                     this.addMarker({coordinates: coordinates});
                 }
 
-                this.map.setView(coordinates, this.focusZoom);
+                this.setMapView(coordinates);
             },
             drawPolyline(coordinates) {
                 return L.polyline(coordinates, {opacity: 0.6, weight: 5}).addTo(this.map);
@@ -264,9 +285,10 @@
                 }.bind(this));
             },
             selectCity(city) {
-                this.cityId = city.id;
                 this.city = city;
                 this.selectedStreet = null;
+                this.coordinates = [];
+                this.$router.push({query: {...this.$route.query, coordinates: []}});
 
                 this.clearMap();
                 this.map.setView(city.coordinates, this.zoom);
@@ -276,7 +298,7 @@
                     return;
                 }
 
-                this.streetsService.search({cityId: this.cityId, search: streetName}).then(response => {
+                this.streetsService.search({cityId: this.city.id, search: streetName}).then(response => {
                     const street = optional(() => response.data[0], null);
 
                     if (street) {

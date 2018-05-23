@@ -93,4 +93,8 @@
     .app-navbar .nav-link.router-link-active, .nav-item.dropdown.show .nav-link {
         color: #ffffff !important;
     }
+
+    .dropdown-item.active, .dropdown-item:active {
+        background-color: #0056b2 !important;
+    }
 </style>

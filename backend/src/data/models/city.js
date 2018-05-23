@@ -40,6 +40,28 @@ module.exports = function(sequelize, DataTypes) {
                     }
                 }
             }
+        },
+        bounds: {
+            type: DataTypes.GEOMETRY("POLYGON"),
+            allowNull: false,
+            get: function() {
+                const bounds = this.getDataValue("bounds");
+                return (bounds === null) ? null : bounds.coordinates;
+            },
+            set: function(bounds) {
+                if (bounds === null) {
+                    this.setDataValue("bounds", null);
+                } else {
+                    this.setDataValue("bounds", { type: "Polygon", coordinates: bounds });
+                }
+            },
+            validations: {
+                isCoordinateArray: function(value) {
+                    if (!Array.isArray(value) || !Array.isArray(value[0])) {
+                        throw new Error("Must be an array of arrays");
+                    }
+                }
+            }
         }
     }, {
         tableName: "city"

@@ -158,7 +158,7 @@ class WikiService {
                 content: pageContent[2],
                 categories: pageContent[3],
                 imageUrl: pageContent[4],
-                wikiUrl: optional(() => page.raw.fullurl, "")
+                wikiUrl: optional(() => page.raw.fullurl)
             };
         } catch (err) {
             return null;

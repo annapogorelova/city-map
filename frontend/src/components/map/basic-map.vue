@@ -4,7 +4,7 @@
 
 <style>
     .map {
-        height: 380px;
+        height: 500px;
         width: 100%;
         margin-top: 15px;
         cursor: default;

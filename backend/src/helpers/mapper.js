@@ -13,7 +13,8 @@ mapper.registerResolver("app.city", "api.v1.city", (city) => {
         id: city.id,
         name: city.name,
         nameEn: city.nameEn,
-        coordinates: city.coordinates
+        coordinates: city.coordinates,
+        bounds: city.bounds
     };
 });
 
@@ -21,7 +22,8 @@ mapper.registerResolver("api.v1.city", "app.city", (city) => {
     return {
         name: city.name,
         nameEn: city.nameEn,
-        coordinates: city.coordinates
+        coordinates: city.coordinates,
+        bounds: city.bounds
     };
 });
 

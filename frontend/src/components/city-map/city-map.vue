@@ -298,7 +298,7 @@
                     return;
                 }
 
-                this.streetsService.search({cityId: this.city.id, search: streetName}).then(response => {
+                this.streetsService.search({cityId: this.cityId, search: streetName}).then(response => {
                     const street = optional(() => response.data[0], null);
 
                     if (street) {

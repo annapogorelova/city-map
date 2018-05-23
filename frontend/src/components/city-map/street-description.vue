@@ -16,7 +16,7 @@
                                 <div class="named-entity">
                                     <div class="named-entity-image-container">
                                         <div class="named-entity-image"
-                                             :style="{'background-image': 'url(' + namedEntity.imageUrl + ')'}"></div>
+                                             :style="{'background-image': 'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
                                     </div>
                                     <div class="named-entity-description-container">
                                         <div class="row">

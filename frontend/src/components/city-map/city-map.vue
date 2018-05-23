@@ -105,7 +105,6 @@
         },
         watch: {
             '$route.query.cityId': function(cityId) {
-                console.log('$route.query.cityId');
                 if (!isNaN(cityId) && optional(() => this.city.id !== cityId)) {
                     this.citiesService.getCity(cityId).then(response => {
                         this.selectCity(response.data);
@@ -144,18 +143,13 @@
             });
 
             this.citySelectOff = this.eventBus.on("city-selected", (city) => {
-                console.log("city-selected");
                 this.selectCity(city);
             });
         },
         mounted: function () {
             this.getLocation().then(coordinates => {
                 if(coordinates.length) {
-                    console.log("getLocation");
-                    this.coordinates = coordinates;
-                    this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
-                    this.map.setView(this.coordinates, this.focusZoom);
-                    this.setMarker(this.coordinates);
+                    this.setMarker(coordinates);
                 }
             });
         },
@@ -206,7 +200,6 @@
                         this.setSelectedStreet(street, coordinates);
                     } else {
                         let marker = this.addMarker({coordinates: coordinates});
-                        console.log(constants)
                         marker.bindPopup(`
                             <b>${constants.NOTICES.NOT_A_STREET.title}</b>
                             <br>${constants.NOTICES.NOT_A_STREET.message}`)
@@ -221,9 +214,6 @@
                     this.clearMap();
 
                     this.selectedStreet = street;
-                    this.coordinates = coordinates;
-                    this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
-
                     this.drawStreet(street);
                     this.setStreetMarker(coordinates, street);
                 });
@@ -241,9 +231,16 @@
                 return marker;
             },
             setMapView(coordinates) {
+                this.coordinates = coordinates;
+                this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
+
                 const mapZoom = this.map.getZoom();
                 const zoom = mapZoom > this.focusZoom ? mapZoom : this.focusZoom;
                 this.map.setView(coordinates, zoom);
+            },
+            resetCoordinates() {
+                this.coordinates = [];
+                this.$router.push({query: {...this.$route.query, coordinates: []}});
             },
             clearMap() {
                 this.removeMarkers();
@@ -292,9 +289,7 @@
             selectCity(city) {
                 this.city = city;
                 this.selectedStreet = null;
-                this.coordinates = [];
-                this.$router.push({query: {...this.$route.query, coordinates: []}});
-
+                this.resetCoordinates();
                 this.clearMap();
                 this.map.setView(city.coordinates, this.zoom);
             },
@@ -310,9 +305,8 @@
                         this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
                     } else {
                         this.clearMap();
+                        this.resetCoordinates();
                         this.selectedStreet = null;
-                        this.coordinates = [];
-                        this.$router.push({query: {...this.$route.query, coordinates: []}});
                         this.noticesService.info(
                             constants.NOTICES.STREET_NOT_FOUND.title,
                             constants.NOTICES.STREET_NOT_FOUND.message

@@ -1,10 +1,9 @@
 <template>
-    <div :id="this.id" class="map"></div>
+    <div :id="this.id" class="map" :style="{height: mapHeight + 'px'}"></div>
 </template>
 
 <style>
     .map {
-        height: 500px;
         width: 100%;
         margin-top: 15px;
         cursor: default;
@@ -59,6 +58,11 @@
                     const id = Math.random().toString(36).substr(2, 5);
                     return `map-${id}`;
                 },
+            }
+        },
+        computed: {
+            mapHeight: function () {
+                return window.innerHeight - 80;
             }
         },
         data: () => {

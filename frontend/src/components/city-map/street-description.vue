@@ -1,74 +1,86 @@
 <template>
-    <div class="row">
-        <div class="col-12">
-            <div class="street-description-container">
-                <div class="row street-description-header">
-                    <div class="col-12">
-                        <h6 class="no-named-entity-info-message" v-if="!street.namedEntities.length">
-                            На жаль, на даний момент відсутні дані про назву цієї вулиці.
-                        </h6>
-                    </div>
-                </div>
+    <div class="street-description-container">
+        <div class="row street-description-header">
+            <div class="col-12">
                 <div class="row">
                     <div class="col-12">
-                        <div class="row street-description-body" v-for="namedEntity of street.namedEntities">
-                            <div class="col-12">
-                                <div class="named-entity">
-                                    <div class="named-entity-image-container">
-                                        <div class="named-entity-image"
-                                             :style="{'background-image': 'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
+                        <h5 class="street-name">{{street.name}}</h5>
+                        <h5 class="old-name" v-if="street.oldName">Стара назва: {{street.oldName}}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" v-if="!street.namedEntities.length">
+            <div class="col-12">
+                <p class="no-named-entity-info-message">
+                    На жаль, на даний момент відсутні дані про назву цієї вулиці.
+                </p>
+            </div>
+        </div>
+        <div>
+            <div class="row street-description-body" v-for="namedEntity of street.namedEntities">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="named-entity-name">{{namedEntity.name}}</h5>
+                        </div>
+                    </div>
+                    <div class="row image-container" v-if="namedEntity.imageUrl">
+                        <div class="col-12">
+                            <div class="named-entity-image-container">
+                                <div class="named-entity-image"
+                                     :style="{'background-image': 'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="named-entity-description-container">
+                                <div class="row tags-container">
+                                    <div class="col-12">
+                                        <div v-if="namedEntity.tags">
+                                            <h6 class="tag-container" v-for="tag in namedEntity.tags">
+                                                <span class="badge badge-dark">{{tag.name}}</span>
+                                            </h6>
+                                        </div>
+                                        <p class="description">{{namedEntity.description}}</p>
                                     </div>
-                                    <div class="named-entity-description-container">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h5>{{namedEntity.name}}</h5>
-                                            </div>
-                                        </div>
-                                        <div class="row tags-container">
-                                            <div class="col-12">
-                                                <div v-if="namedEntity.tags">
-                                                    <h6 class="tag-container" v-for="tag in namedEntity.tags">
-                                                        <span class="badge badge-dark">{{tag.name}}</span>
-                                                    </h6>
-                                                </div>
-                                                <p class="description">{{namedEntity.description}}</p>
-                                            </div>
-                                        </div>
-                                        <div class="row wiki-links-container">
-                                            <div class="col-12">
-                                                <a class="btn btn-outline-dark" v-bind:href="namedEntity.wikiUrl"
-                                                   target="_blank">
-                                                    <i class="fab fa-wikipedia-w"></i>
-                                                    {{namedEntity.name}}
-                                                </a>
-                                            </div>
-                                        </div>
+                                </div>
+                                <div class="row wiki-links-container">
+                                    <div class="col-12">
+                                        <h6 class="wiki-links-header">Посилання на Wikipedia</h6>
+                                        <a class="btn btn-outline-dark" v-bind:href="namedEntity.wikiUrl"
+                                           target="_blank">
+                                            <i class="fab fa-wikipedia-w"></i>{{namedEntity.name}}
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row description-footer" v-if="street.wikiUrl">
-                    <div class="col-12">
-                        <h5>Посилання на Wikipedia:</h5>
-                        <div class="wiki-links-container">
-                            <a v-if="street.wikiUrl" class="btn btn-outline-dark wiki-link"
-                               v-bind:href="street.wikiUrl" target="_blank">
-                                <i class="fab fa-wikipedia-w"></i>
-                                {{street.name}}
-                            </a>
-                        </div>
-                    </div>
-                </div>
+            </div>
+        </div>
+        <div class="row description-footer" v-if="street.wikiUrl">
+            <div class="col-12">
+                <h6 class="wiki-links-header">Ця вулиця на Wikipedia:</h6>
+                <a class="btn btn-outline-dark wiki-link" v-bind:href="street.wikiUrl" target="_blank">
+                    <i class="fab fa-wikipedia-w"></i>
+                    {{street.name}}
+                </a>
             </div>
         </div>
     </div>
 </template>
 <style scoped>
     .street-description-container {
-        padding: 20px;
-        border: 1px solid #212529;
+        padding: 15px 20px;
+        border: 1px solid #939697;
+        background-color: #ffffff;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        opacity: 0.9;
     }
 
     .street-description-container h5:first-child {
@@ -79,12 +91,16 @@
         margin-bottom: 0;
     }
 
-    p {
-        font-size: 14px;
+    i.fa-wikipedia-w {
+        margin-right: 5px;
+    }
+
+    .named-entity-name, .street-name, .wiki-links-header {
+        font-weight: 600;
     }
 
     a.btn {
-        margin: 5px 0;
+        margin: 10px 0;
         display: inline-block;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -92,7 +108,11 @@
     }
 
     .description {
-        margin-top: 10px;
+        margin-top: 5px;
+    }
+
+    p.description {
+        font-size: 14px;
     }
 
     h6.tag-container {
@@ -102,11 +122,7 @@
     }
 
     .wiki-links-container {
-        margin-top: 5px;
-    }
-
-    .wiki-links-container a {
-        margin-right: 10px;
+        margin-top: 10px;
     }
 
     .named-entity-image {
@@ -119,79 +135,53 @@
         border-radius: 0;
     }
 
-    img {
-        max-height: 200px;
-        width: auto;
-    }
-
     .street-description-header h5 {
         margin-top: 5px;
     }
 
     .description-footer {
-        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #939697;
     }
 
-    .named-entity {
-        display: flex;
-        flex-direction: row;
-        flex-flow: row wrap;
-        justify-content: stretch;
-        align-items: flex-start;
+    .street-description-body:not(:last-child) {
+        border-bottom: 1px solid #939697;
     }
 
-    .street-description-body {
+    .street-description-body:not(:first-child) {
         margin-top: 20px;
     }
 
+    .street-description-body:only-child {
+        border-bottom: none;
+    }
+
     .street-description-body:first-child {
-        margin-top: 0;
+        margin-top: 10px;
     }
 
-    .named-entity > div {
-        flex: 1;
+    .named-entity-image-container {
+        height: 220px;
+        width: 200px;
+        margin: auto;
     }
 
-    .named-entity .named-entity-image-container {
-        height: 250px;
-        flex-basis: 200px;
-        flex-grow: 0;
-        flex-shrink: 0;
-        margin-right: 10px;
+    .named-entity-description-container {
+        margin-top: 15px;
+        margin-bottom: 5px;
     }
 
-    .named-entity .tags-container {
+    .old-name {
         margin-top: 5px;
     }
 
-    .named-entity .named-entity-description-container {
-        margin-left: 10px;
+    .image-container {
+        margin-top: 15px;
     }
 
-    @media (max-width: 600px) {
-        .named-entity {
-            display: block;
-        }
-
-        .named-entity .named-entity-image-container {
-            width: 200px;
-            margin: 0px auto 20px auto;
-        }
-
-        .named-entity-image {
-            width: 100%;
-        }
-
-        .named-entity .named-entity-description-container {
-            margin-left: 0;
-        }
-    }
-
-    @media (max-width: 300px) {
-        .named-entity .named-entity-image-container {
-            width: 150px;
-            margin: auto;
-        }
+    .no-named-entity-info-message {
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 </style>
 <script>

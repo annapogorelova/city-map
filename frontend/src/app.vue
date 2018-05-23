@@ -30,9 +30,4 @@
         min-width: 300px;
         overflow-x: auto;
     }
-
-    .app-content {
-        margin-top: 15px;
-        margin-bottom: 15px;
-    }
 </style>

@@ -1,17 +1,12 @@
 <template>
     <div class="row page-wrapper">
         <div class="col-12">
-            <div class="row">
-                <div class="col-12 col-xxl-9">
-                    <div class="map-wrapper">
-                        <basic-map ref="map" v-on:init="onMapInit" :zoom="zoom"></basic-map>
-                    </div>
-                </div>
-                <div class="col-12 col-xxl-3">
+            <div class="map-wrapper">
+                <basic-map ref="map" v-on:init="onMapInit" :zoom="zoom"></basic-map>
+                <div class="street-info" :style="{height: mapHeight + 'px'}">
                     <transition name="slide-fade">
-                        <div v-if="selectedStreet">
-                            <street-description v-bind:street="selectedStreet"></street-description>
-                        </div>
+                        <street-description v-if="selectedStreet"
+                                            v-bind:street="selectedStreet"></street-description>
                     </transition>
                 </div>
             </div>
@@ -21,6 +16,27 @@
 <style scoped>
     .page-wrapper {
         overflow-x: hidden;
+        padding: 10px;
+    }
+
+    .page-wrapper > div {
+        padding: 0;
+    }
+
+    .street-info {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        z-index: 99999;
+        width: 350px;
+        overflow-x: hidden;
+        height: 100%;
+    }
+
+    @media(max-width: 600px) {
+        .street-info {
+            width: 100%;
+        }
     }
 
     .slide-fade-enter-active {
@@ -37,9 +53,9 @@
     }
 
     .map-wrapper {
+        position: relative;
         width: 100%;
         height: auto;
-        margin-bottom: 20px;
     }
 
     .map {
@@ -104,7 +120,7 @@
             }
         },
         watch: {
-            '$route.query.cityId': function(cityId) {
+            "$route.query.cityId": function (cityId) {
                 if (!isNaN(cityId) && optional(() => this.city.id !== cityId)) {
                     this.citiesService.getCity(cityId).then(response => {
                         this.selectCity(response.data);
@@ -112,8 +128,8 @@
                 }
             },
             city: function (city) {
-                if(city && this.map) {
-                    const bounds = optional(() =>[city.bounds[0][0], city.bounds[0][2]]);
+                if (city && this.map) {
+                    const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]]);
                     this.map.setMaxBounds(bounds);
                 } else {
                     this.map.setMaxBounds([]);
@@ -128,13 +144,16 @@
                 return require("../../../assets/images/default-image.png");
             },
             cityId: function () {
-                if(this.city) {
+                if (this.city) {
                     return this.city.id;
-                } else if(!isNaN(this.$route.query.cityId)) {
+                } else if (!isNaN(this.$route.query.cityId)) {
                     return this.$route.query.cityId;
                 }
 
                 return null;
+            },
+            mapHeight: function () {
+                return window.innerHeight - 80;
             }
         },
         created: function () {
@@ -148,7 +167,7 @@
         },
         mounted: function () {
             this.getLocation().then(coordinates => {
-                if(coordinates.length) {
+                if (coordinates.length) {
                     this.setMarker(coordinates);
                 }
             });
@@ -180,7 +199,7 @@
                 }
             },
             findClosestStreet: function (coordinates) {
-                if(!this.cityId) {
+                if (!this.cityId) {
                     return Promise.reject();
                 }
 
@@ -294,7 +313,7 @@
                 this.map.setView(city.coordinates, this.zoom);
             },
             onSearchStreet(streetName) {
-                if(!streetName) {
+                if (!streetName) {
                     return;
                 }
 

@@ -328,10 +328,11 @@
         }
     }
 </script>
-<style>
+<style scoped>
     table {
         margin-top: 15px;
         margin-bottom: 10px !important;
+        font-size: 0.9em;
     }
 
     .table td {

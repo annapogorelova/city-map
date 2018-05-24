@@ -3,8 +3,9 @@
         <div class="col-12">
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                 <button class="dropdown-item btn-link" :class="{'active': isCitySelected(city)}"
-                        v-for="city in cities"
-                   v-on:click="selectCity(city)">{{city.name}}</button>
+                        v-for="city in cities" v-on:click="selectCity(city)">
+                    {{city.name}}
+                </button>
             </div>
         </div>
     </div>

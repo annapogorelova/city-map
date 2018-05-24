@@ -3,53 +3,49 @@
         <div class="col-12">
             <div class="map-wrapper">
                 <basic-map ref="map" v-on:init="onMapInit" :zoom="zoom"></basic-map>
-                <div class="street-info" :style="{height: mapHeight + 'px'}">
-                    <transition name="slide-fade">
-                        <street-description v-if="selectedStreet"
-                                            v-bind:street="selectedStreet"></street-description>
-                    </transition>
-                </div>
+                <sidebar ref="sidebar" :width="400" :height="mapHeight">
+                    <template slot="content">
+                        <div class="row sidebar-section">
+                            <div class="col-12">
+                                <div class="search-container">
+                                    <search v-on:search="onSearchStreet"
+                                            v-bind:placeholder="'Назва вулиці'"></search>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row sidebar-section">
+                            <div class="col-12">
+                                <street-description v-if="selectedStreet"
+                                                    :street="selectedStreet"></street-description>
+                            </div>
+                        </div>
+                        <div class="row sidebar-section" v-if="!selectedStreet">
+                            <div class="col-12">
+                                <p v-if="!searchInProgress">Тут не було знайдено жодної вулиці.</p>
+                                <p v-if="searchInProgress">Шукаємо...</p>
+                            </div>
+                        </div>
+                    </template>
+                    <template slot="footer">
+                        <div class="row">
+                            <div class="col-12 sidebar-footer">
+                                <h6 v-if="city">{{city.name}}</h6>
+                                <p v-if="selectedStreet">{{selectedStreet.name}}</p>
+                            </div>
+                        </div>
+                    </template>
+                </sidebar>
             </div>
         </div>
     </div>
 </template>
 <style scoped>
     .page-wrapper {
-        overflow-x: hidden;
-        padding: 10px;
+        overflow: hidden;
     }
 
     .page-wrapper > div {
         padding: 0;
-    }
-
-    .street-info {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        z-index: 99999;
-        width: 350px;
-        overflow-x: hidden;
-        height: 100%;
-    }
-
-    @media(max-width: 600px) {
-        .street-info {
-            width: 100%;
-        }
-    }
-
-    .slide-fade-enter-active {
-        transition: all .5s ease-in;
-    }
-
-    .slide-fade-leave-active {
-        transition: all .8s ease-out;
-    }
-
-    .slide-fade-enter, .slide-fade-leave-to {
-        transform: translateX(100px);
-        opacity: 0;
     }
 
     .map-wrapper {
@@ -75,6 +71,22 @@
         border: 1px solid #000000;
         background-color: #e5e5e5;
     }
+
+    .sidebar-section:not(:first-child) {
+        margin-top: 10px;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    .sidebar-footer p {
+        margin-bottom: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 0.9em;
+    }
 </style>
 <script>
     import Vue from "vue";
@@ -91,9 +103,10 @@
         CitiesServiceMixin
     } from "../../mixins/index";
     import constants from "../../constants";
+    import Sidebar from "../layout/sidebar";
 
     export default {
-        components: {BasicMap, CitiesList, StreetDescription, Search},
+        components: {Sidebar, BasicMap, CitiesList, StreetDescription, Search},
         mixins: [
             StreetsServiceMixin,
             NoticesServiceMixin,
@@ -116,7 +129,8 @@
                 selectedStreet: undefined,
                 polyLines: [],
                 city: undefined,
-                coordinates: undefined
+                coordinates: undefined,
+                searchInProgress: false
             }
         },
         watch: {
@@ -134,11 +148,19 @@
                 } else {
                     this.map.setMaxBounds([]);
                 }
+            },
+            selectedStreet: function (street) {
+                if(optional(() => street.namedEntities.length) && !this.sidebar.isOpen) {
+                    this.sidebar.open();
+                }
             }
         },
         computed: {
             map: function () {
                 return this.$refs.map.getMap();
+            },
+            sidebar: function () {
+                return this.$refs.sidebar;
             },
             defaultImage: function () {
                 return require("../../../assets/images/default-image.png");
@@ -153,7 +175,7 @@
                 return null;
             },
             mapHeight: function () {
-                return window.innerHeight - 80;
+                return window.innerHeight - 58;
             }
         },
         created: function () {
@@ -203,10 +225,12 @@
                     return Promise.reject();
                 }
 
+                this.searchInProgress = true;
                 return this.streetsService.getStreetByCoordinates({
                     cityId: this.cityId,
                     coordinates: coordinates
                 }).then(response => {
+                    this.searchInProgress = false;
                     return optional(() => response.data, null);
                 });
             },
@@ -281,7 +305,7 @@
                             coordinates: coordinates,
                             imageProps: {
                                 imageUrl: namedEntities[i].imageUrl || this.defaultImage,
-                                title: namedEntities[i].name,
+                                title: `${namedEntities[i].name} на Wikipedia`,
                                 linkUrl: namedEntities[i].wikiUrl,
                                 styles: namedEntities.length > 1 ? {"margin-left": `-${i * 50}px`} : null
                             },
@@ -291,7 +315,12 @@
 
                     this.markers.map(m => m.addTo(this.map));
                 } else {
-                    this.addMarker({coordinates: coordinates});
+                    let marker = this.addMarker({coordinates: coordinates});
+                    let popupContent = `<b>${street.name}</b>`;
+                    if(street.oldName) {
+                        popupContent += `<br/><span>(стара назва: ${street.oldName})</span>`;
+                    }
+                    marker.bindPopup(popupContent).openPopup();
                 }
 
                 this.setMapView(coordinates);

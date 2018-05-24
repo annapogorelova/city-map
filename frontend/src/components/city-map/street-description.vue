@@ -4,8 +4,8 @@
             <div class="col-12">
                 <div class="row">
                     <div class="col-12">
-                        <h5 class="street-name">{{street.name}}</h5>
-                        <h5 class="old-name" v-if="street.oldName">Стара назва: {{street.oldName}}</h5>
+                        <h1 class="street-name">{{street.name}}</h1>
+                        <h2 class="old-name" v-if="street.oldName">Стара назва: {{street.oldName}}</h2>
                     </div>
                 </div>
             </div>
@@ -22,12 +22,12 @@
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12">
-                            <h5 class="named-entity-name">{{namedEntity.name}}</h5>
+                            <h2 class="named-entity-name">{{namedEntity.name}}</h2>
                         </div>
                     </div>
                     <div class="row image-container" v-if="namedEntity.imageUrl">
                         <div class="col-12">
-                            <div class="named-entity-image-container">
+                            <div class="named-entity-image-container" :aria-label="'Зображення:' + namedEntity.name">
                                 <div class="named-entity-image"
                                      :style="{'background-image': 'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
                             </div>
@@ -50,6 +50,7 @@
                                     <div class="col-12">
                                         <h6 class="wiki-links-header">Посилання на Wikipedia</h6>
                                         <a class="btn btn-outline-dark" v-bind:href="namedEntity.wikiUrl"
+                                           :title="namedEntity.name + ' на Wikipedia'"
                                            target="_blank">
                                             <i class="fab fa-wikipedia-w"></i>{{namedEntity.name}}
                                         </a>
@@ -64,7 +65,8 @@
         <div class="row description-footer" v-if="street.wikiUrl">
             <div class="col-12">
                 <h6 class="wiki-links-header">Ця вулиця на Wikipedia:</h6>
-                <a class="btn btn-outline-dark wiki-link" v-bind:href="street.wikiUrl" target="_blank">
+                <a class="btn btn-outline-dark wiki-link" v-bind:href="street.wikiUrl" target="_blank"
+                   :title="street.name + ' на Wikipedia'">
                     <i class="fab fa-wikipedia-w"></i>
                     {{street.name}}
                 </a>
@@ -73,30 +75,25 @@
     </div>
 </template>
 <style scoped>
-    .street-description-container {
-        padding: 15px 20px;
-        border: 1px solid #939697;
-        background-color: #ffffff;
-        height: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
-        opacity: 0.9;
-    }
-
     .street-description-container h5:first-child {
         margin-top: 0;
     }
 
-    p, h5, h6 {
+    h1 {
+        font-size: 1.2rem;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+        font-weight: 300;
+    }
+
+    p, h1, h2, h3, h4, h5, h6 {
         margin-bottom: 0;
     }
 
     i.fa-wikipedia-w {
         margin-right: 5px;
-    }
-
-    .named-entity-name, .street-name, .wiki-links-header {
-        font-weight: 600;
     }
 
     a.btn {
@@ -119,6 +116,11 @@
         display: inline-block;
         margin-right: 5px;
         margin-top: 5px;
+        font-size: 1em;
+    }
+
+    .badge {
+        font-weight: 500;
     }
 
     .wiki-links-container {

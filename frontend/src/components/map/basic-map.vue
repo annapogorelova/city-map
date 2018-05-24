@@ -62,7 +62,7 @@
         },
         computed: {
             mapHeight: function () {
-                return window.innerHeight - 80;
+                return window.innerHeight - 58;
             }
         },
         data: () => {

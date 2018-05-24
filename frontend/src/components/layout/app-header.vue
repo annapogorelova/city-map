@@ -24,11 +24,6 @@
                     </router-link>
                 </li>
             </ul>
-            <form class="search-input-container form-inline my-2 my-lg-0" v-on:submit.prevent>
-                <search v-on:search="onSearchStreet"
-                        v-bind:placeholder="'Назва вулиці'"></search>
-                <button class="btn btn-outline-success my-2 my-sm-0 btn-search" type="button">Шукати</button>
-            </form>
         </div>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,10 +34,9 @@
 <script>
     import {AuthMixin, EventBusMixin} from "../../mixins";
     import CitiesList from "../shared/cities-list";
-    import Search from "../shared/search";
 
     export default {
-        components: {CitiesList, Search},
+        components: {CitiesList},
         mixins: [AuthMixin, EventBusMixin],
         data: function () {
             return {
@@ -63,9 +57,6 @@
             }
         },
         methods: {
-            onSearchStreet: function(search) {
-                this.eventBus.emit("search", search);
-            },
             onCitySelected: function(city) {
                 this.city = city;
                 let query = {...this.$route.query};
@@ -80,10 +71,6 @@
 <style>
     .sign-out {
         margin-left: 10px;
-    }
-
-    .btn-search {
-        margin-left: 5px;
     }
 
     .app-navbar .nav-link {

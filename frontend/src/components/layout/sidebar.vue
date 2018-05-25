@@ -163,7 +163,7 @@
         },
         data: function () {
             return {
-                isOpen: false
+                isOpen: true
             }
         },
         methods: {

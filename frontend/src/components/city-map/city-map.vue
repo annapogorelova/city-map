@@ -2,7 +2,11 @@
     <div class="row page-wrapper">
         <div class="col-12">
             <div class="map-wrapper">
-                <basic-map ref="map" v-on:init="onMapInit" :zoom="zoom"></basic-map>
+                <basic-map ref="map"
+                           v-on:init="onMapInit"
+                           v-on:locationsuccess="onLocationSuccess"
+                           v-on:locationerror="onLocationError"
+                           :zoom="zoom"></basic-map>
                 <sidebar ref="sidebar" :width="400" :height="mapHeight">
                     <template slot="content">
                         <div class="row sidebar-section">
@@ -365,6 +369,15 @@
             renderImageMarker({coordinates, imageProps, className} = {}) {
                 let icon = L.divIcon({html: provideImageMarkerHtml(imageProps), className: className});
                 return L.marker(coordinates, {icon, riseOnHover: true});
+            },
+            onLocationSuccess(event) {
+                this.setMarker([event.latitude, event.longitude]);
+            },
+            onLocationError() {
+                this.noticesService.error(
+                    constants.NOTICES.FAILED_TO_GET_LOCATION.title,
+                    constants.NOTICES.FAILED_TO_GET_LOCATION.message
+                )
             }
         }
     }

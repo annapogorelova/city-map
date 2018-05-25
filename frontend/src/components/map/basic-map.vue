@@ -1,12 +1,31 @@
 <template>
-    <div :id="this.id" class="map" :style="{height: mapHeight + 'px'}"></div>
+    <div>
+        <div :id="this.id" class="map" :style="{height: mapHeight + 'px'}"></div>
+        <a class="location-control" v-on:click="locate"><i class="fa fa-compass"></i></a>
+    </div>
 </template>
 
 <style>
     .map {
         width: 100%;
-        margin-top: 15px;
         cursor: default;
+        position: relative;
+    }
+
+    .location-control {
+        position: absolute;
+        top: 80px;
+        left: 10px;
+        z-index: 9999;
+        background-color: #ffffff;
+        width: 34px;
+        height: 34px;
+        line-height: 34px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 4px;
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        background-clip: padding-box;
     }
 </style>
 
@@ -52,6 +71,10 @@
                 type: Array,
                 default: () => []
             },
+            locationTimeout: {
+                type: Number,
+                default: 10000
+            },
             id: {
                 type: String,
                 default: () => {
@@ -85,7 +108,7 @@
             },
             init() {
                 this.map = L.map(this.id).setView([this.lat, this.lng], this.zoom);
-                if(this.bounds && this.bounds.length) {
+                if (this.bounds && this.bounds.length) {
                     this.map.setMaxBounds(this.bounds);
                 }
                 L.tileLayer(this.tileLayerUrl, this.tileLayerOptions).addTo(this.map);
@@ -93,6 +116,15 @@
             },
             setCenter(lat, lon, zoom = null) {
                 this.map.setView(new L.LatLng(lat, lon), zoom || this.zoom);
+            },
+            locate() {
+                this.map.locate({setView: true, timeout: this.locationTimeout})
+                    .on("locationfound", (event) => {
+                        this.$emit("locationsuccess", event);
+                    })
+                    .on("locationerror", (error) => {
+                        this.$emit("locationerror", error);
+                    });
             }
         }
     }

@@ -101,4 +101,8 @@
     .list-group-item:hover {
         background: #F5F5F5;
     }
+
+    p, span, input, a {
+        font-size: 0.87em;
+    }
 </style>

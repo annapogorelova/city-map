@@ -102,7 +102,7 @@
         background: #F5F5F5;
     }
 
-    p, span, input, a {
+    p, span, input, a, li {
         font-size: 0.87em;
     }
 </style>

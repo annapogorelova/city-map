@@ -10,6 +10,7 @@
                     </a>
                     <cities-list ref="cities"
                                  v-on:citySelected="onCitySelected"
+                                 v-bind:preselected-city-id="initialCityId"
                                  v-bind:preselect-default="true"></cities-list>
                 </li>
                 <li class="nav-item">
@@ -40,12 +41,13 @@
         mixins: [AuthMixin, EventBusMixin],
         data: function () {
             return {
-                city: undefined
+                city: undefined,
+                initialCityId: undefined
             }
         },
         watch: {
             '$route': function (route) {
-                if(route.name !== "map" && route.name !== "admin-streets") {
+                if(!route.meta.dependsOnCity) {
                     return;
                 }
 
@@ -56,13 +58,22 @@
                 }
             }
         },
+        created: function () {
+            if(!isNaN(this.$route.query.cityId)) {
+                this.initialCityId = parseInt(this.$route.query.cityId);
+            }
+        },
         methods: {
             onCitySelected: function(city) {
                 this.city = city;
-                let query = {...this.$route.query};
-                query.cityId = city.id;
-                query.coordinates = undefined;
-                this.$router.push({query: query});
+
+                if(this.$route.meta.dependsOnCity) {
+                    let query = {...this.$route.query};
+                    query.cityId = city.id;
+                    query.coordinates = undefined;
+                    this.$router.push({query: query});
+                }
+
                 this.eventBus.emit("city-selected", city);
             }
         }

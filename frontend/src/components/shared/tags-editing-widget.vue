@@ -59,7 +59,7 @@
         margin-top: 10px;
     }
 
-    h6.tag-container {
+    .tag-container {
         display: inline-block;
         margin-right: 5px;
         margin-top: 0;
@@ -67,8 +67,11 @@
         vertical-align: middle;
     }
 
-    h6.tag-container span {
-        font-size: 90%;
+    .badge {
+        font-weight: 500;
+        vertical-align: middle;
+        padding-top: 5px;
+        padding-bottom: 5px;
     }
 
     .remove-tag-icon {

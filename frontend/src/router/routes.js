@@ -15,7 +15,8 @@ const routes = [
         name: "sign-in",
         meta: {
             requiresAuth: false,
-            showHeader: true
+            showHeader: true,
+            dependsOnCity: false
         },
         component: SignIn
     },
@@ -24,7 +25,8 @@ const routes = [
         name: "sign-out",
         meta: {
             requiresAuth: true,
-            showHeader: true
+            showHeader: true,
+            dependsOnCity: false
         },
         component: SignOut
     },
@@ -33,7 +35,8 @@ const routes = [
         name: "map",
         meta: {
             requiresAuth: false,
-            showHeader: true
+            showHeader: true,
+            dependsOnCity: true
         },
         component: CityMap
     },
@@ -42,7 +45,8 @@ const routes = [
         name: "admin-streets",
         meta: {
             requiresAuth: true,
-            showHeader: true
+            showHeader: true,
+            dependsOnCity: true
         },
         component: StreetsList
     },
@@ -51,7 +55,8 @@ const routes = [
         name: "admin-named-entities",
         meta: {
             requiresAuth: true,
-            showHeader: true
+            showHeader: true,
+            dependsOnCity: false
         },
         component: NamedEntitiesList
     },
@@ -64,7 +69,8 @@ const routes = [
         name: "not-found",
         meta: {
             requiresAuth: false,
-            showHeader: false
+            showHeader: false,
+            dependsOnCity: false
         },
         component: NotFoundPageComponent
     }

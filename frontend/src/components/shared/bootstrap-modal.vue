@@ -79,4 +79,16 @@
         padding-right: 0 !important;
         overflow: auto !important;
     }
+
+    p, label, input, textarea, a {
+        font-size: 0.87em;
+    }
+
+    h4 {
+        font-size: 1em;
+    }
+
+    h6 {
+        font-size: 0.9em;
+    }
 </style>

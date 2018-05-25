@@ -66,10 +66,9 @@
         mounted() {
             if (!isNaN(this.$route.query.page)) {
                 this.currentPage = parseInt(this.$route.query.page);
-            } else {
-                this.$router.push({query: {page: this.currentPage, ...this.$route.query}});
             }
 
+            this.$router.push({query: {page: this.currentPage, ...this.$route.query}});
             this.$emit("init");
         },
         computed: {

@@ -265,4 +265,8 @@
     .named-entity-image, .named-entity-name {
         vertical-align: middle;
     }
+
+    p {
+        font-size: 0.87em;
+    }
 </style>

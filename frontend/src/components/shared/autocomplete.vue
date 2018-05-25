@@ -82,7 +82,7 @@
         }
     }
 </script>
-<style>
+<style scoped>
     .autocomplete-container {
         position: relative;
     }

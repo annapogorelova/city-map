@@ -24,17 +24,20 @@
                         </div>
                     </template>
                     <template slot="content">
-                        <div class="row sidebar-section">
+                        <div class="row sidebar-section" v-if="selectedStreet">
                             <div class="col-12">
-                                <street-description v-if="selectedStreet"
-                                                    :street="selectedStreet"></street-description>
+                                <street-description :street="selectedStreet"></street-description>
                             </div>
                         </div>
                         <div class="row sidebar-section" v-if="!selectedStreet">
                             <div class="col-12">
-                                <p v-if="!searchInProgress && coordinates.length">Тут не було знайдено жодної вулиці.</p>
-                                <p v-if="!searchInProgress && !coordinates.length">Оберіть вулицю, щоб отримати інформацію про її назву.</p>
-                                <p v-if="searchInProgress">Шукаємо...</p>
+                                <p v-if="!searchInProgress && coordinates.length" class="no-margins">
+                                    Тут не було знайдено жодної вулиці.
+                                </p>
+                                <p v-if="!searchInProgress && !coordinates.length" class="no-margins">
+                                    Оберіть вулицю, щоб отримати інформацію про її назву.
+                                </p>
+                                <p v-if="searchInProgress" class="no-margins">Шукаємо...</p>
                             </div>
                         </div>
                     </template>
@@ -77,10 +80,6 @@
 
     .map {
         margin-top: 0 !important;
-    }
-
-    .sections-container {
-        margin-top: 15px;
     }
 
     .leaflet-div-icon {

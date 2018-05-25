@@ -30,4 +30,8 @@
         min-width: 300px;
         overflow-x: auto;
     }
+
+    .no-margins {
+        margin: 0;
+    }
 </style>

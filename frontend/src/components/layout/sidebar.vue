@@ -36,7 +36,7 @@
     }
 
     .sidebar-content {
-        padding: 10px 25px 20px 25px;
+        padding: 15px 25px 15px 25px;
         -webkit-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
         -moz-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
         box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);

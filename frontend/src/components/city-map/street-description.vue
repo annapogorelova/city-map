@@ -108,7 +108,7 @@
     }
 
     a.btn {
-        margin: 10px 0;
+        margin-top: 10px;
         display: inline-block;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -184,7 +184,7 @@
 
     .named-entity-description-container {
         margin-top: 5px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
 
     .old-name {

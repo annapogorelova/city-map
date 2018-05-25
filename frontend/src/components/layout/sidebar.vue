@@ -68,16 +68,18 @@
         -webkit-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
         -moz-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
         box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
-        border-top-left-radius: 2px;
-        border-bottom-left-radius: 2px;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
     }
 
     .sidebar-toggler i {
         line-height: inherit;
         vertical-align: middle;
-        margin-left: 10px;
         cursor: pointer;
         transition: 0.5s;
+        padding-left: 10px;
+        padding-right: 10px;
+        border-left: 2px solid rgba(255, 255, 255, 0.7);
     }
 
     .sidebar-full-screen-toggler i {

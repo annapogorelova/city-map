@@ -1,5 +1,5 @@
 <template>
-    <div class="row">
+    <div class="row page-wrapper">
         <div class="col-12">
             <div class="row search-container">
                 <div class="col-12">
@@ -231,16 +231,6 @@
     }
 </script>
 <style scoped>
-    table {
-        margin-top: 15px;
-        font-size: 0.9em;
-    }
-
-    .table td {
-        vertical-align: middle;
-        padding: 8px;
-    }
-
     .street-image {
         height: 30px;
         width: 30px;

@@ -3,13 +3,19 @@ import SignOut from "../components/auth/sign-out";
 import CityMap from "../components/city-map/city-map";
 import StreetsList from "../components/admin/streets-list";
 import NamedEntitiesList from "../components/admin/named-entities-list";
+import NotFoundPageComponent from "../components/shared/not-found";
 
 const routes = [
+    {
+        path: "/",
+        redirect: "/map"
+    },
     {
         path: "/sign-in",
         name: "sign-in",
         meta: {
             requiresAuth: false,
+            showHeader: true
         },
         component: SignIn
     },
@@ -18,6 +24,7 @@ const routes = [
         name: "sign-out",
         meta: {
             requiresAuth: true,
+            showHeader: true
         },
         component: SignOut
     },
@@ -26,6 +33,7 @@ const routes = [
         name: "map",
         meta: {
             requiresAuth: false,
+            showHeader: true
         },
         component: CityMap
     },
@@ -34,6 +42,7 @@ const routes = [
         name: "admin-streets",
         meta: {
             requiresAuth: true,
+            showHeader: true
         },
         component: StreetsList
     },
@@ -42,8 +51,22 @@ const routes = [
         name: "admin-named-entities",
         meta: {
             requiresAuth: true,
+            showHeader: true
         },
         component: NamedEntitiesList
+    },
+    {
+        path: "*",
+        redirect: "/404"
+    },
+    {
+        path: "/404",
+        name: "not-found",
+        meta: {
+            requiresAuth: false,
+            showHeader: false
+        },
+        component: NotFoundPageComponent
     }
 ];
 

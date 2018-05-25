@@ -1,0 +1,13 @@
+table {
+    margin-top: 15px;
+    font-size: 0.9em;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 5px;
+}
+
+.table td > * {
+    vertical-align: middle;
+}

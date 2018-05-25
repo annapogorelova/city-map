@@ -60,6 +60,10 @@
         overflow: hidden;
     }
 
+    .page-wrapper {
+        padding: 0;
+    }
+
     .page-wrapper > div {
         padding: 0;
     }

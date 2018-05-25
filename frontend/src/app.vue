@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <app-header></app-header>
+        <app-header v-if="isAppHeaderShown"></app-header>
         <div class="container-fluid">
             <div class="app-content">
                 <router-view/>
@@ -19,10 +19,14 @@
         components: {
             Notices,
             AppHeader
+        },
+        computed: {
+            isAppHeaderShown: function () {
+                return this.$route.meta.showHeader;
+            }
         }
     }
 </script>
-
 <style>
     @import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800');
     body {
@@ -33,5 +37,9 @@
 
     .no-margins {
         margin: 0;
+    }
+
+    .page-wrapper {
+        padding: 10px;
     }
 </style>

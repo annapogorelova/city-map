@@ -1,5 +1,5 @@
 <template>
-    <div class="row">
+    <div class="row page-wrapper">
         <div class="col-12">
             <div class="row search-container">
                 <div class="col-12">
@@ -329,21 +329,6 @@
     }
 </script>
 <style scoped>
-    table {
-        margin-top: 15px;
-        margin-bottom: 10px !important;
-        font-size: 0.9em;
-    }
-
-    .table td {
-        vertical-align: middle !important;
-        padding: 8px;
-    }
-
-    .table td > * {
-        vertical-align: middle;
-    }
-
     .named-entity-image {
         height: 30px;
         width: 30px;

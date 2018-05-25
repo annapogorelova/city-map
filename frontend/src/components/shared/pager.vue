@@ -4,7 +4,7 @@
             Сторінок: {{numberOfPages}}
         </div>
         <div class="d-inline-block">
-            <ul class="pagination">
+            <ul class="pagination pagination-sm">
                 <li class="page-item" :class="{'disabled': isFirstPage}">
                     <a class="page-link" v-on:click="firstPage" aria-label="First">
                         <span aria-hidden="true">&laquo;</span>

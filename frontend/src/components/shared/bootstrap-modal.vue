@@ -80,8 +80,8 @@
         overflow: auto !important;
     }
 
-    p, label, input, textarea, a {
-        font-size: 0.87em;
+    p, label, input, textarea, a, span {
+        font-size: 0.87rem;
     }
 
     h4 {
@@ -89,6 +89,6 @@
     }
 
     h6 {
-        font-size: 0.9em;
+        font-size: 0.9rem;
     }
 </style>

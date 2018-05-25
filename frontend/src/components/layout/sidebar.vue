@@ -10,7 +10,12 @@
                 <div class="sidebar-full-screen-toggler">
                     <i class="fa fa-arrow-left" v-on:click="toggle" title="Закрити" aria-label="Закрити"></i>
                 </div>
-                <slot name="content"></slot>
+                <div class="sidebar-content-header">
+                    <slot name="header"></slot>
+                </div>
+                <div class="sidebar-content-body">
+                    <slot name="content"></slot>
+                </div>
             </div>
         </div>
         <div class="full-screen-sidebar-footer" :class="{'show': !isOpen, 'hide': isOpen}" aria-label="Відкрити"
@@ -53,7 +58,7 @@
 
     .sidebar-toggler {
         position: absolute;
-        width: 50px;
+        width: 40px;
         height: 50px;
         background-color: #ffffff;
         z-index: 99999;
@@ -63,6 +68,8 @@
         -webkit-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
         -moz-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
         box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
     }
 
     .sidebar-toggler i {
@@ -83,6 +90,15 @@
 
     .sidebar-toggler i.open {
         transform: rotate(180deg);
+    }
+
+    .sidebar-content-header {
+        border-bottom: 1px solid #939697;
+        padding-bottom: 15px;
+    }
+
+    .sidebar-content-body {
+        padding-top: 15px;
     }
 
     @media(min-width: 601px) {

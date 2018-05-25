@@ -22,7 +22,7 @@
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12">
-                            <h2 class="named-entity-name">{{namedEntity.name}}</h2>
+                            <h1 class="named-entity-name">{{namedEntity.name}}</h1>
                         </div>
                     </div>
                     <div class="row image-container" v-if="namedEntity.imageUrl">
@@ -48,8 +48,8 @@
                                 </div>
                                 <div class="row wiki-links-container">
                                     <div class="col-12">
-                                        <h6 class="wiki-links-header">Посилання на Wikipedia</h6>
-                                        <a class="btn btn-outline-dark" v-bind:href="namedEntity.wikiUrl"
+                                        <h2 class="wiki-links-header">Посилання на Wikipedia</h2>
+                                        <a class="btn btn-outline-dark wiki-link" v-bind:href="namedEntity.wikiUrl"
                                            :title="namedEntity.name + ' на Wikipedia'"
                                            target="_blank">
                                             <i class="fab fa-wikipedia-w"></i>{{namedEntity.name}}
@@ -59,12 +59,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class="description-border"></div>
                 </div>
             </div>
         </div>
         <div class="row description-footer" v-if="street.wikiUrl">
             <div class="col-12">
-                <h6 class="wiki-links-header">Ця вулиця на Wikipedia:</h6>
+                <div class="footer-border"></div>
+                <h2 class="wiki-links-header">Ця вулиця на Wikipedia:</h2>
                 <a class="btn btn-outline-dark wiki-link" v-bind:href="street.wikiUrl" target="_blank"
                    :title="street.name + ' на Wikipedia'">
                     <i class="fab fa-wikipedia-w"></i>
@@ -80,11 +82,16 @@
     }
 
     h1 {
-        font-size: 1.2rem;
+        font-size: 1em;
+        font-weight: 300;
+    }
+
+    h1.street-name {
+        font-weight: 500;
     }
 
     h2 {
-        font-size: 1.2rem;
+        font-size: 0.9em;
         font-weight: 300;
     }
 
@@ -94,6 +101,10 @@
 
     i.fa-wikipedia-w {
         margin-right: 5px;
+    }
+
+    p {
+        font-size: 0.87em;
     }
 
     a.btn {
@@ -108,23 +119,26 @@
         margin-top: 5px;
     }
 
-    p.description {
-        font-size: 14px;
-    }
-
     h6.tag-container {
         display: inline-block;
         margin-right: 5px;
         margin-top: 5px;
-        font-size: 1em;
+        font-size: 0.9em;
     }
 
     .badge {
         font-weight: 500;
+        vertical-align: middle;
+        padding-top: 5px;
+        padding-bottom: 5px;
     }
 
     .wiki-links-container {
         margin-top: 10px;
+    }
+
+    .wiki-link {
+        font-size: 0.9em;
     }
 
     .named-entity-image {
@@ -141,20 +155,20 @@
         margin-top: 5px;
     }
 
-    .description-footer {
+    .description-footer .footer-border{
         padding-top: 15px;
         border-top: 1px solid #939697;
     }
 
-    .street-description-body:not(:last-child) {
+    .street-description-body:not(:last-child) .description-border {
         border-bottom: 1px solid #939697;
     }
 
     .street-description-body:not(:first-child) {
-        margin-top: 20px;
+        margin-top: 15px;
     }
 
-    .street-description-body:only-child {
+    .street-description-body:only-child .description-border {
         border-bottom: none;
     }
 
@@ -163,14 +177,14 @@
     }
 
     .named-entity-image-container {
-        height: 220px;
-        width: 200px;
+        height: 200px;
+        width: 180px;
         margin: auto;
     }
 
     .named-entity-description-container {
-        margin-top: 15px;
-        margin-bottom: 5px;
+        margin-top: 5px;
+        margin-bottom: 10px;
     }
 
     .old-name {
@@ -179,11 +193,16 @@
 
     .image-container {
         margin-top: 15px;
+        margin-bottom: 10px;
     }
 
     .no-named-entity-info-message {
         margin-top: 10px;
         margin-bottom: 10px;
+    }
+
+    .wiki-links-header {
+        font-weight: 500;
     }
 </style>
 <script>

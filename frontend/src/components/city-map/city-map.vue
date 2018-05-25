@@ -8,7 +8,12 @@
                            v-on:locationerror="onLocationError"
                            :zoom="zoom"></basic-map>
                 <sidebar ref="sidebar" :width="400" :height="mapHeight">
-                    <template slot="content">
+                    <template slot="header">
+                        <div class="row">
+                            <div class="col-12">
+                                <h2 v-if="city">Обране місто: {{city.name}}</h2>
+                            </div>
+                        </div>
                         <div class="row sidebar-section">
                             <div class="col-12">
                                 <div class="search-container">
@@ -17,6 +22,8 @@
                                 </div>
                             </div>
                         </div>
+                    </template>
+                    <template slot="content">
                         <div class="row sidebar-section">
                             <div class="col-12">
                                 <street-description v-if="selectedStreet"
@@ -25,7 +32,8 @@
                         </div>
                         <div class="row sidebar-section" v-if="!selectedStreet">
                             <div class="col-12">
-                                <p v-if="!searchInProgress">Тут не було знайдено жодної вулиці.</p>
+                                <p v-if="!searchInProgress && coordinates.length">Тут не було знайдено жодної вулиці.</p>
+                                <p v-if="!searchInProgress && !coordinates.length">Оберіть вулицю, щоб отримати інформацію про її назву.</p>
                                 <p v-if="searchInProgress">Шукаємо...</p>
                             </div>
                         </div>
@@ -56,6 +64,15 @@
         position: relative;
         width: 100%;
         height: auto;
+    }
+
+    h2 {
+        font-size: 1em;
+        margin-bottom: 0;
+    }
+
+    p {
+        font-size: 0.87em;
     }
 
     .map {
@@ -133,7 +150,7 @@
                 selectedStreet: undefined,
                 polyLines: [],
                 city: undefined,
-                coordinates: undefined,
+                coordinates: [],
                 searchInProgress: false
             }
         },

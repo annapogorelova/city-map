@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div :id="this.id" class="map" :style="{height: mapHeight + 'px'}"></div>
+        <div :id="this.id" class="map" :style="{height: height + 'px'}"></div>
         <a class="location-control" v-on:click="locate"><i class="fa fa-compass"></i></a>
     </div>
 </template>
@@ -81,11 +81,9 @@
                     const id = Math.random().toString(36).substr(2, 5);
                     return `map-${id}`;
                 },
-            }
-        },
-        computed: {
-            mapHeight: function () {
-                return window.innerHeight - 58;
+            },
+            height: {
+                type: Number
             }
         },
         data: () => {

@@ -150,7 +150,10 @@
     }
 </style>
 <script>
+    import {ScreenSizeServiceMixin} from "../../mixins/index";
+
     export default {
+        mixins: [ScreenSizeServiceMixin],
         props: {
             width: {
                 type: Number,
@@ -163,8 +166,11 @@
         },
         data: function () {
             return {
-                isOpen: true
+                isOpen: undefined
             }
+        },
+        created: function () {
+            this.isOpen = !this.screenSizeService.isExtraSmall();
         },
         methods: {
             open: function () {

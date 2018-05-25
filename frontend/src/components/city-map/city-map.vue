@@ -6,6 +6,7 @@
                            v-on:init="onMapInit"
                            v-on:locationsuccess="onLocationSuccess"
                            v-on:locationerror="onLocationError"
+                           :height="mapHeight"
                            :zoom="zoom"></basic-map>
                 <sidebar ref="sidebar" :width="400" :height="mapHeight">
                     <template slot="header">
@@ -195,7 +196,7 @@
                 return null;
             },
             mapHeight: function () {
-                return window.innerHeight - 58;
+                return window.innerHeight - 57;
             }
         },
         created: function () {

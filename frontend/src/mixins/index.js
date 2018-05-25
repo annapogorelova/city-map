@@ -6,6 +6,7 @@ import NamedEntitiesServiceMixin from "./named-entities-service-mixin";
 import CitiesServiceMixin from "./city-service-mixin";
 import NavigationMixin from "./navigation-mixin";
 import EventBusMixin from "./event-bus-mixin";
+import ScreenSizeServiceMixin from "./screen-size-service-mixin";
 
 export {
     AuthMixin,
@@ -15,5 +16,6 @@ export {
     NamedEntitiesServiceMixin,
     CitiesServiceMixin,
     NavigationMixin,
-    EventBusMixin
+    EventBusMixin,
+    ScreenSizeServiceMixin
 };

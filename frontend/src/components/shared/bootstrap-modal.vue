@@ -65,7 +65,7 @@
         }
     }
 </script>
-<style>
+<style scoped>
     body {
         padding-right: 0 !important;
     }
@@ -80,8 +80,8 @@
         overflow: auto !important;
     }
 
-    p, label, input, textarea, a, span {
-        font-size: 0.87rem;
+    p, label, input, textarea, a, span, .badge, .form-control {
+        font-size: 0.8rem;
     }
 
     h4 {

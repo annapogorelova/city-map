@@ -10,37 +10,37 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                            <th>Img</th>
-                            <th>Назва</th>
-                            <th>Опис</th>
-                            <th class="text-right">Теги</th>
-                            <th class="text-right">Оновлено</th>
-                            <th class="text-right">Заблоковано</th>
-                            <th></th>
+                            <th class="col-10">Img</th>
+                            <th class="col-40">Назва</th>
+                            <th class="col-20">Опис</th>
+                            <th class="text-right col-5">Теги</th>
+                            <th class="text-right col-10">Оновлено</th>
+                            <th class="text-right col-5">Заблоковано</th>
+                            <th class="col-10"></th>
                         </thead>
                         <tbody>
                             <tr v-for="namedEntity in namedEntities">
-                                <td>
+                                <td class="col-10">
                                     <div class="named-entity-image"
                                          :style="{'background-image':
                                          'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
                                 </td>
-                                <td>{{namedEntity.name}}</td>
-                                <td>
+                                <td class="col-40">{{namedEntity.name}}</td>
+                                <td class="col-20">
                                     <span v-if="namedEntity.description">
-                                        {{`${namedEntity.description.substring(0, 30)}...`}}
+                                        {{namedEntity.description}}
                                     </span>
                                 </td>
-                                <td class="text-right">
+                                <td class="text-right col-5">
                                     <span v-if="namedEntity.tags.length">{{namedEntity.tags.length}}</span>
                                 </td>
-                                <td class="text-right">
+                                <td class="text-right col-10">
                                     <span>{{namedEntity.updatedAt | formatDate }}</span>
                                 </td>
-                                <td class="text-right">
+                                <td class="text-right col-5">
                                     {{namedEntity.isLockedForParsing ? "1" : "0"}}
                                 </td>
-                                <td>
+                                <td class="col-10">
                                     <button v-if="namedEntity.id" class="btn btn-outline-success btn-sm float-right fa fa-edit"
                                             v-on:click="edit(namedEntity)">
                                     </button>
@@ -329,6 +329,32 @@
     }
 </script>
 <style scoped>
+    table {
+        table-layout: fixed;
+    }
+
+    td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .col-5 {
+        width: 5%;
+    }
+
+    .col-10 {
+        width: 10%;
+    }
+
+    .col-20 {
+        width: 20%;
+    }
+
+    .col-40 {
+        width: 40%;
+    }
+
     .named-entity-image {
         height: 30px;
         width: 30px;

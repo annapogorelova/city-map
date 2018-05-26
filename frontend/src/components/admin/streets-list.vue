@@ -10,16 +10,16 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                            <th>Img</th>
-                            <th>Назва</th>
-                            <th>Назва на честь</th>
-                            <th>Опис</th>
-                            <th>Оновлено</th>
-                            <th></th>
+                            <th class="col-10">Img</th>
+                            <th class="col-20">Назва</th>
+                            <th class="col-30">Назва на честь</th>
+                            <th class="col-10">Опис</th>
+                            <th class="col-10">Оновлено</th>
+                            <th class="col-10"></th>
                         </thead>
                         <tbody>
                             <tr v-for="street in streets">
-                                <td>
+                                <td class="col-5">
                                     <div class="street-image"
                                          v-for="namedEntity in street.namedEntities"
                                          v-if="street.namedEntities.length"
@@ -28,15 +28,15 @@
                                                     'background-color': 'lightgrey'}"></div>
                                     <div class="street-image" v-if="!street.namedEntities.length"></div>
                                 </td>
-                                <td>{{street.name}}</td>
-                                <td>{{street.namedEntities.length ? street.namedEntities.map(n => n.name).join(', ') : ''}}</td>
-                                <td>
+                                <td class="col-20">{{street.name}}</td>
+                                <td class="col-30">{{street.namedEntities.length ? street.namedEntities.map(n => n.name).join(', ') : ''}}</td>
+                                <td class="col-10">
                                         <span v-if="street.description">
                                         {{`${street.description.substring(0, 30)}...`}}
                                         </span>
                                 </td>
-                                <td>{{street.updatedAt | formatDate}}</td>
-                                <td>
+                                <td class="col-10">{{street.updatedAt | formatDate}}</td>
+                                <td class="col-5">
                                     <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
                                             v-on:click="edit(street)">
                                     </button>
@@ -231,6 +231,36 @@
     }
 </script>
 <style scoped>
+    table {
+        table-layout: fixed;
+    }
+
+    td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .col-5 {
+        width: 5%;
+    }
+
+    .col-10 {
+        width: 10%;
+    }
+
+    .col-30 {
+        width: 30%;
+    }
+
+    .col-20 {
+        width: 20%;
+    }
+
+    .col-40 {
+        width: 40%;
+    }
+
     .street-image {
         height: 30px;
         width: 30px;

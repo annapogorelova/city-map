@@ -12,7 +12,7 @@
                     <template slot="header">
                         <div class="row">
                             <div class="col-12">
-                                <h2 v-if="city">Обране місто: {{city.name}}</h2>
+                                <h1 v-if="city">Обране місто: {{city.name}}</h1>
                             </div>
                         </div>
                         <div class="row sidebar-section">
@@ -74,15 +74,6 @@
         height: auto;
     }
 
-    h2 {
-        font-size: 1em;
-        margin-bottom: 0;
-    }
-
-    p {
-        font-size: 0.87em;
-    }
-
     .map {
         margin-top: 0 !important;
     }
@@ -111,6 +102,10 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         font-size: 0.9em;
+    }
+
+    h1, h2 {
+        margin-bottom: 0;
     }
 </style>
 <script>

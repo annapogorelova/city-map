@@ -103,10 +103,6 @@
         margin-right: 5px;
     }
 
-    p {
-        font-size: 0.87em;
-    }
-
     a.btn {
         margin-top: 10px;
         display: inline-block;

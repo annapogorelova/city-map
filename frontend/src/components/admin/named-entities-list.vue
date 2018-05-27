@@ -406,16 +406,4 @@
         margin-top: 8px;
         display: block;
     }
-
-    p, label, input, textarea, a {
-        font-size: 0.87em;
-    }
-
-    h4 {
-        font-size: 1em;
-    }
-
-    h6 {
-        font-size: 0.9em;
-    }
 </style>

@@ -65,7 +65,7 @@
         }
     }
 </script>
-<style scoped>
+<style scoped bb f>
     body {
         padding-right: 0 !important;
     }
@@ -78,17 +78,5 @@
     .modal-open {
         padding-right: 0 !important;
         overflow: auto !important;
-    }
-
-    p, label, input, textarea, a, span, .badge, .form-control {
-        font-size: 0.8rem;
-    }
-
-    h4 {
-        font-size: 1em;
-    }
-
-    h6 {
-        font-size: 0.9rem;
     }
 </style>

@@ -5,7 +5,7 @@
         <div class="added-tags">
             <h6 class="tag-container" v-for="tag in tags">
                 <span class="badge badge-dark">
-                    <span>{{tag}}</span>
+                    {{tag}}
                     <i class="fa fa-times remove-tag-icon" v-on:click="removeTag(tag)"></i>
                 </span>
             </h6>
@@ -68,7 +68,7 @@
     }
 
     .badge {
-        font-weight: 500;
+        font-weight: 400 !important;
         vertical-align: middle;
         padding-top: 5px;
         padding-bottom: 5px;

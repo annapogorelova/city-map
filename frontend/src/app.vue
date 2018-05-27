@@ -42,4 +42,25 @@
     .page-wrapper {
         padding: 10px;
     }
+
+    h1 {
+        font-size: 1.1rem !important;
+
+    }
+
+    h2 {
+        font-size: 1rem !important;
+    }
+
+    p, label, input, textarea, span, .badge, .form-control, li {
+        font-size: 0.9rem !important;
+    }
+
+    h4, h5 {
+        font-size: 0.9rem !important;
+    }
+
+    h6 {
+        font-size: 0.9rem;
+    }
 </style>

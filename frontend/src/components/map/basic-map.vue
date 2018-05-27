@@ -1,7 +1,7 @@
 <template>
     <div>
         <div :id="this.id" class="map" :style="{height: height + 'px'}"></div>
-        <a class="location-control" v-on:click="locate"><i class="fa fa-compass"></i></a>
+        <a class="location-control" title="Знайти мене" aria-label="Знайти мене" v-on:click="locate"><i class="fa fa-compass"></i></a>
     </div>
 </template>
 

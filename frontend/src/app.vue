@@ -63,4 +63,8 @@
     h6 {
         font-size: 0.9rem;
     }
+
+    .nav-link {
+        font-size: 1rem;
+    }
 </style>

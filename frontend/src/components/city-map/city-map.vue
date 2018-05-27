@@ -18,7 +18,8 @@
                         <div class="row sidebar-section">
                             <div class="col-12">
                                 <div class="search-container">
-                                    <search v-on:search="onSearchStreet"
+                                    <search ref="search"
+                                            v-on:search="onSearchStreet"
                                             v-bind:placeholder="'Назва вулиці'"></search>
                                 </div>
                             </div>
@@ -181,6 +182,9 @@
             },
             sidebar: function () {
                 return this.$refs.sidebar;
+            },
+            search: function () {
+                return this.$refs.search;
             },
             defaultImage: function () {
                 return require("../../../assets/images/default-image.png");
@@ -370,6 +374,7 @@
                     const street = optional(() => response.data[0], null);
 
                     if (street) {
+                        this.search.clear();
                         this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
                     } else {
                         this.clearMap();

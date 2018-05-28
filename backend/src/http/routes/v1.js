@@ -24,9 +24,13 @@ function makeRouter(
         authMiddleware.verifyAuth,
         usersController.getUser);
 
-    router.get(`${apiRoutes.CITIES}/:cityId/${apiRoutes.STREETS}`, streetsController.searchCityStreets);
+    router.get(`${apiRoutes.CITIES}/:cityId/${apiRoutes.STREETS}`,
+        authMiddleware.extractAuth,
+        streetsController.searchCityStreets);
 
-    router.get(`/${apiRoutes.STREETS}`, streetsController.searchStreetsByCoordinates);
+    router.get(`/${apiRoutes.STREETS}`,
+        authMiddleware.extractAuth,
+        streetsController.searchStreetsByCoordinates);
 
     router.put(`/${apiRoutes.STREETS}/:id`,
         authMiddleware.extractAuth,

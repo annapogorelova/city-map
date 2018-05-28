@@ -10,7 +10,7 @@ const citiesTestData = testData.cities;
 const db = require("../../../data/models/index");
 const config = require("config");
 const _ = require("lodash");
-const mapper = require("../../../helpers/mapper");
+const mapper = require("../../../app/mapper");
 
 chai.use(chaiHttp);
 

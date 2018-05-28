@@ -32,6 +32,7 @@ function makeAuthMiddleware(userService, jwtService) {
                     .send({message: httpConstants.messages.UNAUTHORIZED});
             }
 
+            req.authenticated = true;
             req.userId = decoded.id;
             req.user = user;
 

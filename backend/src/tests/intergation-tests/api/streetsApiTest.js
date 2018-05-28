@@ -7,7 +7,7 @@ const testUtils = require("../../testUtils");
 const {httpConstants, errors} = require("../../../app/constants/index");
 const testData = require("../../data/dbTestData");
 const db = require("../../../data/models/index");
-const mapper = require("../../../helpers/mapper");
+const mapper = require("../../../app/mapper");
 const {optional} = require("tooleks");
 
 chai.use(chaiHttp);

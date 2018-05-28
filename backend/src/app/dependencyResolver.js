@@ -20,7 +20,7 @@ const GeoDataService = require("../lib/geo/geoDataService");
 const routesV1 = require("../http/routes/v1");
 const express = require("express");
 const makeAuthMiddleware = require("../http/middleware/auth");
-const mapper = require("../helpers/mapper");
+const mapper = require("./mapper");
 
 const jwt = require("jsonwebtoken");
 

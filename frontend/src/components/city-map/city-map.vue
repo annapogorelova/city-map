@@ -39,7 +39,10 @@
                                 <p v-if="!searchInProgress && !coordinates.length" class="no-margins">
                                     Оберіть вулицю, щоб отримати інформацію про її назву.
                                 </p>
-                                <p v-if="searchInProgress" class="no-margins">Шукаємо...</p>
+                                <div v-if="searchInProgress">
+                                    <span>Шукаємо...</span>
+                                    <i class="fas fa-circle-notch fa-spin"></i>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -107,6 +110,10 @@
 
     h1, h2 {
         margin-bottom: 0;
+    }
+
+    .fa-spin {
+        margin-left: 5px;
     }
 </style>
 <script>

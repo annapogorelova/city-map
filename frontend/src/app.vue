@@ -29,6 +29,7 @@
 </script>
 <style>
     @import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800');
+
     body {
         font-family: 'Montserrat', sans-serif !important;
         min-width: 300px;
@@ -48,7 +49,7 @@
 
     }
 
-    h2 {
+    h2, h3 {
         font-size: 1rem !important;
     }
 

@@ -3,7 +3,7 @@
         <div class="col-12">
             <div class="row search-container">
                 <div class="col-12">
-                    <search v-on:search="search"></search>
+                    <search ref="search" v-on:search="onSearch" v-bind:placeholder="'Назва персони'"></search>
                 </div>
             </div>
             <div class="row">
@@ -189,6 +189,7 @@
     import TagsEditingWidget from "../shared/tags-editing-widget";
     import moment from "moment";
     import constants from "../../constants";
+    import {optional} from "tooleks";
 
     export default {
         components: {TagsEditingWidget, Search, Pager, BootstrapModal},
@@ -211,6 +212,9 @@
             pager: function () {
                 return this.$refs.pager;
             },
+            search: function () {
+                return this.$refs.search;
+            },
             editModal: function () {
                 return this.$refs.editModal;
             },
@@ -226,15 +230,20 @@
                 this.getNamedEntities({offset: this.pager.getOffset(), limit: this.pager.limit});
             },
             getNamedEntities({offset, limit, search = null}) {
-                this.namedEntitiesService.search({search: search, offset: offset, limit: limit})
+                return this.namedEntitiesService.search({search: search, offset: offset, limit: limit})
                     .then(response => {
                         this.namedEntities = response.data;
                         this.namedEntitiesCount = response.count;
+                        return response;
                     });
             },
-            search(text) {
+            onSearch(text) {
                 this.pager.currentPage = 1;
-                this.getNamedEntities({offset: 0, limit: this.pager.limit, search: text});
+                this.getNamedEntities({offset: 0, limit: this.pager.limit, search: text}).then(response => {
+                    if(optional(() => response.data.length)) {
+                        this.search.clear();
+                    }
+                });
             },
             edit(namedEntity) {
                 if (!namedEntity) {

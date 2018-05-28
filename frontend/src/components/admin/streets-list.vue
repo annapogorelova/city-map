@@ -3,7 +3,7 @@
         <div class="col-12">
             <div class="row search-container">
                 <div class="col-12">
-                    <search v-on:search="search" v-bind:min-length="1"></search>
+                    <search ref="search" v-on:search="onSearch"></search>
                 </div>
             </div>
             <div class="row">
@@ -144,6 +144,9 @@
             },
             modal() {
                 return this.$refs.modal;
+            },
+            search: function () {
+                return this.$refs.search;
             }
         },
         created: function () {
@@ -165,15 +168,20 @@
                 this.getStreets({offset: this.pager.getOffset(), limit: this.pageLimit});
             },
             getStreets({offset, limit, search = null}) {
-                this.streetsService.search({cityId: this.cityId, search: search, offset: offset, limit: limit})
+                return this.streetsService.search({cityId: this.cityId, search: search, offset: offset, limit: limit})
                     .then(response => {
                         this.streets = response.data;
                         this.streetsCount = response.count;
+                        return response;
                     });
             },
-            search(text) {
+            onSearch(text) {
                 this.pager.currentPage = 1;
-                this.getStreets({offset: 0, limit: this.pager.limit, search: text});
+                this.getStreets({offset: 0, limit: this.pager.limit, search: text}).then(response => {
+                    if(optional(() => response.data.length)) {
+                        this.search.clear();
+                    }
+                });
             },
             selectCity(cityId) {
                 if(this.cityId !== cityId) {

@@ -10,9 +10,9 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                            <th class="col-10">Img</th>
+                            <th class="col-5">Img</th>
                             <th class="col-40">Назва</th>
-                            <th class="col-20">Опис</th>
+                            <th class="col-25">Опис</th>
                             <th class="text-right col-5">Теги</th>
                             <th class="text-right col-10">Оновлено</th>
                             <th class="text-right col-5">Заблоковано</th>
@@ -20,13 +20,13 @@
                         </thead>
                         <tbody>
                             <tr v-for="namedEntity in namedEntities">
-                                <td class="col-10">
+                                <td class="col-5">
                                     <div class="named-entity-image"
                                          :style="{'background-image':
                                          'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
                                 </td>
                                 <td class="col-40">{{namedEntity.name}}</td>
-                                <td class="col-20">
+                                <td class="col-25">
                                     <span v-if="namedEntity.description">
                                         {{namedEntity.description}}
                                     </span>
@@ -337,22 +337,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-
-    .col-5 {
-        width: 5%;
-    }
-
-    .col-10 {
-        width: 10%;
-    }
-
-    .col-20 {
-        width: 20%;
-    }
-
-    .col-40 {
-        width: 40%;
     }
 
     .named-entity-image {

@@ -10,10 +10,10 @@
                 <div class="col-12">
                     <table class="table">
                         <thead>
-                            <th class="col-10">Img</th>
+                            <th class="col-5">Img</th>
                             <th class="col-20">Назва</th>
-                            <th class="col-30">Назва на честь</th>
-                            <th class="col-10">Опис</th>
+                            <th class="col-25">Назва на честь</th>
+                            <th class="col-20">Опис</th>
                             <th class="col-10">Оновлено</th>
                             <th class="col-10"></th>
                         </thead>
@@ -29,14 +29,12 @@
                                     <div class="street-image" v-if="!street.namedEntities.length"></div>
                                 </td>
                                 <td class="col-20">{{street.name}}</td>
-                                <td class="col-30">{{street.namedEntities.length ? street.namedEntities.map(n => n.name).join(', ') : ''}}</td>
-                                <td class="col-10">
-                                        <span v-if="street.description">
-                                        {{`${street.description.substring(0, 30)}...`}}
-                                        </span>
+                                <td class="col-25">{{street.namedEntities.length ? street.namedEntities.map(n => n.name).join(', ') : ''}}</td>
+                                <td class="col-20">
+                                    <span v-if="street.description">{{street.description}}</span>
                                 </td>
                                 <td class="col-10">{{street.updatedAt | formatDate}}</td>
-                                <td class="col-5">
+                                <td class="col-10">
                                     <button class="btn btn-outline-success btn-sm float-right fa fa-edit"
                                             v-on:click="edit(street)">
                                     </button>
@@ -239,26 +237,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-    }
-
-    .col-5 {
-        width: 5%;
-    }
-
-    .col-10 {
-        width: 10%;
-    }
-
-    .col-30 {
-        width: 30%;
-    }
-
-    .col-20 {
-        width: 20%;
-    }
-
-    .col-40 {
-        width: 40%;
     }
 
     .street-image {

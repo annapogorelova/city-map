@@ -30,7 +30,7 @@
         position: absolute;
         top: 0;
         right: 0;
-        z-index: 99999;
+        z-index: 999999;
         transition: transform 0.7s;
         width: 500px;
     }
@@ -114,6 +114,10 @@
             width: 100% !important;
         }
 
+        .sidebar-content {
+            opacity: 1;
+        }
+
         .sidebar-toggler {
             display: none;
         }
@@ -129,7 +133,7 @@
         .full-screen-sidebar-footer {
             position: absolute;
             bottom: 0;
-            height: 80px;
+            height: 120px;
             width: 100%;
             background-color: #ffffff;
             padding: 15px 20px;
@@ -145,7 +149,7 @@
         }
 
         .full-screen-sidebar-footer.show {
-            z-index: 99999;
+            z-index: 99998;
         }
     }
 </style>

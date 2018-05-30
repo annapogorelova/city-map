@@ -7,16 +7,19 @@
             </div>
         </div>
         <notices></notices>
+        <app-footer></app-footer>
     </div>
 </template>
 
 <script>
     import AppHeader from "./components/layout/app-header";
     import Notices from "./components/shared/notices";
+    import AppFooter from "./components/layout/app-footer";
 
     export default {
         name: 'app',
         components: {
+            AppFooter,
             Notices,
             AppHeader
         },

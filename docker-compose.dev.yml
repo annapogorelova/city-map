@@ -45,3 +45,11 @@ services:
       - ./docker/storage/mysql/var/lib/mysql/:/var/lib/mysql/
       - ./docker/config/mysql/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
       - ./docker/config/mysql/my.cnf:/etc/mysql/my.cnf
+
+  cm-maildev.docker:
+    image: djfarrelly/maildev
+    container_name: cm-maildev
+    restart: always
+    ports:
+      - 1081:80
+      - 1025:25

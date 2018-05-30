@@ -14,6 +14,7 @@ module.exports = Object.freeze({
     wikiSummaryCleanRegex: /\|[-?'\u0400-\u04FF\w\s]+=/g,
     wordsSplitRegex: /[-'\u0400-\u04FF\w]+/ig,
     clearSpecialSymbolsRegex: /[^\w\u0400-\u04FF\s'\-,.?!:;%()’—]+/g,
+    emailRegex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
     images: ["фото", "портрет", "зображення", "герб", "прапор", "розташування"],
     nameInfoBoxProperty: "ім'я",
     namedAfterInfoBoxProperty: "назва на честь",

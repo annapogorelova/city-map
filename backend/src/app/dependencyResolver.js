@@ -1,6 +1,8 @@
 const {DependencyContainer} = require("tooleks");
 const dc = new DependencyContainer();
 const db = require("../data/models/index");
+const nodemailer = require("nodemailer");
+const config = require("config");
 
 // Data & http services
 const dataServicesFactory = require("../data/services/dataServicesFactory");
@@ -15,6 +17,10 @@ const OverpassGeoDataFormatter = require("../lib/geo/overpassGeoDataFormatter");
 const JsonGeoDataProvider = require("../lib/geo/jsonGeoDataProvider");
 const GeoParser = require("../lib/geo/geoParser");
 const GeoDataService = require("../lib/geo/geoDataService");
+
+// Other services
+const makeMailService = require("../http/services/mailService");
+const makeReCaptchaService = require("../http/services/reCaptchaService");
 
 // Common
 const routesV1 = require("../http/routes/v1");
@@ -39,6 +45,30 @@ dc.registerBinding("JwtService", function () {
     return jwt;
 }, {singleton: true});
 
+let transporterOptions = {
+    host: config.smtp.host,
+    port: config.smtp.port,
+    secure: process.env.NODE_ENV === "production",
+    ignoreTLS: process.env.NODE_ENV !== "production"
+};
+
+if(process.env.NODE_ENV === "production") {
+    transporterOptions["auth"] = {
+        user: config.smtp.username,
+        pass: config.smtp.password
+    };
+}
+
+if(process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
+    transporterOptions["tls"] = {
+        rejectUnauthorized: false
+    };
+}
+
+const transporter = nodemailer.createTransport(transporterOptions);
+
+dc.registerInstance("Mailer", transporter);
+
 dc.registerBinding("AuthController", controllersFactory.authController, {
     dependencies: ["UserService", "JwtService"]
 });
@@ -59,6 +89,16 @@ dc.registerBinding("NamedEntitiesController", controllersFactory.namedEntitiesCo
     dependencies: ["NamedEntityService", "Mapper"]
 });
 
+dc.registerBinding("ReCaptchaService", makeReCaptchaService);
+
+dc.registerBinding("MailService", makeMailService, {
+    dependencies: ["Mailer"]
+});
+
+dc.registerBinding("ContactController", controllersFactory.contactController, {
+    dependencies: ["ReCaptchaService", "MailService"]
+});
+
 dc.registerBinding("AuthMiddleware", makeAuthMiddleware, {
     dependencies: ["UserService", "JwtService"]
 });
@@ -71,6 +111,7 @@ dc.registerBinding("Router", routesV1, {
         "StreetsController",
         "UsersController",
         "NamedEntitiesController",
+        "ContactController",
         "AuthMiddleware"
     ]
 });

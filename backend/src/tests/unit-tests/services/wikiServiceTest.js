@@ -2,12 +2,12 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const testData = require("../data/wikiTestData");
+const testData = require("../../data/wikiTestData");
 const sinon = require("sinon");
-const WikiApiService = require("../../lib/wiki/wikiApiService");
-const WikiService = require("../../lib/wiki/wikiService");
-const utils = require("../../app/utils");
-const stringUtils = require("../../utils/stringUtils");
+const WikiApiService = require("../../../lib/wiki/wikiApiService");
+const WikiService = require("../../../lib/wiki/wikiService");
+const utils = require("../../../app/utils");
+const stringUtils = require("../../../utils/stringUtils");
 
 function getPage(searchKey) {
     return testData.pages.filter(p => {return p.searchKey === searchKey})[0];

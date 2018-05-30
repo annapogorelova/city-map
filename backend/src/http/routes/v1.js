@@ -9,6 +9,7 @@ function makeRouter(
     streetsController,
     usersController,
     namedEntitiesController,
+    contactController,
     authMiddleware
 ) {
 
@@ -70,6 +71,10 @@ function makeRouter(
         authMiddleware.extractAuth,
         authMiddleware.verifyAuth,
         namedEntitiesController.search);
+
+    router.post(apiRoutes.CONTACT,
+        authMiddleware.extractAuth,
+        contactController.sendMessage);
 
     return router;
 }

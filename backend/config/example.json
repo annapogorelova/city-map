@@ -22,5 +22,15 @@
   },
   "defaults": {
     "pageLimit": 5
+  },
+  "reCaptcha": {
+    "key": "example"
+  },
+  "smtp": {
+    "host": "localhost",
+    "port": 1025,
+    "receiverEmail": "example@gmail.com",
+    "username": "example",
+    "password": "example"
   }
 }

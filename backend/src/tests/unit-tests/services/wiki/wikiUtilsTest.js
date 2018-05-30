@@ -2,9 +2,9 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const wikiUtils = require("../../lib/wiki/wikiUtils");
-const constants = require("../../app/constants/commonConstants");
-const utils = require("../../app/utils");
+const wikiUtils = require("../../../../lib/wiki/wikiUtils");
+const constants = require("../../../../app/constants/commonConstants");
+const utils = require("../../../../app/utils");
 
 describe("street wiki service utils unit test", function () {
     const testImagesInfo = [

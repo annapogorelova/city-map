@@ -2,7 +2,7 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const stringUtils = require("../../utils/stringUtils");
+const stringUtils = require("../../../utils/stringUtils");
 
 describe("stringUtils test", () => {
     it("should find the best string match for 'Олени Хохол' phrase", (done) => {

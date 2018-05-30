@@ -2,8 +2,8 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const testUtils = require("../testUtils");
-const constants = require("../../app/constants/httpConstants");
+const testUtils = require("../../testUtils");
+const constants = require("../../../app/constants/httpConstants");
 
 describe("Auth controller unit tests", () => {
     const testUser = testUtils.getUser();

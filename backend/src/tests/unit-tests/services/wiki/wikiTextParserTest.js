@@ -2,8 +2,8 @@
 
 const chai = require("chai");
 const assert = chai.assert;
-const testData = require("../data/wikiTestData");
-const wikiTextParser = require("../../lib/wiki/wikiTextParser");
+const testData = require("../../../data/wikiTestData");
+const wikiTextParser = require("../../../../lib/wiki/wikiTextParser");
 
 function createWikiText(wikiData) {
     let wikiText = "{{Default description\n";

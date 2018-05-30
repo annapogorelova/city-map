@@ -4,6 +4,8 @@ import CityMap from "../components/city-map/city-map";
 import StreetsList from "../components/admin/streets-list";
 import NamedEntitiesList from "../components/admin/named-entities-list";
 import NotFoundPageComponent from "../components/shared/not-found";
+import ContactComponent from "../components/contact/contact";
+import AppConfig from "../app.config";
 
 const routes = [
     {
@@ -11,7 +13,7 @@ const routes = [
         redirect: "/map"
     },
     {
-        path: "/sign-in",
+        path: `/${AppConfig.signInRouteName}`,
         name: "sign-in",
         meta: {
             requiresAuth: false,
@@ -59,6 +61,16 @@ const routes = [
             dependsOnCity: false
         },
         component: NamedEntitiesList
+    },
+    {
+        path: "/contact",
+        name: "contact",
+        meta: {
+            requiresAuth: false,
+            showHeader: true,
+            dependsOnCity: false
+        },
+        component: ContactComponent
     },
     {
         path: "*",

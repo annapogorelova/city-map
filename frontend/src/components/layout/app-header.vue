@@ -20,6 +20,9 @@
                     <router-link v-if="isAuthenticated" class="nav-link" to="/admin/named-entities">Персони</router-link>
                 </li>
                 <li class="nav-item">
+                    <router-link class="nav-link" to="/contact">Написати автору</router-link>
+                </li>
+                <li class="nav-item">
                     <router-link v-if="isAuthenticated" class="nav-link" to="/sign-out">
                         <i class="fa fa-sign-out-alt sign-out"></i>
                     </router-link>
@@ -94,5 +97,9 @@
 
     .dropdown-item.active, .dropdown-item:active {
         background-color: #0056b2 !important;
+    }
+
+    .fa-envelope {
+        margin-left: 2px;
     }
 </style>

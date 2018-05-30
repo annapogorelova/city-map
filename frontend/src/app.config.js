@@ -1,5 +1,7 @@
 export default {
     defaultCityName: process.env.DEFAULT_CITY_NAME,
     apiUrl: process.env.API_URL,
-    apiRequestTimeout: process.env.REQUEST_TIMEOUT
+    apiRequestTimeout: process.env.REQUEST_TIMEOUT,
+    reCaptchaKey: process.env.RECAPTCHA_KEY,
+    signInRouteName: process.env.SIGN_IN_ROUTE_NAME
 };

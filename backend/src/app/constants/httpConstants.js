@@ -26,6 +26,7 @@ module.exports = Object.freeze({
         USERS: "/users",
         CITIES: "/cities",
         STREETS: "streets",
-        NAMED_ENTITIES: "/namedEntities"
+        NAMED_ENTITIES: "/namedEntities",
+        CONTACT: "/contact"
     }
 });

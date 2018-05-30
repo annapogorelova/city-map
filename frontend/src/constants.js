@@ -41,6 +41,14 @@ export default Object.freeze({
         SERVER_ERROR: {
             title: "Помилка сервера",
             message: "Щось пішло не так. Спробуйте повторити запит пізніше."
+        },
+        MESSAGE_SENT: {
+            title: "Повідомлення надіслано",
+            message: "Дякую, ваше повідомлення було успішно надіслано автору."
+        },
+        RECAPTCHA_UNAVAILABLE: {
+            title: "Сервіс ReCaptcha тимчасово недоступний",
+            message: "Спробуйте будь ласка пізніше"
         }
     }
 });

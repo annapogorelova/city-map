@@ -37,6 +37,7 @@
         font-family: 'Montserrat', sans-serif !important;
         min-width: 300px;
         overflow-x: auto;
+        padding: 0;
     }
 
     .no-margins {

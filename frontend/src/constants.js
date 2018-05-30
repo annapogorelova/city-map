@@ -49,6 +49,10 @@ export default Object.freeze({
         RECAPTCHA_UNAVAILABLE: {
             title: "Сервіс ReCaptcha тимчасово недоступний",
             message: "Спробуйте будь ласка пізніше"
+        },
+        AUTH_EXPIRED: {
+            title: "Час сесії минув",
+            message: "Увійдіть будь ласка знову."
         }
     }
 });

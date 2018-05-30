@@ -1,8 +1,9 @@
 export default class AuthService {
-    constructor(apiService, localStorageService, eventEmitter, key) {
+    constructor(apiService, localStorageService, eventEmitter, eventBus, key) {
         this.apiService = apiService;
         this.localStorageService = localStorageService;
         this.eventEmitter = eventEmitter;
+        this.eventBus = eventBus;
         this.key = key;
         this.initialize();
     }
@@ -25,6 +26,7 @@ export default class AuthService {
         return this.apiService.delete("/auth").then(() => {
             this.localStorageService.remove(this.key);
             this.eventEmitter.emit(this.key, null);
+            this.eventBus.emit("sign-out");
         });
     }
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="row">
+    <div class="row page-wrapper">
         <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
             <form v-on:submit.prevent="onSubmit">
                 <div class="form-group">

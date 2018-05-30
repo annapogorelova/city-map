@@ -17,7 +17,10 @@
     </div>
 </template>
 <script>
+    import {EventBusMixin} from "../../mixins";
+
     export default {
+        mixins: [EventBusMixin],
         props: {
             id: {
                 type: String,
@@ -41,7 +44,7 @@
                 }
             });
 
-            this.$dc.get("eventBus").on("sign-out", () => {
+            this.eventBus.on("sign-out", () => {
                 this.destroy();
             });
         },

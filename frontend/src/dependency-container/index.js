@@ -15,7 +15,8 @@ const dc = new DependencyContainer;
 
 dc.registerInstance("dc", dc);
 
-dc.registerInstance("eventBus", new EventEmitter());
+const eventBus = new EventEmitter();
+dc.registerInstance("eventBus", eventBus);
 
 dc.registerBinding("api", () => new ApiService(
     axios,
@@ -53,7 +54,7 @@ dc.registerBinding("notices", () => new NoticesService(new EventEmitter), { sing
 
 dc.registerBinding("auth",
     (apiService, localStorageService) =>
-        new AuthService(apiService, localStorageService, new EventEmitter, "user"), {
+        new AuthService(apiService, localStorageService, new EventEmitter, eventBus, "user"), {
         dependencies: ["api", "localStorage"],
         singleton: true,
         factory: true,

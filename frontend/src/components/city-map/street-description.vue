@@ -18,7 +18,7 @@
             </div>
         </div>
         <div>
-            <div class="row street-description-body" v-for="namedEntity of street.namedEntities">
+            <div class="row named-entity-container" v-for="namedEntity of street.namedEntities">
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12">
@@ -156,19 +156,19 @@
         border-top: 1px solid #939697;
     }
 
-    .street-description-body:not(:last-child) .description-border {
+    .named-entity-container:not(:last-child) .description-border {
         border-bottom: 1px solid #939697;
     }
 
-    .street-description-body:not(:first-child) {
+    .named-entity-container:not(:first-child) {
         margin-top: 15px;
     }
 
-    .street-description-body:only-child .description-border {
+    .named-entity-container:only-child .description-border {
         border-bottom: none;
     }
 
-    .street-description-body:first-child {
+    .named-entity-container:first-child {
         margin-top: 10px;
     }
 

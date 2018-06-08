@@ -52,7 +52,7 @@
     import Recaptcha from "../shared/recaptcha";
     import {ApiServiceMixin, NoticesServiceMixin}from "../../mixins/index";
     import constants from "../../constants";
-    import AppConfig from "../../app.config";
+    import appConfig from "../../app.config";
 
     export default {
         components: {Recaptcha},
@@ -68,7 +68,7 @@
         },
         computed: {
             reCaptchaKey: function () {
-                return AppConfig.reCaptchaKey;
+                return appConfig.reCaptchaKey;
             }
         },
         methods: {

@@ -1,30 +1,30 @@
 <template>
     <nav class="app-navbar navbar navbar-expand-lg navbar-dark bg-dark">
-        <router-link class="navbar-brand" to="/map">ReadTheStreet</router-link>
+        <router-link class="navbar-brand" to="/map">{{appName}}</router-link>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle" href="#" id="citiesDropdown" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        Міста
+                        {{citiesHeader}}
                     </a>
                     <cities-list ref="cities"
                                  v-on:citySelected="onCitySelected"
                                  v-bind:preselected-city-id="initialCityId"
                                  v-bind:preselect-default="true"></cities-list>
                 </li>
-                <li class="nav-item">
-                    <router-link v-if="isAuthenticated" class="nav-link" to="/admin/streets">Вулиці</router-link>
+                <li class="nav-item" v-if="isAuthenticated">
+                    <router-link class="nav-link" to="/admin/streets">{{streetsHeader}}</router-link>
+                </li>
+                <li class="nav-item" v-if="isAuthenticated">
+                    <router-link class="nav-link" to="/admin/named-entities">{{namedEntitiesHeader}}</router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link v-if="isAuthenticated" class="nav-link" to="/admin/named-entities">Персони</router-link>
+                    <router-link class="nav-link" to="/contact">{{contactHeader}}</router-link>
                 </li>
-                <li class="nav-item">
-                    <router-link class="nav-link" to="/contact">Написати автору</router-link>
-                </li>
-                <li class="nav-item">
-                    <router-link v-if="isAuthenticated" class="nav-link" to="/sign-out">
-                        <i class="fa fa-sign-out-alt sign-out"></i>
+                <li class="nav-item" v-if="isAuthenticated">
+                    <router-link class="nav-link" to="/sign-out">
+                        <i class="fa fa-sign-out-alt sign-out" title="'Вихід'"></i>
                     </router-link>
                 </li>
             </ul>
@@ -38,6 +38,9 @@
 <script>
     import {AuthMixin, EventBusMixin} from "../../mixins";
     import CitiesList from "../shared/cities-list";
+    import {optional} from "tooleks";
+    import constants from "../../constants";
+    import appConfig from "../../app.config";
 
     export default {
         components: {CitiesList},
@@ -47,6 +50,13 @@
                 city: undefined,
                 initialCityId: undefined
             }
+        },
+        computed: {
+            appName: () => appConfig.appName,
+            citiesHeader: () => constants.HEADERS.CITIES,
+            streetsHeader: () => constants.HEADERS.STREETS,
+            namedEntitiesHeader: () => constants.HEADERS.NAMED_ENTITES,
+            contactHeader: () => constants.HEADERS.CONTACT
         },
         watch: {
             '$route': function (route) {
@@ -62,7 +72,7 @@
             }
         },
         created: function () {
-            if(!isNaN(this.$route.query.cityId)) {
+            if(!isNaN(optional(() => this.$route.query.cityId))) {
                 this.initialCityId = parseInt(this.$route.query.cityId);
             }
         },
@@ -75,9 +85,8 @@
                     query.cityId = city.id;
                     query.coordinates = undefined;
                     this.$router.push({query: query});
+                    this.eventBus.emit("city-selected", city);
                 }
-
-                this.eventBus.emit("city-selected", city);
             }
         }
     }

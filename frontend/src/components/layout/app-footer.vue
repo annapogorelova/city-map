@@ -1,6 +1,6 @@
 <template>
     <div class="footer">
-        <span>Copyright © {{year}} <b>ReadTheStreet</b></span>
+        <span>Copyright © {{year}} <b>{{appName}}</b></span>
     </div>
 </template>
 <style scoped>
@@ -27,11 +27,12 @@
     }
 </style>
 <script>
+    import appConfig from "../../app.config";
+
     export default {
         computed: {
-            year: function () {
-                return new Date().getFullYear();
-            }
+            year: () => new Date().getFullYear(),
+            appName: () => appConfig.appName
         }
     }
 </script>

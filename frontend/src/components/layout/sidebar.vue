@@ -179,15 +179,15 @@
         methods: {
             open: function () {
                 this.isOpen = true;
-                this.$emit("open", this.isOpen);
+                this.$emit("open");
             },
             close: function () {
                 this.isOpen = false;
-                this.$emit("close", this.isOpen);
+                this.$emit("close");
             },
             toggle: function () {
                 this.isOpen = !this.isOpen;
-                this.$emit(this.isOpen ? "open" : "close", this.isOpen);
+                this.$emit(this.isOpen ? "open" : "close");
             }
         }
     }

@@ -25,7 +25,7 @@
 <script>
     import {optional} from "tooleks";
     import {CitiesServiceMixin} from "../../mixins/index";
-    import AppConfig from "../../app.config";
+    import appConfig from "../../app.config";
 
     export default {
         props: {
@@ -48,32 +48,24 @@
         created: function () {
             this.loadCities();
         },
-        watch: {
-            preselectedCityId: function(cityId) {
-                if(!isNaN(cityId)) {
-                    const city = this.cities.filter(c => c.id === cityId)[0];
-                    this.selectCity(city);
-                }
-            }
-        },
         methods: {
             isCitySelected: function (city) {
                 return optional(() => this.selectedCity.id === city.id);
             },
             loadCities: function () {
-                this.citiesService.getCities({limit: 10}).then(response => {
+                return this.citiesService.getCities({limit: appConfig.defaultCitiesCount}).then(response => {
                     this.cities = response.data;
                     this.preselectCity();
                 });
             },
             preselectCity: function () {
-                if(!this.preselectedCityId && this.preselectDefault) {
-                    const defaultCity = optional(() =>
-                        this.cities.find(c => c.name === AppConfig.defaultCityName), this.cities[0]);
-                    this.selectCity(defaultCity);
-                } else {
+                if(this.preselectedCityId) {
                     const city = this.cities.filter(c => c.id === this.preselectedCityId)[0];
                     this.selectCity(city);
+                } else if (this.preselectDefault) {
+                    const defaultCity = optional(() =>
+                        this.cities.find(c => c.name === appConfig.defaultCityName), this.cities[0]);
+                    this.selectCity(defaultCity);
                 }
             },
             selectCity: function (city) {

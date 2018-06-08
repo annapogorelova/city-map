@@ -5,7 +5,7 @@ import StreetsList from "../components/admin/streets-list";
 import NamedEntitiesList from "../components/admin/named-entities-list";
 import NotFoundPageComponent from "../components/shared/not-found";
 import ContactComponent from "../components/contact/contact";
-import AppConfig from "../app.config";
+import appConfig from "../app.config";
 
 const routes = [
     {
@@ -13,7 +13,7 @@ const routes = [
         redirect: "/map"
     },
     {
-        path: `/${AppConfig.signInRouteName}`,
+        path: `/${appConfig.signInRouteName}`,
         name: "sign-in",
         meta: {
             requiresAuth: false,

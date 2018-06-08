@@ -54,5 +54,11 @@ export default Object.freeze({
             title: "Час сесії минув",
             message: "Увійдіть будь ласка знову."
         }
+    },
+    HEADERS: {
+        CITIES: "Міста",
+        STREETS: "Вулиці",
+        NAMED_ENTITES: "Персони",
+        CONTACT: "Написати автору"
     }
 });

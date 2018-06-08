@@ -1,12 +1,13 @@
 <template>
     <div class="row page-wrapper">
         <div class="col-12">
-            <div class="map-wrapper">
+            <div id="map-wrapper" class="map-wrapper">
                 <basic-map ref="map"
                            v-on:init="onMapInit"
                            v-on:locationsuccess="onLocationSuccess"
                            v-on:locationerror="onLocationError"
                            :height="mapHeight"
+                           :locationTimeout="locationTimeout"
                            :zoom="zoom"></basic-map>
                 <sidebar ref="sidebar" :width="400" :height="mapHeight">
                     <template slot="header">
@@ -117,7 +118,6 @@
     }
 </style>
 <script>
-    import Vue from "vue";
     import BasicMap from "../map/basic-map";
     import CitiesList from "../shared/cities-list";
     import StreetDescription from "./street-description";
@@ -131,7 +131,9 @@
         CitiesServiceMixin
     } from "../../mixins/index";
     import constants from "../../constants";
+    import appConfig from "../../app.config";
     import Sidebar from "../layout/sidebar";
+    import _ from "lodash";
 
     export default {
         components: {Sidebar, BasicMap, CitiesList, StreetDescription, Search},
@@ -163,19 +165,25 @@
         },
         watch: {
             "$route.query.cityId": function (cityId) {
-                if (!isNaN(cityId) && optional(() => this.city.id !== cityId)) {
+                if (!isNaN(cityId) && (!this.city || this.city.id !== cityId)) {
                     this.citiesService.getCity(cityId).then(response => {
                         this.selectCity(response.data);
                     });
                 }
             },
             city: function (city) {
-                if (city && this.map) {
-                    const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]]);
-                    this.map.setMaxBounds(bounds);
-                } else {
-                    this.map.setMaxBounds([]);
+                this.coordinates = optional(() => city.coordinates, []);
+                this.clearMap();
+
+                if(city) {
+                    this.map.setView(this.city.coordinates, this.zoom);
                 }
+
+                const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]], []);
+                this.map.setMaxBounds(bounds);
+            },
+            coordinates: function (coordinates) {
+                this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
             },
             selectedStreet: function (street) {
                 if(optional(() => street.namedEntities.length) && !this.sidebar.isOpen) {
@@ -207,6 +215,9 @@
             },
             mapHeight: function () {
                 return window.innerHeight - 57;
+            },
+            locationTimeout: function () {
+                return appConfig.locationTimeout;
             }
         },
         created: function () {
@@ -223,6 +234,10 @@
                 if (coordinates.length) {
                     this.setMarker(coordinates);
                 }
+            }).catch(() => {
+                this.noticesService.error(
+                    constants.NOTICES.FAILED_TO_GET_LOCATION.title,
+                    constants.NOTICES.FAILED_TO_GET_LOCATION.message);
             });
         },
         beforeDestroy: function () {
@@ -236,85 +251,71 @@
         },
         methods: {
             getLocation: function () {
-                if (Array.isArray(this.$route.query.coordinates)) {
-                    return new Promise(resolve => resolve(this.$route.query.coordinates.map(c => parseFloat(c))));
-                } else {
-                    return new Promise((resolve, reject) => {
+                return new Promise((resolve, reject) => {
+                    if (Array.isArray(this.$route.query.coordinates)) {
+                        resolve(this.$route.query.coordinates.map(c => parseFloat(c)));
+                    } else {
                         navigator.geolocation.getCurrentPosition((position) => {
                             resolve([position.coords.latitude, position.coords.longitude]);
                         }, () => {
-                            this.noticesService.error(
-                                constants.NOTICES.FAILED_TO_GET_LOCATION.title,
-                                constants.NOTICES.FAILED_TO_GET_LOCATION.message);
                             reject();
-                        }, {timeout: 3000});
-                    });
-                }
+                        }, {timeout: this.locationTimeout});
+                    }
+                });
             },
             findClosestStreet: function (coordinates) {
-                if (!this.cityId) {
-                    return Promise.reject();
-                }
-
                 this.searchInProgress = true;
                 return this.streetsService.getStreetByCoordinates({
                     cityId: this.cityId,
                     coordinates: coordinates
                 }).then(response => {
                     this.searchInProgress = false;
-                    return optional(() => response.data, null);
+                    return response.data;
                 });
             },
             setMarker(coordinates) {
                 this.selectedStreet = null;
                 this.clearMap();
 
-                this.findClosestStreet(coordinates).then(street => {
-                    if (street) {
-                        this.setSelectedStreet(street, coordinates);
-                    } else {
-                        let marker = this.addMarker({coordinates: coordinates});
-                        marker.bindPopup(`
-                            <b>${constants.NOTICES.NOT_A_STREET.title}</b>
-                            <br>${constants.NOTICES.NOT_A_STREET.message}`)
-                            .openPopup();
-                    }
+                return new Promise((resolve, reject) => {
+                    this.findClosestStreet(coordinates).then(street => {
+                        try {
+                            if (street) {
+                                this.setSelectedStreet(street, coordinates);
+                            } else {
+                                const marker = L.marker(coordinates);
+                                this.markers.push(marker);
+
+                                marker
+                                    .addTo(this.map)
+                                    .bindPopup(`<b>${constants.NOTICES.NOT_A_STREET.title}</b><br>${constants.NOTICES.NOT_A_STREET.message}`)
+                                    .openPopup();
+
+                                this.setMapView(coordinates);
+                            }
+
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
+                    });
                 });
             },
             setSelectedStreet(street, coordinates) {
-                this.selectedStreet = null;
-
-                Vue.nextTick(() => {
-                    this.clearMap();
-
-                    this.selectedStreet = street;
-                    this.drawStreet(street);
-                    this.setStreetMarker(coordinates, street);
-                });
+                this.selectedStreet = street;
+                this.drawStreet(street);
+                this.setStreetMarker(coordinates, street);
             },
             drawStreet(street) {
                 street.ways.map(way => {
                     this.polyLines.push(this.drawPolyline(way));
                 });
             },
-            addMarker({coordinates, icon} = {}) {
-                const marker = L.marker(coordinates, icon ? {icon: icon} : {});
-                this.markers.push(marker);
-                marker.addTo(this.map);
-                this.setMapView(coordinates);
-                return marker;
-            },
             setMapView(coordinates) {
                 this.coordinates = coordinates;
-                this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
-
                 const mapZoom = this.map.getZoom();
                 const zoom = mapZoom > this.focusZoom ? mapZoom : this.focusZoom;
                 this.map.setView(coordinates, zoom);
-            },
-            resetCoordinates() {
-                this.coordinates = [];
-                this.$router.push({query: {...this.$route.query, coordinates: []}});
             },
             clearMap() {
                 this.removeMarkers();
@@ -332,29 +333,42 @@
                 if (street.namedEntities.length) {
                     const namedEntities = _.sortBy(street.namedEntities, n => n.imageUrl !== null);
                     for (let i = 0; i < namedEntities.length; i++) {
-                        this.markers.push(this.renderImageMarker({
-                            coordinates: coordinates,
-                            imageProps: {
-                                imageUrl: namedEntities[i].imageUrl || this.defaultImage,
-                                title: `${namedEntities[i].name} на Wikipedia`,
-                                linkUrl: namedEntities[i].wikiUrl,
-                                styles: namedEntities.length > 1 ? {"margin-left": `-${i * 50}px`} : null
-                            },
-                            className: namedEntities[i].imageUrl ? "" : "default-image-marker"
-                        }));
-                    }
+                        const marker = this.makeNamedEntityMarker(
+                            coordinates,
+                            namedEntities[i],
+                            namedEntities.length > 1 ? {"margin-left": `-${i * 50}px`} : null);
 
-                    this.markers.map(m => m.addTo(this.map));
-                } else {
-                    let marker = this.addMarker({coordinates: coordinates});
-                    let popupContent = `<b>${street.name}</b>`;
-                    if(street.oldName) {
-                        popupContent += `<br/><span>(стара назва: ${street.oldName})</span>`;
+                        this.markers.push(marker);
+                        marker.addTo(this.map);
                     }
-                    marker.bindPopup(popupContent).openPopup();
+                } else {
+                    const marker = this.makeStreetMarker(coordinates, street);
+                    this.markers.push(marker);
+                    marker.addTo(this.map).openPopup();
                 }
 
                 this.setMapView(coordinates);
+            },
+            makeNamedEntityMarker(coordinates, namedEntity, styles = null) {
+                return this.renderImageMarker({
+                    coordinates: coordinates,
+                    imageProps: {
+                        imageUrl: namedEntity.imageUrl || this.defaultImage,
+                        title: `${namedEntity.name} на Wikipedia`,
+                        linkUrl: namedEntity.wikiUrl,
+                        styles: styles
+                    },
+                    className: namedEntity.imageUrl ? "" : "default-image-marker"
+                });
+            },
+            makeStreetMarker(coordinates, street) {
+                let marker = L.marker(coordinates);
+                let popupContent = `<b>${street.name}</b>`;
+                if(street.oldName) {
+                    popupContent += `<br/><span>(стара назва: ${street.oldName})</span>`;
+                }
+                marker.bindPopup(popupContent);
+                return marker;
             },
             drawPolyline(coordinates) {
                 return L.polyline(coordinates, {opacity: 0.6, weight: 5}).addTo(this.map);
@@ -362,36 +376,37 @@
             onMapInit() {
                 this.map.on("click", function (e) {
                     this.setMarker([e.latlng.lat, e.latlng.lng], this.map);
-                    this.$emit("init");
                 }.bind(this));
             },
             selectCity(city) {
                 this.city = city;
                 this.selectedStreet = null;
-                this.resetCoordinates();
-                this.clearMap();
-                this.map.setView(city.coordinates, this.zoom);
             },
             onSearchStreet(streetName) {
-                if (!streetName) {
-                    return;
-                }
-
-                this.streetsService.search({cityId: this.cityId, search: streetName}).then(response => {
-                    const street = optional(() => response.data[0], null);
-
-                    if (street) {
-                        this.search.clear();
-                        this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
-                    } else {
-                        this.clearMap();
-                        this.resetCoordinates();
-                        this.selectedStreet = null;
-                        this.noticesService.info(
-                            constants.NOTICES.STREET_NOT_FOUND.title,
-                            constants.NOTICES.STREET_NOT_FOUND.message
-                        );
+                return new Promise((resolve, reject) => {
+                    if (!streetName) {
+                        reject();
                     }
+
+                    this.streetsService.search({cityId: this.cityId, search: streetName}).then(response => {
+                        const street = optional(() => response.data[0], null);
+
+                        this.clearMap();
+
+                        if (street) {
+                            this.search.clear();
+                            this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
+                        } else {
+                            this.coordinates = [];
+                            this.selectedStreet = null;
+                            this.noticesService.info(
+                                constants.NOTICES.STREET_NOT_FOUND.title,
+                                constants.NOTICES.STREET_NOT_FOUND.message
+                            );
+                        }
+
+                        resolve();
+                    });
                 });
             },
             renderImageMarker({coordinates, imageProps, className} = {}) {

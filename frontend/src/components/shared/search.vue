@@ -37,12 +37,13 @@
         },
         methods: {
             onSearch: function () {
-                if (!this.search || this.search.length >= this.minLength) {
+                if (this.search && this.search.length >= this.minLength) {
                     this.$emit("search", this.search);
                 }
             },
             clear: function () {
                 this.search = "";
+                this.$emit("clear");
             }
         }
     };

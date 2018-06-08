@@ -8,7 +8,7 @@ import {NamedEntitiesService} from "../services/named-entities";
 import {NoticesService} from "../services/notices";
 import {ScreenSizeService} from "../services/screen";
 import axios from "axios";
-import AppConfig from "../app.config";
+import appConfig from "../app.config";
 import constants from "../constants";
 
 const dc = new DependencyContainer;
@@ -20,8 +20,8 @@ dc.registerInstance("eventBus", eventBus);
 
 dc.registerBinding("api", () => new ApiService(
     axios,
-    AppConfig.apiUrl,
-    AppConfig.requestTimeout,
+    appConfig.apiUrl,
+    appConfig.requestTimeout,
     (response) => {
         return Promise.resolve({
             data: response.data.data,

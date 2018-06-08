@@ -1,7 +1,8 @@
 <template>
     <div>
-        <div :id="this.id" class="map" :style="{height: height + 'px'}"></div>
-        <a class="location-control" title="Знайти мене" aria-label="Знайти мене" v-on:click="locate"><i class="fa fa-compass"></i></a>
+        <div :id="id" class="map" :style="{height: height + 'px'}"></div>
+        <a class="location-control" title="Знайти мене" aria-label="Знайти мене" v-on:click="locate"><i
+                class="fa fa-compass"></i></a>
     </div>
 </template>
 
@@ -112,8 +113,8 @@
                 L.tileLayer(this.tileLayerUrl, this.tileLayerOptions).addTo(this.map);
                 this.$emit("init");
             },
-            setCenter(lat, lon, zoom = null) {
-                this.map.setView(new L.LatLng(lat, lon), zoom || this.zoom);
+            setCenter(lat, lng, zoom = null) {
+                this.map.setView(new L.LatLng(lat, lng), zoom || this.zoom);
             },
             locate() {
                 this.map.locate({setView: true, timeout: this.locationTimeout})

@@ -7,7 +7,7 @@ const webpack = require("webpack");
 module.exports = (config) => {
     config.set({
         frameworks: ["mocha", "chai"],
-        files: ["./specs/components/**/*.spec.js"],
+        files: ["./specs/**/*.spec.js"],
         reporters: ["progress", "coverage"],
         port: 9876,  // karma web server port
         colors: true,

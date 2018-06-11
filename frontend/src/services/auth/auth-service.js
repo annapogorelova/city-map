@@ -16,17 +16,26 @@ export default class AuthService {
     }
 
     signIn({email, password}) {
-        return this.apiService.post("/auth", {email: email, password: password}).then(response => {
-            this.setUser(response.data.user);
-            return response.data;
+        return new Promise((resolve, reject) => {
+            this.apiService.post("/auth", {email: email, password: password}).then(response => {
+                this.setUser(response.data.user);
+                resolve(response.data.user);
+            }).catch(error => {
+                return reject(error);
+            });
         });
     }
 
     signOut() {
-        return this.apiService.delete("/auth").then(() => {
-            this.localStorageService.remove(this.key);
-            this.eventEmitter.emit(this.key, null);
-            this.eventBus.emit("sign-out");
+        return new Promise((resolve, reject) => {
+            this.apiService.delete("/auth").then(() => {
+                this.localStorageService.remove(this.key);
+                this.eventEmitter.emit(this.key, null);
+                this.eventBus.emit("sign-out");
+                resolve();
+            }).catch(error => {
+                reject(error);
+            });
         });
     }
 
@@ -45,9 +54,7 @@ export default class AuthService {
 
     isAuthenticated() {
         const user = this.getUser();
-        return this.localStorageService.exists(this.key) &&
-            this.isUserValid(user) &&
-            !this.isAuthExpired(user);
+        return !this.isAuthExpired(user);
     }
 
     isUserValid(user) {

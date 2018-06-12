@@ -6,5 +6,6 @@ export default {
     reCaptchaKey: process.env.RECAPTCHA_KEY,
     signInRouteName: process.env.SIGN_IN_ROUTE_NAME,
     locationTimeout: parseInt(process.env.LOCATION_TIMEOUT),
-    defaultCitiesCount: parseInt(process.env.DEFAULT_CITIES_LIMIT)
+    defaultCitiesCount: parseInt(process.env.DEFAULT_CITIES_LIMIT),
+    googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID
 };

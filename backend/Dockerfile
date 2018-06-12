@@ -8,8 +8,8 @@ RUN npm install
 
 COPY ./ ./
 
-RUN chown -R node ./log/
-RUN chmod -R +rw ./log/
+RUN chown -R node ./logs/
+RUN chmod -R +rw ./logs/
 
 USER node
 

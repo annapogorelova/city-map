@@ -15,7 +15,7 @@ const routes = dc.get("Router");
 const app = express();
 
 if(process.env.NODE_ENV === "production") {
-    const logDirectory = path.join(__dirname, "../log");
+    const logDirectory = path.join(__dirname, "../logs");
     fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
     let stream = rfs("access.log", {

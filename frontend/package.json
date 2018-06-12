@@ -9,7 +9,7 @@
     "start": "npm run lint && npm run dev",
     "unit": "cross-env BABEL_ENV=test karma start tests/karma.conf.js --single-run",
     "test": "npm run unit",
-    "build": "npm run test && rm -rf dist && node build/build.js",
+    "build": "rm -rf dist && node build/build.js",
     "lint": "./node_modules/.bin/eslint --fix ./src"
   },
   "dependencies": {

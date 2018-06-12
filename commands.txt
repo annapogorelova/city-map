@@ -1,0 +1,20 @@
+//Useful docker commands
+
+// start
+docker-compose -f docker-compose.dev.yml up --build
+docker-compose -f docker-compose.prod.yml up --build
+
+//list
+docker ps -a // list containers
+docker images -a // list images
+docker images -f dangling=true
+
+//remove
+docker rm ID_or_Name ID_or_Name
+docker rmi Image Image
+docker images purge
+
+// bash
+docker exec -it cm-backend bash
+docker exec -it cm-frontend bash
+docker exec -it cm-mysql bash

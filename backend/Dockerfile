@@ -6,6 +6,8 @@ COPY ./package*.json ./
 
 RUN npm install
 
+RUN mkdir -p ./logs/
+
 COPY ./ ./
 
 RUN chown -R node ./logs/

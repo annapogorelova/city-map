@@ -1,5 +1,5 @@
 node_modules/
-log/
+logs/
 config/**/*.json
 !config/example.json
 .nyc_output/

@@ -23,7 +23,6 @@
 </template>
 <script>
     import {AuthMixin, NavigationMixin} from "../../mixins/index";
-    import constants from "../../constants";
 
     export default {
         mixins: [AuthMixin, NavigationMixin],
@@ -54,10 +53,6 @@
                         password: this.formData.password
                     }).then(() => {
                         this.goToPath(this.$route.query.redirect_uri);
-                    }).catch(() => {
-                        this.$dc.get("notices").error(
-                            constants.NOTICES.AUTH_FAILED.title,
-                            constants.NOTICES.AUTH_FAILED.message);
                     });
                 }
             }

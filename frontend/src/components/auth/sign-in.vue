@@ -1,7 +1,7 @@
 <template>
     <div class="row page-wrapper">
         <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-            <form v-on:submit.prevent="onSubmit">
+            <form v-on:submit.prevent="submit">
                 <div class="form-group">
                     <label for="exampleInput">Email</label>
                     <input type="email" class="form-control" id="exampleInput"
@@ -28,33 +28,40 @@
         mixins: [AuthMixin, NavigationMixin],
         data: function () {
             return {
-                formData: {email: "", password: ""},
+                formData: {email: null, password: null},
                 isFormValid: false
             };
         },
         created: function () {
-            if(this.isAuthenticated) {
+            if (this.isAuthenticated) {
                 this.$router.push({name: "admin-streets"});
             }
         },
         watch: {
             formData: {
-                handler: function(value) {
-                    this.isFormValid = value.email && value.password;
+                handler: function (value) {
+                    this.isFormValid =
+                        (typeof value.email === "string" && value.email !== "") &&
+                        (typeof value.password === "string" && value.password !== "");
                 },
                 deep: true
             }
         },
         methods: {
-            onSubmit() {
-                if (this.isFormValid) {
-                    this.$dc.get("auth").signIn({
-                        email: this.formData.email,
-                        password: this.formData.password
-                    }).then(() => {
-                        this.goToPath(this.$route.query.redirect_uri);
-                    });
-                }
+            submit() {
+                return new Promise((resolve, reject) => {
+                    if (this.isFormValid) {
+                        this.authService.signIn({
+                            email: this.formData.email,
+                            password: this.formData.password
+                        }).then(() => {
+                            this.goToPath(this.$route.query.redirect_uri);
+                            resolve();
+                        }).catch(() => reject());
+                    } else {
+                        reject();
+                    }
+                });
             }
         }
     }

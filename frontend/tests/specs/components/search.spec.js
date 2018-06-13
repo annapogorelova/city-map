@@ -1,6 +1,5 @@
 import Search from "../../../src/components/shared/search";
 import sinon from "sinon";
-import dc from "../../../src/dependency-container/index";
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
 describe("Search test", () => {

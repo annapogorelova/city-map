@@ -13,8 +13,14 @@ docker images -f dangling=true
 docker rm ID_or_Name ID_or_Name
 docker rmi Image Image
 docker images purge
+docker image prune // remove all unused
 
 // bash
 docker exec -it cm-backend bash
 docker exec -it cm-frontend bash
 docker exec -it cm-mysql bash
+
+// MySQL
+
+mysqldump -u root -p city-map > city_map.sql
+mysql -u root -p city_map < city_map.sql

@@ -10,8 +10,8 @@ RUN mkdir -p ./logs/
 
 COPY ./ ./
 
-RUN chown -R node ./logs/
-RUN chmod -R +rw ./logs/
+#RUN chown -R node ./logs/
+#RUN chmod -R +rw ./logs/
 
 USER node
 

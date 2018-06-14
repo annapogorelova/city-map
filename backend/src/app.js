@@ -18,8 +18,10 @@ const app = express();
 // Request logger for production
 
 if (process.env.NODE_ENV === "production") {
-    const logDirectory = path.join(__dirname, "../logs");
-    fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
+    const logDirectory = path.join(__dirname, config.get("logsPath"));
+    if(!fs.existsSync(logDirectory)) {
+        fs.mkdirSync(logDirectory);
+    }
 
     const transport = new (DailyRotateFile)({
         dirname: logDirectory,
@@ -61,7 +63,7 @@ app.use("/api/v1", routes);
 // Error logger for production
 
 if (process.env.NODE_ENV === "production") {
-    const logDirectory = path.join(__dirname, "../logs");
+    const logDirectory = path.join(__dirname, config.get("logsPath"));
     fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
     const transport = new (DailyRotateFile)({

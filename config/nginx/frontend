@@ -1,0 +1,13 @@
+server {
+    listen 80;
+    #server_name streetinfo;
+    index index.html;
+    try_files $uri $uri/ /index.html;
+    root /var/www/city-map/frontend/dist;
+
+    location / {
+      expires 1d;
+      add_header Cache-Control "public";
+      try_files $uri $uri/ /index.html;
+    }
+}

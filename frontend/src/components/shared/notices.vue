@@ -63,7 +63,7 @@
         right: 0;
         max-height: 100%;
         overflow: hidden;
-        z-index: 99999;
+        z-index: 999999;
     }
 
     .notices-wrapper .notice {

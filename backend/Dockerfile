@@ -6,12 +6,13 @@ COPY ./package*.json ./
 
 RUN npm install
 
-RUN mkdir -p ./logs/
-
 COPY ./ ./
 
-#RUN chown -R node ./logs/
-#RUN chmod -R +rw ./logs/
+COPY docker-entrypoint.sh ./
+
+RUN chmod +x /home/node/city-map/docker-entrypoint.sh
+
+ENTRYPOINT ["/home/node/city-map/docker-entrypoint.sh"]
 
 USER node
 

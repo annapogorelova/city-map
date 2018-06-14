@@ -52,14 +52,14 @@ let transporterOptions = {
     ignoreTLS: process.env.NODE_ENV !== "production"
 };
 
-if(process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production") {
     transporterOptions["auth"] = {
         user: config.smtp.username,
         pass: config.smtp.password
     };
 }
 
-if(process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
+if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
     transporterOptions["tls"] = {
         rejectUnauthorized: false
     };

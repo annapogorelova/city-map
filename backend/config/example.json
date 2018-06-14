@@ -3,7 +3,6 @@
   "port": 3000,
   "frontendDomain": "localhost",
   "frontendUrl": "http://localhost:8080",
-  "logFileName": "log",
   "db": {
     "username": "example",
     "password": "example",

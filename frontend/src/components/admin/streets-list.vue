@@ -281,4 +281,8 @@
     .named-entity-image, .named-entity-name {
         vertical-align: middle;
     }
+
+    textarea {
+        height: 120px;
+    }
 </style>

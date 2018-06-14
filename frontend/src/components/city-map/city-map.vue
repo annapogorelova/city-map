@@ -41,7 +41,7 @@
                                     Оберіть вулицю, щоб отримати інформацію про її назву.
                                 </p>
                                 <div v-if="searchInProgress">
-                                    <span>Шукаємо...</span>
+                                    <span class="search-in-progress-caption">Шукаємо...</span>
                                     <i class="fas fa-circle-notch fa-spin"></i>
                                 </div>
                             </div>
@@ -115,6 +115,10 @@
 
     .fa-spin {
         margin-left: 5px;
+    }
+
+    .search-in-progress-caption {
+        font-size: 1rem !important;
     }
 </style>
 <script>

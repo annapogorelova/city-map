@@ -10,7 +10,7 @@
                 </div>
             </div>
         </div>
-        <div class="row" v-if="!street.namedEntities.length">
+        <div class="row" v-if="!street.namedEntities.length && !street.description">
             <div class="col-12">
                 <p class="no-named-entity-info-message">
                     На жаль, на даний момент відсутні дані про назву цієї вулиці.
@@ -60,6 +60,12 @@
                         </div>
                     </div>
                     <div class="description-border"></div>
+                </div>
+            </div>
+            <div class="row street-description" v-if="street.description">
+                <div class="col-12">
+                    <h2>Інформація про вулицю</h2>
+                    <p>{{street.description}}</p>
                 </div>
             </div>
         </div>
@@ -112,7 +118,7 @@
     }
 
     .description {
-        margin-top: 5px;
+        margin-top: 10px;
     }
 
     h6.tag-container {
@@ -145,6 +151,19 @@
         height: 100%;
         width: 100%;
         border-radius: 0;
+    }
+
+    .street-description {
+        margin-top: 15px;
+    }
+
+    .street-description h2 {
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+
+    .street-description p {
+        margin-bottom: 15px;
     }
 
     .street-description-header h5 {

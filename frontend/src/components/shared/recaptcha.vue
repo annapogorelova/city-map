@@ -29,7 +29,6 @@
                         sitekey: this.sitekey,
                         callback: (response) => {
                             this.$emit("verified", response);
-                            this.reset();
                         },
                         "expired-callback": () => {
                             this.$emit("expired", response);

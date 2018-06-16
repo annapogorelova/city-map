@@ -1,17 +1,24 @@
 import NoticesService from "../../../src/services/notices/notices-service";
-import dc from "../../../src/dependency-container/index";
 import sinon from "sinon";
 import {EventEmitter} from "tooleks";
 
 describe("NoticesService test", () => {
-    let noticesService = dc.get("notices");
+    let noticesService;
+
+    beforeEach((done) => {
+        let eventEmitter = new EventEmitter();
+        noticesService = new NoticesService(eventEmitter, 5000);
+
+        done();
+    });
 
     it("should create the instance of NoticesService", (done) => {
         let eventEmitter = new EventEmitter();
-        let noticesService = new NoticesService(eventEmitter);
+        let noticesService = new NoticesService(eventEmitter, 5000);
 
         expect(noticesService).to.be.an("object");
         expect(noticesService.eventEmitter).to.equal(eventEmitter);
+        expect(noticesService.notices.length).to.equal(0);
 
         done();
     });
@@ -23,12 +30,17 @@ describe("NoticesService test", () => {
 
         noticesService.error(title, text);
 
-        expect(eventEmitterSpy.calledWithMatch("notice", {
+        let notice = {
             title: title,
             text: text,
             type: "error"
-        })).to.equal(true);
+        };
+        expect(eventEmitterSpy.calledWithMatch("notice", notice)).to.equal(true);
         expect(eventEmitterSpy.calledOnce).to.equal(true);
+
+        expect(noticesService.notices[0].title).to.equal(notice.title);
+        expect(noticesService.notices[0].text).to.equal(notice.text);
+        expect(noticesService.notices[0].type).to.equal(notice.type);
 
         eventEmitterSpy.restore();
 
@@ -42,12 +54,19 @@ describe("NoticesService test", () => {
 
         noticesService.warning(title, text);
 
-        expect(eventEmitterSpy.calledWithMatch("notice", {
+        let notice = {
             title: title,
             text: text,
             type: "warning"
-        })).to.equal(true);
+        };
+
+        expect(eventEmitterSpy.calledWithMatch("notice", notice)).to.equal(true);
+
         expect(eventEmitterSpy.calledOnce).to.equal(true);
+
+        expect(noticesService.notices[0].title).to.equal(notice.title);
+        expect(noticesService.notices[0].text).to.equal(notice.text);
+        expect(noticesService.notices[0].type).to.equal(notice.type);
 
         eventEmitterSpy.restore();
 
@@ -61,12 +80,18 @@ describe("NoticesService test", () => {
 
         noticesService.success(title, text);
 
-        expect(eventEmitterSpy.calledWithMatch("notice", {
+        let notice = {
             title: title,
             text: text,
             type: "success"
-        })).to.equal(true);
+        };
+
+        expect(eventEmitterSpy.calledWithMatch("notice", notice)).to.equal(true);
         expect(eventEmitterSpy.calledOnce).to.equal(true);
+
+        expect(noticesService.notices[0].title).to.equal(notice.title);
+        expect(noticesService.notices[0].text).to.equal(notice.text);
+        expect(noticesService.notices[0].type).to.equal(notice.type);
 
         eventEmitterSpy.restore();
 
@@ -80,12 +105,18 @@ describe("NoticesService test", () => {
 
         noticesService.info(title, text);
 
-        expect(eventEmitterSpy.calledWithMatch("notice", {
+        let notice = {
             title: title,
             text: text,
             type: "info"
-        })).to.equal(true);
+        };
+
+        expect(eventEmitterSpy.calledWithMatch("notice", notice)).to.equal(true);
         expect(eventEmitterSpy.calledOnce).to.equal(true);
+
+        expect(noticesService.notices[0].title).to.equal(notice.title);
+        expect(noticesService.notices[0].text).to.equal(notice.text);
+        expect(noticesService.notices[0].type).to.equal(notice.type);
 
         eventEmitterSpy.restore();
 
@@ -107,5 +138,31 @@ describe("NoticesService test", () => {
         });
 
         noticesService.info(title, text);
+    });
+
+    it("should return true from noticeExists", (done) => {
+        let notice = {
+            title: "Titl",
+            text: "Txt",
+            type: "info"
+        };
+
+        noticesService.notices.push(notice);
+
+        expect(noticesService.noticeExists(notice.type, notice.title, notice.text)).to.equal(true);
+
+        done();
+    });
+
+    it("should return false from noticeExists", (done) => {
+        let notice = {
+            title: "Titl",
+            text: "Txt",
+            type: "info"
+        };
+
+        expect(noticesService.noticeExists(notice.type, notice.title, notice.text)).to.equal(false);
+
+        done();
     });
 });

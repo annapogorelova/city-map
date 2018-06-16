@@ -32,7 +32,7 @@ dc.registerBinding("localStorage", () => new LocalStorageService(localStorage));
 
 dc.registerInstance("screenSize", new ScreenSizeService());
 
-dc.registerBinding("notices", () => new NoticesService(new EventEmitter), { singleton: true, factory: true});
+dc.registerBinding("notices", () => new NoticesService(new EventEmitter, 5000), { singleton: true, factory: true});
 
 dc.registerBinding("auth",
     (apiService, localStorageService) =>

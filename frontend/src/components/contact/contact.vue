@@ -9,26 +9,28 @@
         <div class="row form-container justify-content-center">
             <div class="col-12 col-lg-8">
                 <form @submit.prevent="checkForm">
-                    <ul v-if="errors.length">
-                        <li v-for="error in errors">{{error}}</li>
-                    </ul>
+                    <div class="alert alert-danger" v-if="errors.length">
+                        <ul>
+                            <li v-for="error in errors">{{error}}</li>
+                        </ul>
+                    </div>
                     <div class="form-group required">
                         <label for="name" id="nameLabel">Ваше ім'я</label>
-                        <input type="text" class="form-control" v-model="name" id="name" name="name"
+                        <input type="text" class="form-control" v-model="formData.name" id="name" name="name"
                                aria-labelledby="nameLabel" minlength="2" required>
                     </div>
                     <div class="form-group required">
                         <label for="email" id="emailLabel">Email</label>
-                        <input type="email" class="form-control" v-model="email" id="email"
+                        <input type="email" class="form-control" v-model="formData.email" id="email"
                                name="email" aria-labelledby="emailLabel" required>
                     </div>
                     <div class="form-group required">
                         <label for="message" id="messageLabel">Повідомлення</label>
-                        <textarea class="form-control" v-model="message" id="message" name="message"
+                        <textarea class="form-control" v-model="formData.message" id="message" name="message"
                                   minlength="50" maxlength="500" rows="8" aria-labelledby="messageLabel" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary float-right">Відправити</button>
-                    <recaptcha v-if="reCaptchaKey" v-on:verified="onVerified" v-on:error="onError" v-on:expired="onExpired" :sitekey="reCaptchaKey"></recaptcha>
+                    <recaptcha ref="recaptcha" v-if="reCaptchaKey" v-on:verified="onVerified" v-on:error="onError" v-on:expired="onExpired" :sitekey="reCaptchaKey"></recaptcha>
                 </form>
             </div>
         </div>
@@ -59,11 +61,13 @@
         mixins: [ApiServiceMixin, NoticesServiceMixin],
         data: function () {
             return {
-                name: undefined,
-                email: undefined,
-                message: undefined,
-                token: undefined,
-                errors: {}
+                formData: {
+                    name: undefined,
+                    email: undefined,
+                    message: undefined,
+                    reCaptchaToken: undefined,
+                },
+                errors: []
             }
         },
         computed: {
@@ -73,43 +77,59 @@
         },
         methods: {
             checkForm: function (e) {
-                if(this.name && this.email && this.message && this.token) {
-                    this.apiService.post("/contact", {
-                        name: this.name,
-                        email: this.email,
-                        message: this.message,
-                        reCaptchaToken: this.token
-                    }).then(() => {
+                this.errors = [];
+
+                if(this.isFormValid()) {
+                    this.apiService.post("/contact", this.formData).then(() => {
                         this.noticesService.success(
                             constants.NOTICES.MESSAGE_SENT.title,
                             constants.NOTICES.MESSAGE_SENT.message
                         );
+
+                        this.clearForm();
                     });
                 } else {
-                    if(!this.name) {
+                    if(!this.formData.name) {
                         this.errors.push("Введіть будь ласка ваше ім'я");
                     }
 
-                    if(!this.email) {
+                    if(!this.formData.email) {
                         this.errors.push("Введіть будь ласка ваш email");
                     }
 
-                    if(!this.email) {
+                    if(!this.formData.message) {
                         this.errors.push("Введіть будь ласка текст повідомлення");
                     }
 
-                    if(!this.reCaptchaKey) {
+                    if(!this.formData.reCaptchaToken) {
                         this.errors.push("Підтвердіть, що ви не робот, будь ласка");
                     }
                 }
 
                 e.preventDefault();
             },
+            isFormValid: function () {
+                return (typeof this.formData.name === "string" && this.formData.name !== "" &&
+                        this.formData.name.length >= 2) &&
+                    (typeof this.formData.email === "string" && this.formData.email !== "") &&
+                    (typeof this.formData.reCaptchaToken === "string" && this.formData.reCaptchaToken !== "") &&
+                    (typeof this.formData.message === "string" && this.formData.message !== "" &&
+                        this.formData.message.length >= 50 && this.formData.message.length <= 500);
+            },
+            clearForm: function () {
+                this.formData.name = null;
+                this.formData.email = null;
+                this.formData.message = null;
+                this.formData.reCaptchaToken = null;
+                this.errors = [];
+
+                this.$refs.recaptcha.reset();
+            },
             onVerified: function (token) {
-                this.token = token;
+                this.formData.reCaptchaToken = token;
             },
             onExpired: function () {
-                this.token = undefined;
+                this.formData.reCaptchaToken = undefined;
             },
             onError: function () {
                 this.noticesService.error(

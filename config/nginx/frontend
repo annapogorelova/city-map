@@ -1,13 +1,13 @@
 server {
     listen 80;
     #server_name streetinfo;
-    index index.html;
-    try_files $uri $uri/ /index.html;
-    root /var/www/city-map/frontend/dist;
 
     location / {
-      expires 1d;
-      add_header Cache-Control "public";
-      try_files $uri $uri/ /index.html;
+        proxy_pass http://localhost:8082;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection keep-alive;
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
     }
 }

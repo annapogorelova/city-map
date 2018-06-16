@@ -14,8 +14,6 @@ services:
       - backend/.env
     environment:
       - NODE_ENV=production
-    volumes:
-      - ./docker/storage/logs:/home/node/city-map/logs/
 
   cm-frontend.docker:
     build:

@@ -3,7 +3,6 @@
   "port": 3000,
   "frontendDomain": "localhost",
   "frontendUrl": "http://localhost:8080",
-  "logsPath": "../logs/app",
   "db": {
     "username": "example",
     "password": "example",
@@ -13,7 +12,8 @@
     "dialect": "mysql",
     "define": {
       "timestamps": false
-    }
+    },
+    "logging": false
   },
   "security": {
     "headerName": "access-token-header-name",

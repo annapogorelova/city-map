@@ -76,7 +76,7 @@
             }
         },
         methods: {
-            submit: function () {
+            submit: function (event) {
                 this.errors = [];
 
                 if(this.isFormValid()) {
@@ -106,7 +106,7 @@
                     }
                 }
 
-                e.preventDefault();
+                event.preventDefault();
             },
             isFormValid: function () {
                 return (typeof this.formData.name === "string" && this.formData.name !== "" &&

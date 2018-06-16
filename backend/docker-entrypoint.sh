@@ -2,8 +2,7 @@
 
 if [ ! -f .initialized ]; then
     echo "Initializing container"
-    chown -R node:node /home/node/city-map/logs/
-    chmod -R +rw /home/node/city-map/logs/
+    mkdir -p -m 755 /home/node/city-map/logs/
     touch .initialized
 fi
 

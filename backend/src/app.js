@@ -64,7 +64,6 @@ app.use("/api/v1", routes);
 
 if (process.env.NODE_ENV === "production") {
     const logDirectory = path.join(__dirname, config.get("logsPath"));
-    fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
     const transport = new (DailyRotateFile)({
         dirname: logDirectory,

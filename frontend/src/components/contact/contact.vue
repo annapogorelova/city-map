@@ -8,7 +8,7 @@
         </div>
         <div class="row form-container justify-content-center">
             <div class="col-12 col-lg-8">
-                <form @submit.prevent="checkForm">
+                <form>
                     <div class="alert alert-danger" v-if="errors.length">
                         <ul>
                             <li v-for="error in errors">{{error}}</li>
@@ -29,7 +29,7 @@
                         <textarea class="form-control" v-model="formData.message" id="message" name="message"
                                   minlength="50" maxlength="500" rows="8" aria-labelledby="messageLabel" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary float-right">Відправити</button>
+                    <button type="submit" class="btn btn-primary float-right" v-on:click="submit">Відправити</button>
                     <recaptcha ref="recaptcha" v-if="reCaptchaKey" v-on:verified="onVerified" v-on:error="onError" v-on:expired="onExpired" :sitekey="reCaptchaKey"></recaptcha>
                 </form>
             </div>
@@ -76,7 +76,7 @@
             }
         },
         methods: {
-            checkForm: function (e) {
+            submit: function () {
                 this.errors = [];
 
                 if(this.isFormValid()) {

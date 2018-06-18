@@ -38,6 +38,7 @@
                             <div class="named-entity-description-container">
                                 <div class="row tags-container">
                                     <div class="col-12">
+                                        <h3>Категорії:</h3>
                                         <div v-if="namedEntity.tags">
                                             <h6 class="tag-container" v-for="tag in namedEntity.tags">
                                                 <span class="badge badge-dark">{{tag.name}}</span>

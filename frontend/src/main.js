@@ -18,7 +18,8 @@ Vue.prototype.$dc = dc;
 if (appConfig.googleAnalyticsId && process.env.NODE_ENV === "production") {
     Vue.use(VueAnalytics, {
         id: appConfig.googleAnalyticsId,
-        checkDuplicatedScript: true
+        checkDuplicatedScript: true,
+        router,
     });
 }
 

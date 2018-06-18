@@ -20,6 +20,10 @@ if (appConfig.googleAnalyticsId) {
         id: appConfig.googleAnalyticsId,
         checkDuplicatedScript: true,
         router,
+        autoTracking: {
+            transformQueryString: false,
+            skipSamePath: true
+        },
         debug: {
             sendHitTask: process.env.NODE_ENV === "production"
         }

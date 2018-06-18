@@ -106,6 +106,10 @@
         margin-bottom: 0;
     }
 
+    .tags-container h3 {
+        margin-bottom: 5px;
+    }
+
     i.fa-wikipedia-w {
         margin-right: 5px;
     }

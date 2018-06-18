@@ -252,7 +252,7 @@
                 return this.$refs.search;
             },
             defaultImage: function () {
-                return require("../../../assets/images/default-image.png");
+                return require("../../../static/images/default-image.png");
             },
             cityId: function () {
                 if (this.city) {

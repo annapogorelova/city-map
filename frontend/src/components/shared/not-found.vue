@@ -36,7 +36,7 @@
     .image-container {
         height: 300px;
         width: 400px;
-        background-image: url("../../../assets/images/404-street.jpg");
+        background-image: url("../../../static/images/404-street.jpg");
         background-position: center;
         background-size: contain;
         background-repeat: no-repeat;

@@ -80,7 +80,7 @@ describe("StreetDescription test", () => {
             localVue
         });
 
-        expect(wrapper.vm.defaultImage).to.equal(require("../../../assets/images/default-image.png"));
+        expect(wrapper.vm.defaultImage).to.equal(require("../../../static/images/default-image.png"));
 
         done();
     });

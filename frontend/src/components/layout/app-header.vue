@@ -1,6 +1,8 @@
 <template>
     <nav class="app-navbar navbar navbar-expand-lg navbar-dark bg-dark">
-        <router-link class="navbar-brand" to="/map">{{appName}}</router-link>
+        <router-link class="navbar-brand" to="/map">
+            <img class="logo" :src="logo"/><span>{{appName}}</span>
+        </router-link>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item dropdown">
@@ -56,7 +58,10 @@
             citiesHeader: () => constants.HEADERS.CITIES,
             streetsHeader: () => constants.HEADERS.STREETS,
             namedEntitiesHeader: () => constants.HEADERS.NAMED_ENTITES,
-            contactHeader: () => constants.HEADERS.CONTACT
+            contactHeader: () => constants.HEADERS.CONTACT,
+            logo: function () {
+                return require("../../../static/images/logo.png");
+            }
         },
         watch: {
             '$route': function (route) {
@@ -110,5 +115,14 @@
 
     .fa-envelope {
         margin-left: 2px;
+    }
+
+    .logo {
+        margin-right: 8px;
+    }
+
+    .navbar-brand span {
+        font-size: 1.25rem !important;
+        vertical-align: middle;
     }
 </style>

@@ -679,7 +679,7 @@ describe("CityMap test", () => {
 
         const defaultImage = wrapper.vm.defaultImage;
 
-        expect(defaultImage).to.equal(require("../../../assets/images/default-image.png"));
+        expect(defaultImage).to.equal(require("../../../static/images/default-image.png"));
 
         done();
     });

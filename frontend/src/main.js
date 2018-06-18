@@ -15,11 +15,14 @@ import appConfig from "./app.config";
 Vue.config.productionTip = false;
 Vue.prototype.$dc = dc;
 
-if (appConfig.googleAnalyticsId && process.env.NODE_ENV === "production") {
+if (appConfig.googleAnalyticsId) {
     Vue.use(VueAnalytics, {
         id: appConfig.googleAnalyticsId,
         checkDuplicatedScript: true,
         router,
+        debug: {
+            sendHitTask: process.env.NODE_ENV === "production"
+        }
     });
 }
 

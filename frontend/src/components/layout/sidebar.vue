@@ -138,7 +138,7 @@
         .full-screen-sidebar-footer {
             position: absolute;
             bottom: 0;
-            height: 240px;
+            height: 200px;
             width: 100%;
             background-color: #ffffff;
             padding: 15px 20px;

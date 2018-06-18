@@ -142,7 +142,7 @@
 
     .sidebar-footer .street-description {
         margin-top: 15px;
-        max-height: 110px;
+        max-height: 70px;
         overflow-y: auto;
     }
 

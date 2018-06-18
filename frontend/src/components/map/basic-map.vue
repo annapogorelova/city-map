@@ -47,14 +47,15 @@
                 type: Object,
                 default: () => {
                     return {
-                        minZoom: 11,
-                        attribution: `&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>`,
+                        attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
+                        minZoom: 1,
+                        maxZoom: 19
                     };
                 },
             },
             tileLayerUrl: {
                 type: String,
-                default: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+                default: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png",
             },
             lat: {
                 type: Number,

@@ -22,7 +22,7 @@
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12">
-                            <h1 class="named-entity-name">{{namedEntity.name}}</h1>
+                            <h2 class="named-entity-name">{{namedEntity.name}}</h2>
                         </div>
                     </div>
                     <div class="row image-container" v-if="namedEntity.imageUrl">
@@ -40,9 +40,9 @@
                                     <div class="col-12">
                                         <h3>Категорії:</h3>
                                         <div v-if="namedEntity.tags">
-                                            <h6 class="tag-container" v-for="tag in namedEntity.tags">
+                                            <h4 class="tag-container" v-for="tag in namedEntity.tags">
                                                 <span class="badge badge-dark">{{tag.name}}</span>
-                                            </h6>
+                                            </h4>
                                         </div>
                                         <p class="description">{{namedEntity.description}}</p>
                                     </div>
@@ -134,6 +134,7 @@
         vertical-align: middle;
         padding-top: 5px;
         padding-bottom: 5px;
+        margin-bottom: 5px;
     }
 
     .wiki-links-container {

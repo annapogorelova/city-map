@@ -13,12 +13,12 @@
                     <template slot="header">
                         <div class="row">
                             <div class="col-12">
-                                <h1 v-if="city">Обране місто: {{city.name}}</h1>
+                                <h1 v-if="city">{{city.name}}</h1>
                             </div>
                         </div>
                         <div class="row sidebar-section">
                             <div class="col-12">
-                                <div class="search-container">
+                                <div class="search-container" v-on:click.stop>
                                     <search ref="search"
                                             v-on:search="onSearchStreet"
                                             v-bind:placeholder="'Назва вулиці'"></search>
@@ -50,8 +50,27 @@
                     <template slot="footer">
                         <div class="row">
                             <div class="col-12 sidebar-footer">
-                                <h6 v-if="city">{{city.name}}</h6>
-                                <p v-if="selectedStreet">{{selectedStreet.name}}</p>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h1>{{city ? city.name : "Місто не було обрано"}}</h1>
+                                        <div class="search-container">
+                                            <search ref="search"
+                                                    v-on:search="onSearchStreet"
+                                                    v-bind:placeholder="'Назва вулиці'"></search>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row street-description">
+                                    <div class="col-12">
+                                        <h2 v-if="selectedStreet">{{selectedStreet.name}}</h2>
+                                        <div v-if="activeNamedEntityTitle">
+                                            <h4 class="named-entity-name"><b>Назва на честь:</b> {{activeNamedEntityTitle}}</h4>
+                                        </div>
+                                        <h4 class="tag-container" v-if="activeNamedEntityTags">
+                                            <b>Категорії:</b> {{activeNamedEntityTags}}
+                                        </h4>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -120,6 +139,38 @@
     .search-in-progress-caption {
         font-size: 1rem !important;
     }
+
+    .sidebar-footer .street-description {
+        margin-top: 15px;
+        max-height: 110px;
+        overflow-y: auto;
+    }
+
+    .sidebar-footer .street-description p {
+        white-space: normal;
+    }
+
+    .sidebar-footer h1, h2 {
+        margin-bottom: 8px;
+    }
+
+    .sidebar-footer h2.named-entity-name {
+        font-weight: 400;
+    }
+
+    .sidebar-footer h4 {
+        font-weight: 400;
+    }
+
+    b {
+        font-weight: 500;
+    }
+
+    @media(max-width: 320px) {
+        .sidebar-footer .street-description {
+            max-height: 80px;
+        }
+    }
 </style>
 <script>
     import BasicMap from "../map/basic-map";
@@ -179,7 +230,7 @@
                 this.coordinates = optional(() => city.coordinates, []);
                 this.clearMap();
 
-                if(city) {
+                if (city) {
                     this.map.setView(this.city.coordinates, this.zoom);
                 }
 
@@ -188,11 +239,6 @@
             },
             coordinates: function (coordinates) {
                 this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
-            },
-            selectedStreet: function (street) {
-                if(optional(() => street.namedEntities.length) && !this.sidebar.isOpen) {
-                    this.sidebar.open();
-                }
             }
         },
         computed: {
@@ -222,6 +268,27 @@
             },
             locationTimeout: function () {
                 return appConfig.locationTimeout;
+            },
+            activeNamedEntityTitle: function () {
+                if(optional(() => this.selectedStreet.namedEntities.length)) {
+                    if(this.selectedStreet.namedEntities.length < 3) {
+                        return this.selectedStreet.namedEntities.map(n => n.name).join(", ");
+                    }
+
+                    return `${this.selectedStreet.namedEntities[0].name} та ${this.selectedStreet.namedEntities.length - 1} інших`;
+                }
+
+                return "";
+            },
+            activeNamedEntityTags: function () {
+                if(optional(() => this.selectedStreet.namedEntities.length)) {
+                    let allTags = optional(() => _.flatten(this.selectedStreet.namedEntities.map(n => n.tags.map(t => t.name))), []);
+                    if(!allTags.length) {
+                        return "";
+                    }
+
+                    return allTags.length <= 3 ? allTags.join(", ") : allTags.slice(0, 3).join(", ");
+                }
             }
         },
         created: function () {
@@ -368,7 +435,7 @@
             makeStreetMarker(coordinates, street) {
                 let marker = L.marker(coordinates);
                 let popupContent = `<b>${street.name}</b>`;
-                if(street.oldName) {
+                if (street.oldName) {
                     popupContent += `<br/><span>(стара назва: ${street.oldName})</span>`;
                 }
                 marker.bindPopup(popupContent);

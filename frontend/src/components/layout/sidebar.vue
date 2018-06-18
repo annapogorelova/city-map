@@ -8,7 +8,7 @@
             </div>
             <div class="sidebar-content">
                 <div class="sidebar-full-screen-toggler">
-                    <i class="fa fa-arrow-left" v-on:click="toggle" title="Закрити" aria-label="Закрити"></i>
+                    <i class="fa fa-chevron-down float-right" v-on:click="toggle" title="Закрити" aria-label="Закрити"></i>
                 </div>
                 <div class="sidebar-content-header">
                     <slot name="header"></slot>
@@ -19,8 +19,8 @@
             </div>
         </div>
         <div class="full-screen-sidebar-footer" :class="{'show': !isOpen, 'hide': isOpen}" aria-label="Відкрити"
-             title="Відкрити"
-             v-on:click="open">
+             title="Відкрити">
+            <i class="fa fa-chevron-up toggler" v-on:click="open"></i>
             <slot name="footer"></slot>
         </div>
     </div>
@@ -36,7 +36,7 @@
     }
 
     .sidebar-content {
-        padding: 15px 25px 15px 25px;
+        padding: 15px 20px 15px 20px;
         -webkit-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
         -moz-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
         box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
@@ -116,6 +116,11 @@
 
         .sidebar-content {
             opacity: 1;
+            padding-top: 10px;
+        }
+
+        .sidebar-content-header {
+            margin-top: 10px;
         }
 
         .sidebar-toggler {
@@ -133,7 +138,7 @@
         .full-screen-sidebar-footer {
             position: absolute;
             bottom: 0;
-            height: 120px;
+            height: 240px;
             width: 100%;
             background-color: #ffffff;
             padding: 15px 20px;
@@ -144,12 +149,29 @@
             opacity: 0.9;
         }
 
+        .full-screen-sidebar-footer .toggler {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            z-index: 99999;
+        }
+
+        .full-screen-sidebar-footer.hide .toggler {
+            z-index: 9999;
+        }
+
         .full-screen-sidebar-footer.hide {
             z-index: 9999;
         }
 
         .full-screen-sidebar-footer.show {
             z-index: 99998;
+        }
+    }
+
+    @media(max-width: 320px) {
+        .full-screen-sidebar-footer {
+            height: 200px;
         }
     }
 </style>

@@ -288,25 +288,6 @@ describe("CityMap test", () => {
         done();
     });
 
-    it("should open the sidebar when selectedStreet changes value and has namedEntities", (done) => {
-        const $route = {
-            path: "/map",
-            query: {cityId: 1}
-        };
-
-        let wrapper = createWrapper({route: $route});
-
-        wrapper.vm.sidebar.isOpen = false;
-        const sidebarOpenSpy = sinon.spy(wrapper.vm.sidebar, "open");
-
-        wrapper.vm.selectedStreet = testStreets[1];
-        wrapper.vm.selectedStreet = testStreets[0];
-
-        expect(sidebarOpenSpy.calledOnce).to.equal(true);
-
-        done();
-    });
-
     it("should not open sidebar when selectedStreet changes value and has no namedEntities", (done) => {
         let wrapper = createWrapper();
 

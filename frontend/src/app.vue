@@ -69,6 +69,28 @@
         font-size: 0.9rem;
     }
 
+    @media(max-width: 320px) {
+        h1 {
+            font-size: 1rem !important;
+        }
+
+        h2, h3 {
+            font-size: 0.9rem !important;
+        }
+
+        h4, h5 {
+            font-size: 0.8rem !important;
+        }
+
+        h6 {
+            font-size: 0.7rem !important;
+        }
+
+        p, label, input, textarea, span, .badge, .form-control, li {
+            font-size: 0.8rem !important;
+        }
+    }
+
     .nav-link {
         font-size: 1rem;
     }

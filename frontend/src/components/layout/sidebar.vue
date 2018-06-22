@@ -3,12 +3,15 @@
         <div class="sidebar" :class="{'closed': !isOpen, 'open': isOpen}"
              :style="{width: width + 'px', height: height + 'px'}">
             <div class="sidebar-toggler">
-                <i class="fa fa-chevron-left fa-2x" :class="{'open': isOpen}" :title="isOpen ? 'Закрити' : 'Відкрити' "
+                <i class="fa fa-chevron-left fa-2x" :class="{'open': isOpen}"
+                   :title="isOpen ? 'Сховати деталі' : 'Показати деталі' "
                    v-on:click="toggle"></i>
             </div>
             <div class="sidebar-content">
                 <div class="sidebar-full-screen-toggler">
-                    <i class="fa fa-chevron-down float-right" v-on:click="toggle" title="Закрити" aria-label="Закрити"></i>
+                    <div class="toggler">
+                        <i v-on:click="toggle" class="fa fa-chevron-down" title="Сховати деталі" aria-label="Сховати деталі"></i>
+                    </div>
                 </div>
                 <div class="sidebar-content-header">
                     <slot name="header"></slot>
@@ -18,9 +21,11 @@
                 </div>
             </div>
         </div>
-        <div class="full-screen-sidebar-footer" :class="{'show': !isOpen, 'hide': isOpen}" aria-label="Відкрити"
-             title="Відкрити">
-            <i class="fa fa-chevron-up toggler" v-on:click="open"></i>
+        <div class="full-screen-sidebar-footer" :class="{'show': !isOpen, 'hide': isOpen}" aria-label="Показати деталі"
+             title="Показати деталі">
+            <div class="toggler" v-on:click="open">
+                <i class="fa fa-chevron-up"></i>
+            </div>
             <slot name="footer"></slot>
         </div>
     </div>
@@ -36,10 +41,11 @@
     }
 
     .sidebar-content {
+        position: relative;
         padding: 15px 20px 15px 20px;
-        -webkit-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
-        -moz-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
-        box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
+        -webkit-box-shadow: -2px 1px 6px 0px rgba(0, 0, 0, 0.5);
+        -moz-box-shadow: -2px 1px 6px 0px rgba(0, 0, 0, 0.5);
+        box-shadow: -2px 1px 6px 0px rgba(0, 0, 0, 0.5);
         background-color: #ffffff;
         height: 100%;
         overflow-y: auto;
@@ -65,9 +71,9 @@
         top: 30px;
         right: 400px;
         opacity: 0.95;
-        -webkit-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
-        -moz-box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
-        box-shadow: -2px 1px 6px 0px rgba(0,0,0,0.5);
+        -webkit-box-shadow: -2px 1px 6px 0px rgba(0, 0, 0, 0.5);
+        -moz-box-shadow: -2px 1px 6px 0px rgba(0, 0, 0, 0.5);
+        box-shadow: -2px 1px 6px 0px rgba(0, 0, 0, 0.5);
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
     }
@@ -80,10 +86,6 @@
         padding-left: 10px;
         padding-right: 10px;
         border-left: 2px solid rgba(255, 255, 255, 0.7);
-    }
-
-    .sidebar-full-screen-toggler i {
-        cursor: pointer;
     }
 
     .sidebar-toggler i.closed {
@@ -103,13 +105,13 @@
         padding-top: 15px;
     }
 
-    @media(min-width: 601px) {
+    @media (min-width: 601px) {
         .sidebar-full-screen-toggler, .full-screen-sidebar-footer {
             display: none;
         }
     }
 
-    @media(max-width: 600px) {
+    @media (max-width: 600px) {
         .sidebar-container, .sidebar {
             width: 100% !important;
         }
@@ -117,10 +119,6 @@
         .sidebar-content {
             opacity: 1;
             padding-top: 10px;
-        }
-
-        .sidebar-content-header {
-            margin-top: 10px;
         }
 
         .sidebar-toggler {
@@ -143,24 +141,33 @@
             background-color: #ffffff;
             padding: 15px 20px;
             cursor: pointer;
-            -webkit-box-shadow: 0px 0px 6px 1px rgba(0,0,0,0.5);
-            -moz-box-shadow: 0px 0px 6px 1px rgba(0,0,0,0.5);
-            box-shadow: 0px 0px 6px 1px rgba(0,0,0,0.5);
+            -webkit-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
+            -moz-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
+            box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
             opacity: 0.9;
         }
 
-        .full-screen-sidebar-footer .toggler {
+        .toggler {
             position: absolute;
-            right: 20px;
-            top: 10px;
-            z-index: 99999;
-        }
-
-        .full-screen-sidebar-footer.hide .toggler {
+            right: 0;
+            top: 0;
+            width: 100px;
+            height: 40px;
+            text-align: right;
             z-index: 9999;
         }
 
-        .full-screen-sidebar-footer.hide {
+        .toggler i {
+            margin-top: 10px;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+
+        .toggler i {
+            z-index: 9999;
+        }
+
+        .full-screen-sidebar-footer.hide, .full-screen-sidebar-footer.hide .toggler {
             z-index: 9999;
         }
 

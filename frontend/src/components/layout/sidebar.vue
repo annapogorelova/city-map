@@ -138,7 +138,7 @@
         .full-screen-sidebar-footer {
             position: absolute;
             bottom: 0;
-            height: 200px;
+            height: 180px;
             width: 100%;
             background-color: #ffffff;
             padding: 15px 20px;
@@ -166,12 +166,6 @@
 
         .full-screen-sidebar-footer.show {
             z-index: 99998;
-        }
-    }
-
-    @media(max-width: 320px) {
-        .full-screen-sidebar-footer {
-            height: 200px;
         }
     }
 </style>

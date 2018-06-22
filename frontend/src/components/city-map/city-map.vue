@@ -58,6 +58,10 @@
                                                     v-on:search="onSearchStreet"
                                                     v-bind:placeholder="'Назва вулиці'"></search>
                                         </div>
+                                        <div class="search-in-progress-container" v-if="searchInProgress">
+                                            <span class="search-in-progress-caption">Шукаємо...</span>
+                                            <i class="fas fa-circle-notch fa-spin"></i>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="row street-description">
@@ -66,9 +70,6 @@
                                         <div v-if="activeNamedEntityTitle">
                                             <h4 class="named-entity-name"><b>Назва на честь:</b> {{activeNamedEntityTitle}}</h4>
                                         </div>
-                                        <h4 class="tag-container" v-if="activeNamedEntityTags">
-                                            <b>Категорії:</b> {{activeNamedEntityTags}}
-                                        </h4>
                                     </div>
                                 </div>
                             </div>
@@ -134,6 +135,10 @@
 
     .fa-spin {
         margin-left: 5px;
+    }
+
+    .search-in-progress-container {
+        margin-top: 8px;
     }
 
     .search-in-progress-caption {
@@ -352,9 +357,10 @@
             },
             setMarker: function (coordinates) {
                 return new Promise((resolve, reject) => {
+                    this.selectedStreet = null;
+
                     this.findClosestStreet(coordinates).then(street => {
                         try {
-                            this.selectedStreet = null;
                             this.clearMap();
 
                             if (street) {

@@ -1,8 +1,10 @@
 <template>
     <div>
         <div :id="id" class="map" :style="{height: height + 'px'}"></div>
-        <a class="location-control" title="Знайти мене" aria-label="Знайти мене" v-on:click="locate"><i
-                class="fa fa-compass"></i></a>
+        <a class="location-control" title="Знайти мене" aria-label="Знайти мене" v-on:click="locate">
+            <i v-if="!locatingInProgress" class="fa fa-compass"></i>
+            <i v-if="locatingInProgress" class="fa fa-circle-notch fa-spin"></i>
+        </a>
     </div>
 </template>
 
@@ -91,6 +93,7 @@
         data: () => {
             return {
                 map: undefined,
+                locatingInProgress: false
             };
         },
         mounted: function () {
@@ -121,11 +124,15 @@
                 this.map.panTo(new L.LatLng(coordinates[0], coordinates[1]), zoom || this.zoom);
             },
             locate() {
+                this.locatingInProgress = true;
+
                 this.map.locate({setView: true, timeout: this.locationTimeout})
                     .on("locationfound", (event) => {
+                        this.locatingInProgress = false;
                         this.$emit("locationsuccess", event);
                     })
                     .on("locationerror", (error) => {
+                        this.locatingInProgress = false;
                         this.$emit("locationerror", error);
                     });
             }

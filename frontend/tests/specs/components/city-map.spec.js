@@ -157,26 +157,19 @@ describe("CityMap test", () => {
     it("should set city on 'city-selected' event (previous city not set)", (done) => {
         let wrapper = createWrapper();
 
-        const removeMarkersSpy = sinon.spy(wrapper.vm, "removeMarkers");
-        const removePolyLinesSpy = sinon.spy(wrapper.vm, "removePolyLines");
-
         const setViewSpy = sinon.spy(wrapper.vm.map, "setView");
         const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
 
         const city = testCities[0];
         wrapper.vm.selectCity(city);
 
-        expect(wrapper.vm.city.id).to.equal(city.id);
-        expect(wrapper.vm.city.name).to.equal(city.name);
+        expect(wrapper.vm.city).to.equal(city);
         expect(wrapper.vm.selectedStreet).to.equal(null);
-
-        expect(removeMarkersSpy.calledOnce).to.equal(true);
-        expect(removePolyLinesSpy.calledOnce).to.equal(true);
-
         expect(setViewSpy.withArgs(city.coordinates, wrapper.vm.zoom).calledOnce).to.equal(true);
         expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
 
         expect(wrapper.vm.coordinates).to.equal(city.coordinates);
+
         done();
     });
 
@@ -445,19 +438,6 @@ describe("CityMap test", () => {
         })();
     });
 
-    it("should set marker on map 'click' event", (done) => {
-        let wrapper = createWrapper();
-
-        const coordinates = testCities[0].coordinates;
-        let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
-
-        wrapper.vm.map.fire("click", {latlng: {lat: coordinates[0], lng: coordinates[1]}});
-
-        expect(setMarkerSpy.calledOnceWith(coordinates)).to.equal(true);
-
-        done();
-    });
-
     it("should return the closest street by coordinates fetched from API", (done) => {
         (async () => {
             const $route = {
@@ -490,7 +470,8 @@ describe("CityMap test", () => {
 
         wrapper.vm.$refs.map.$emit("locationsuccess", {latitude: coordinates[0], longitude: coordinates[1]});
 
-        expect(setMarkerSpy.withArgs(coordinates).calledOnce).to.equal(true);
+        expect(wrapper.vm.coordinates).to.deep.equal(coordinates);
+        expect(setMarkerSpy.calledOnce).to.equal(true);
 
         done();
     });

@@ -303,7 +303,8 @@
         mounted: function () {
             this.getLocation().then(coordinates => {
                 if (coordinates.length) {
-                    this.setMarker(coordinates);
+                    this.coordinates = coordinates;
+                    this.setMarker(this.coordinates);
                 }
             }).catch(() => {
                 this.noticesService.error(
@@ -344,13 +345,13 @@
                     return response.data;
                 });
             },
-            setMarker(coordinates) {
-                this.selectedStreet = null;
-                this.clearMap();
-
+            setMarker: function (coordinates) {
                 return new Promise((resolve, reject) => {
                     this.findClosestStreet(coordinates).then(street => {
                         try {
+                            this.selectedStreet = null;
+                            this.clearMap();
+
                             if (street) {
                                 this.setSelectedStreet(street, coordinates);
                             } else {
@@ -383,7 +384,6 @@
                 });
             },
             setMapView(coordinates) {
-                this.coordinates = coordinates;
                 const mapZoom = this.map.getZoom();
                 const zoom = mapZoom > this.focusZoom ? mapZoom : this.focusZoom;
                 this.map.setView(coordinates, zoom);
@@ -445,10 +445,12 @@
                 return L.polyline(coordinates, {opacity: 0.6, weight: 5}).addTo(this.map);
             },
             onMapInit() {
-                this.map.on("click", function (e) {
-                    this.setMarker([e.latlng.lat, e.latlng.lng], this.map);
-                }.bind(this));
+                this.map.on("click", this.onMapClick);
             },
+            onMapClick: _.debounce(function (e) {
+                this.coordinates = [e.latlng.lat, e.latlng.lng];
+                this.setMarker(this.coordinates);
+            }, 500),
             selectCity(city) {
                 this.city = city;
                 this.selectedStreet = null;
@@ -485,7 +487,8 @@
                 return L.marker(coordinates, {icon, riseOnHover: true});
             },
             onLocationSuccess(event) {
-                this.setMarker([event.latitude, event.longitude]);
+                this.coordinates = [event.latitude, event.longitude];
+                this.setMarker(this.coordinates);
             },
             onLocationError() {
                 this.noticesService.error(

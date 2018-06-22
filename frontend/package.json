@@ -26,7 +26,6 @@
     "popper.js": "^1.12.9",
     "tooleks": "^1.1.2",
     "vue": "^2.5.16",
-    "vue-analytics": "^5.12.2",
     "vue-meta": "^1.5.0",
     "vue-router": "^3.0.1"
   },
@@ -57,7 +56,7 @@
     "file-loader": "^1.1.4",
     "friendly-errors-webpack-plugin": "^1.6.1",
     "html-webpack-plugin": "^3.2.0",
-    "karma": "^2.0.2",
+    "karma": "^2.0.4",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.2",

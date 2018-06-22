@@ -141,9 +141,15 @@
     }
 
     .sidebar-footer .street-description {
-        margin-top: 15px;
+        margin-top: 8px;
         max-height: 70px;
         overflow-y: auto;
+    }
+
+    @media(max-width: 600px) {
+        h2, h4 {
+            margin-bottom: 5px !important;
+        }
     }
 
     .sidebar-footer .street-description p {
@@ -375,6 +381,7 @@
             },
             setSelectedStreet(street, coordinates) {
                 this.selectedStreet = street;
+                this.coordinates = coordinates;
                 this.drawStreet(street);
                 this.setStreetMarker(coordinates, street);
             },

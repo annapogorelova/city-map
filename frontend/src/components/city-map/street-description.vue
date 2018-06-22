@@ -84,10 +84,6 @@
     </div>
 </template>
 <style scoped>
-    .street-description-container h5:first-child {
-        margin-top: 0;
-    }
-
     h1 {
         font-size: 1em;
         font-weight: 300;
@@ -172,7 +168,7 @@
         margin-bottom: 15px;
     }
 
-    .street-description-header h5 {
+    .street-description-header h4 {
         margin-top: 5px;
     }
 

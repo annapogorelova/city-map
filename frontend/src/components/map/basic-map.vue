@@ -117,6 +117,9 @@
             setCenter(lat, lng, zoom = null) {
                 this.map.setView(new L.LatLng(lat, lng), zoom || this.zoom);
             },
+            panTo(coordinates, zoom = null) {
+                this.map.panTo(new L.LatLng(coordinates[0], coordinates[1]), zoom || this.zoom);
+            },
             locate() {
                 this.map.locate({setView: true, timeout: this.locationTimeout})
                     .on("locationfound", (event) => {

@@ -236,12 +236,11 @@
                 this.coordinates = optional(() => city.coordinates, []);
                 this.clearMap();
 
-                if (city) {
-                    this.map.setView(this.city.coordinates, this.zoom);
-                }
-
                 const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]], []);
                 this.map.setMaxBounds(bounds);
+                if(city) {
+                    this.$refs.map.panTo(city.coordinates, this.zoom);
+                }
             },
             coordinates: function (coordinates) {
                 this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
@@ -270,7 +269,7 @@
                 return null;
             },
             mapHeight: function () {
-                return window.innerHeight - 57;
+                return window.innerHeight - 60;
             },
             locationTimeout: function () {
                 return appConfig.locationTimeout;

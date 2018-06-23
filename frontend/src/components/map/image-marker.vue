@@ -1,6 +1,6 @@
 <template>
     <div class="image-marker-container">
-        <a :href="linkUrl" :title="title" :aria-label="title" target="_blank" class="image-marker box-shadow-2dp" :style="style"></a>
+        <a :title="title" :aria-label="title" class="image-marker box-shadow-2dp" :style="style"></a>
     </div>
 </template>
 
@@ -37,7 +37,6 @@
     export default {
         props: {
             imageUrl: {type: String},
-            linkUrl: {type: String},
             title: {type: String},
             styles: {type: Object, default: {}}
         },

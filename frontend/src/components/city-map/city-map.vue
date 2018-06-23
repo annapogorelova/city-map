@@ -289,16 +289,6 @@
                 }
 
                 return "";
-            },
-            activeNamedEntityTags: function () {
-                if(optional(() => this.selectedStreet.namedEntities.length)) {
-                    let allTags = optional(() => _.flatten(this.selectedStreet.namedEntities.map(n => n.tags.map(t => t.name))), []);
-                    if(!allTags.length) {
-                        return "";
-                    }
-
-                    return allTags.length <= 3 ? allTags.join(", ") : allTags.slice(0, 3).join(", ");
-                }
             }
         },
         created: function () {
@@ -421,13 +411,13 @@
                             namedEntities[i],
                             namedEntities.length > 1 ? {"margin-left": `-${i * 50}px`} : null);
 
+                        marker.on("click", this.sidebar.toggle).addTo(this.map);
                         this.markers.push(marker);
-                        marker.addTo(this.map);
                     }
                 } else {
                     const marker = this.makeStreetMarker(coordinates, street);
+                    marker.on("click", this.sidebar.toggle).addTo(this.map).openPopup();
                     this.markers.push(marker);
-                    marker.addTo(this.map).openPopup();
                 }
 
                 this.setMapView(coordinates);
@@ -438,7 +428,6 @@
                     imageProps: {
                         imageUrl: namedEntity.imageUrl || this.defaultImage,
                         title: `${namedEntity.name} на Wikipedia`,
-                        linkUrl: namedEntity.wikiUrl,
                         styles: styles
                     },
                     className: namedEntity.imageUrl ? "" : "default-image-marker"

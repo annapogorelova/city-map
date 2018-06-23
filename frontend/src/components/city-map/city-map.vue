@@ -53,11 +53,6 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <h1>{{city ? city.name : "Місто не було обрано"}}</h1>
-                                        <div class="search-container">
-                                            <search ref="search"
-                                                    v-on:search="onSearchStreet"
-                                                    v-bind:placeholder="'Назва вулиці'"></search>
-                                        </div>
                                         <div class="search-in-progress-container" v-if="searchInProgress">
                                             <span class="search-in-progress-caption">Шукаємо...</span>
                                             <i class="fas fa-circle-notch fa-spin"></i>
@@ -146,7 +141,6 @@
     }
 
     .sidebar-footer .street-description {
-        margin-top: 8px;
         max-height: 70px;
         overflow-y: auto;
     }

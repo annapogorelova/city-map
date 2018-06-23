@@ -122,7 +122,7 @@
 
         .sidebar-content {
             opacity: 1;
-            padding-top: 10px;
+            padding-top: 15px;
         }
 
         .sidebar-toggler {
@@ -140,7 +140,7 @@
         .full-screen-sidebar-footer {
             position: absolute;
             bottom: 0;
-            height: 190px;
+            height: 160px;
             width: 100%;
             background-color: #ffffff;
             padding: 15px 20px 40px 20px;
@@ -162,8 +162,8 @@
         }
 
         .toggler i {
-            margin-top: 10px;
-            margin-right: 20px;
+            margin-top: 15px;
+            margin-right: 25px;
             cursor: pointer;
         }
 

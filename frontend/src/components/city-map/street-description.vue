@@ -38,8 +38,8 @@
                             <div class="named-entity-description-container">
                                 <div class="row tags-container">
                                     <div class="col-12">
-                                        <h3>Категорії:</h3>
-                                        <div v-if="namedEntity.tags">
+                                        <div v-if="namedEntity.tags.length">
+                                            <h3>Категорії:</h3>
                                             <h4 class="tag-container" v-for="tag in namedEntity.tags">
                                                 <span class="badge badge-dark">{{tag.name}}</span>
                                             </h4>
@@ -143,6 +143,12 @@
 
     .wiki-link {
         font-size: 0.9em;
+    }
+
+    @media(max-width: 600px) {
+        .wiki-link {
+            width: 100%;
+        }
     }
 
     .named-entity-image {

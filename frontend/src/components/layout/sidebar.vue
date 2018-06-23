@@ -103,6 +103,8 @@
 
     .sidebar-content-body {
         padding-top: 15px;
+        padding-left: 5px;
+        padding-right: 5px;
     }
 
     @media (min-width: 601px) {

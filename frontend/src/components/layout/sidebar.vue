@@ -99,6 +99,8 @@
     .sidebar-content-header {
         border-bottom: 1px solid #939697;
         padding-bottom: 15px;
+        padding-left: 5px;
+        padding-right: 5px;
     }
 
     .sidebar-content-body {

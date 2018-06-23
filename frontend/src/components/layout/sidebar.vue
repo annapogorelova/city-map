@@ -140,10 +140,10 @@
         .full-screen-sidebar-footer {
             position: absolute;
             bottom: 0;
-            height: 180px;
+            height: 190px;
             width: 100%;
             background-color: #ffffff;
-            padding: 15px 20px;
+            padding: 15px 20px 40px 20px;
             cursor: pointer;
             -webkit-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
             -moz-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);

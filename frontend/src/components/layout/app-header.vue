@@ -101,6 +101,11 @@
         margin-left: 10px;
     }
 
+    .app-navbar {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
     .app-navbar .nav-link {
         color: rgba(255, 255, 255, 0.8) !important;
     }

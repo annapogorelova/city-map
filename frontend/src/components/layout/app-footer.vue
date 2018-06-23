@@ -8,7 +8,7 @@
 </template>
 <style scoped>
     span {
-        font-size: 0.8rem !important;
+        font-size: 0.7rem !important;
     }
 
     .footer {
@@ -23,7 +23,7 @@
     }
 
     .icons-attribution {
-        font-size: 0.35rem;
+        font-size: 0.3rem;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;

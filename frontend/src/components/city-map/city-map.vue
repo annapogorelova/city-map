@@ -428,7 +428,7 @@
                     coordinates: coordinates,
                     imageProps: {
                         imageUrl: namedEntity.imageUrl || this.defaultImage,
-                        title: `${namedEntity.name} на Wikipedia`,
+                        title: `${namedEntity.name} (показати деталі)`,
                         styles: styles
                     },
                     className: namedEntity.imageUrl ? "" : "default-image-marker"

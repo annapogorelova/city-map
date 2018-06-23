@@ -8,7 +8,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="citiesDropdown" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        {{citiesHeader}}
+                        {{city ? city.name : citiesHeader}}
                     </a>
                     <cities-list ref="cities"
                                  v-on:citySelected="onCitySelected"

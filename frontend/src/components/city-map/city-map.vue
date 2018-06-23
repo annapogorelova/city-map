@@ -244,7 +244,8 @@
                 const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]], []);
                 this.map.setMaxBounds(bounds);
                 if(city) {
-                    this.$refs.map.panTo(city.coordinates, this.zoom);
+                    this.$refs.map.panTo(city.coordinates);
+                    this.map.setZoom(this.zoom);
                 }
             },
             coordinates: function (coordinates) {

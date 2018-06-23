@@ -159,6 +159,7 @@ describe("CityMap test", () => {
 
         const panToSpy = sinon.spy(wrapper.vm.$refs.map, "panTo");
         const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
+        const setMapZoomSpy = sinon.spy(wrapper.vm.map, "setZoom");
 
         const city = testCities[0];
         wrapper.vm.selectCity(city);
@@ -166,7 +167,8 @@ describe("CityMap test", () => {
         expect(wrapper.vm.city).to.equal(city);
         expect(wrapper.vm.selectedStreet).to.equal(null);
         expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
-        expect(panToSpy.calledOnceWith(city.coordinates, wrapper.vm.zoom)).to.equal(true);
+        expect(panToSpy.calledOnceWith(city.coordinates)).to.equal(true);
+        expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
 
         expect(wrapper.vm.coordinates).to.equal(city.coordinates);
 
@@ -178,6 +180,7 @@ describe("CityMap test", () => {
 
         const panToSpy = sinon.spy(wrapper.vm.$refs.map, "panTo");
         const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
+        const setMapZoomSpy = sinon.spy(wrapper.vm.map, "setZoom");
 
         const initialCity = testCities[0];
         wrapper.vm.city = initialCity;
@@ -188,11 +191,13 @@ describe("CityMap test", () => {
         expect(wrapper.vm.selectedStreet).to.equal(undefined);
 
         // city $watch should trigger
-        expect(panToSpy.calledOnceWith(initialCity.coordinates, wrapper.vm.zoom)).to.equal(true);
+        expect(panToSpy.calledOnceWith(initialCity.coordinates)).to.equal(true);
         expect(setMaxBoundsSpy.calledWith(getMapBounds(initialCity))).to.equal(true);
+        expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
 
         panToSpy.resetHistory();
         setMaxBoundsSpy.resetHistory();
+        setMapZoomSpy.resetHistory();
 
         const city = testCities[1];
         wrapper.vm.selectCity(city);
@@ -200,8 +205,9 @@ describe("CityMap test", () => {
         expect(wrapper.vm.city).to.equal(city);
         expect(wrapper.vm.selectedStreet).to.equal(null);
 
-        expect(panToSpy.withArgs(city.coordinates, wrapper.vm.zoom).calledOnce).to.equal(true);
+        expect(panToSpy.calledOnceWith(city.coordinates)).to.equal(true);
         expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
+        expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
 
         done();
     });

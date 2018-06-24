@@ -1,6 +1,6 @@
 <template>
     <div class="page-wrapper">
-        <div class="row header-container">
+        <div v-if="!isCompleted" class="row header-container">
             <div class="col-12 col-lg-8 offset-lg-2">
                 <h1>Сторінка зворотнього зв'язку</h1>
                 <p>Знайшли помилку або знаєте, як покращити цей веб-додаток? Заповніть форму нижче, щоби надіслати
@@ -9,7 +9,7 @@
         </div>
         <div class="row form-container">
             <div class="col-12 col-lg-8 offset-lg-2">
-                <form>
+                <form v-if="!isCompleted">
                     <div class="alert alert-danger" v-if="errors.length">
                         <i class="fa fa-times float-right" title="Сховати" v-on:click="hideErrors"></i>
                         <ul>
@@ -36,8 +36,15 @@
                         <recaptcha ref="recaptcha" v-if="reCaptchaKey" v-on:verified="onVerified" v-on:error="onError"
                                    v-on:expired="onExpired" :sitekey="reCaptchaKey"></recaptcha>
                     </div>
-                    <button type="submit" class="btn btn-primary" v-on:click="submit">Відправити</button>
+                    <button type="submit" class="btn btn-primary" v-on:click="submit">
+                        Відправити <i v-if="isSendingInProgress" class="fa fa-circle-notch fa-spin"></i>
+                    </button>
                 </form>
+                <div v-if="isCompleted">
+                    <h1>{{messageSentTitle}}</h1>
+                    <p>{{messageSentText}}</p>
+                    <img class="thank-you-image" :src="completedImage"/>
+                </div>
             </div>
         </div>
     </div>
@@ -65,8 +72,12 @@
         list-style: none;
     }
 
-    i {
+    .alert i {
         cursor: pointer;
+    }
+
+    img {
+        margin-top: 15px;
     }
 
     @media (max-width: 600px) {
@@ -98,12 +109,23 @@
                     message: undefined,
                     reCaptchaToken: undefined,
                 },
+                isSendingInProgress: false,
+                isCompleted: false,
                 errors: []
             }
         },
         computed: {
             reCaptchaKey: function () {
                 return appConfig.reCaptchaKey;
+            },
+            messageSentTitle: function () {
+                return constants.NOTICES.MESSAGE_SENT.title;
+            },
+            messageSentText: function () {
+                return constants.NOTICES.MESSAGE_SENT.message;
+            },
+            completedImage: function () {
+                return require("../../../static/images/like.png");
             }
         },
         methods: {
@@ -111,13 +133,17 @@
                 this.errors = [];
 
                 if (this.isFormValid()) {
+                    this.isSendingInProgress = true;
                     this.apiService.post("/contact", this.formData).then(() => {
-                        this.noticesService.success(
-                            constants.NOTICES.MESSAGE_SENT.title,
-                            constants.NOTICES.MESSAGE_SENT.message
-                        );
-
+                        this.isSendingInProgress = false;
+                        this.isCompleted = true;
                         this.clearForm();
+                    }).catch(() => {
+                        this.noticesService.error(
+                            constants.NOTICES.SERVER_ERROR.title,
+                            constants.NOTICES.SERVER_ERROR.message
+                        );
+                        this.isSendingInProgress = false;
                     });
                 } else {
                     if (!this.isStringValid(this.formData.name, 2)) {

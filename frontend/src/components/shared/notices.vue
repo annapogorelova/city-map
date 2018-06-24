@@ -3,6 +3,7 @@
         <transition-group name="list" tag="div">
             <div v-for="(notice, i) in notices" v-bind:key="i" v-on:click="deleteByIndex(i)"
                  v-bind:class="['notice notice-' + notice.type]">
+                <i class="fa fa-times float-right" v-on:click="deleteByIndex(i)"></i>
                 <div class="notice-title">{{ notice.title }}</div>
                 <div class="notice-text">{{ notice.text }}</div>
             </div>

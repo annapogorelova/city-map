@@ -21,7 +21,9 @@
     "expirationTimeSeconds": 86400
   },
   "defaults": {
-    "pageLimit": 5
+    "pageLimit": 5,
+    "minEmailTextLength": 20,
+    "minEmailSenderNameLength": 2
   },
   "reCaptcha": {
     "key": "example"

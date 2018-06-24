@@ -63,7 +63,7 @@ export default Object.freeze({
     },
     VALIDATION_MESSAGES: {
         NAME_INVALID: "Вкажіть будь ласка ваше ім'я (мінімум 2 символи)",
-        EMAIL_INVALID: "Вкажіть будь ласка ваш email",
+        EMAIL_INVALID: "Вкажіть будь ласка ваш email у коректному форматі",
         MESSAGE_INVALID: "Заповніть будь ласка повідомлення (мінімум 20 символів)",
         RECAPTCHA_INVALID: "Підтвердіть будь ласка, що ви не робот",
     }

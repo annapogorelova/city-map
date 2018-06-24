@@ -1,13 +1,13 @@
 <template>
     <div class="page-wrapper">
         <div class="row header-container">
-            <div class="col-12">
+            <div class="col-12 col-lg-8 offset-lg-2">
                 <h1>Сторінка зворотнього зв'язку</h1>
                 <p>Знайшли помилку або знаєте, як покращити цей веб-додаток? Заповніть форму нижче, щоби надіслати повідомлення автору.</p>
             </div>
         </div>
-        <div class="row form-container justify-content-center">
-            <div class="col-12 col-lg-8">
+        <div class="row form-container">
+            <div class="col-12 col-lg-8 offset-lg-2">
                 <form>
                     <div class="alert alert-danger" v-if="errors.length">
                         <ul>
@@ -29,8 +29,10 @@
                         <textarea class="form-control" v-model="formData.message" id="message" name="message"
                                   minlength="50" maxlength="500" rows="8" aria-labelledby="messageLabel" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary float-right" v-on:click="submit">Відправити</button>
-                    <recaptcha ref="recaptcha" v-if="reCaptchaKey" v-on:verified="onVerified" v-on:error="onError" v-on:expired="onExpired" :sitekey="reCaptchaKey"></recaptcha>
+                    <div class="form-group">
+                        <recaptcha ref="recaptcha" v-if="reCaptchaKey" v-on:verified="onVerified" v-on:error="onError" v-on:expired="onExpired" :sitekey="reCaptchaKey"></recaptcha>
+                    </div>
+                    <button type="submit" class="btn btn-primary" v-on:click="submit">Відправити</button>
                 </form>
             </div>
         </div>
@@ -46,8 +48,20 @@
     }
 
     h1 {
-        font-size: 1.5rem !important;
+        font-size: 1.1rem !important;
         margin-bottom: 10px;
+    }
+
+    @media(max-width: 767px) {
+        button[type=submit] {
+            width: 100%;
+        }
+    }
+
+    @media(min-width: 768px) {
+        button[type=submit] {
+            float: right;
+        }
     }
 </style>
 <script>

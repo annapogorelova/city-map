@@ -381,9 +381,7 @@
                 });
             },
             setMapView(coordinates) {
-                const mapZoom = this.map.getZoom();
-                const zoom = mapZoom > this.focusZoom ? mapZoom : this.focusZoom;
-                this.map.setView(coordinates, zoom);
+                this.map.setView(coordinates, this.focusZoom);
             },
             clearMap() {
                 this.removeMarkers();

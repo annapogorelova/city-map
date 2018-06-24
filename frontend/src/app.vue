@@ -58,7 +58,7 @@
     }
 
     p, label, input, textarea, span, .badge, .form-control, li {
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important;
     }
 
     h4, h5 {

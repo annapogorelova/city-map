@@ -10,7 +10,7 @@
                 </div>
             </div>
         </div>
-        <div class="row" v-if="!street.namedEntities.length && !street.description">
+        <div class="row" v-if="street.namedEntities && !street.namedEntities.length && !street.description">
             <div class="col-12">
                 <p class="no-named-entity-info-message">
                     На жаль, на даний момент відсутні дані про назву цієї вулиці.
@@ -38,7 +38,7 @@
                             <div class="named-entity-description-container">
                                 <div class="row tags-container">
                                     <div class="col-12">
-                                        <div v-if="namedEntity.tags.length">
+                                        <div v-if="namedEntity.tags && namedEntity.tags.length">
                                             <h3>Категорії:</h3>
                                             <h4 class="tag-container" v-for="tag in namedEntity.tags">
                                                 <span class="badge badge-dark">{{tag.name}}</span>
@@ -208,6 +208,10 @@
     .named-entity-description-container {
         margin-top: 5px;
         margin-bottom: 15px;
+    }
+
+    .named-entity-description-container .description {
+        margin-top: 5px;
     }
 
     .old-name {

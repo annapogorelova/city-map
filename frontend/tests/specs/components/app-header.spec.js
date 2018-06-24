@@ -133,6 +133,8 @@ describe('AppHeader test', () => {
             }
         });
 
+        wrapper.vm.city = testCity;
+
         const citiesListElement = wrapper.find("#citiesDropdown");
         expect(citiesListElement).to.be.an("object");
 
@@ -142,7 +144,7 @@ describe('AppHeader test', () => {
 
         const navItems = wrapper.findAll(".nav-link");
         expect(navItems.wrappers.length).to.equal(2);
-        expect(navItems.wrappers[0].element.innerText.trim().replace("\n", "")).to.equal(constants.HEADERS.CITIES);
+        expect(navItems.wrappers[0].element.innerText.trim().replace("\n", "")).to.equal(testCity.name);
         expect(navItems.wrappers[1].element.innerText).to.equal(constants.HEADERS.CONTACT);
     });
 
@@ -156,6 +158,8 @@ describe('AppHeader test', () => {
             }
         });
 
+        wrapper.vm.city = testCity;
+
         const citiesListElement = wrapper.find("#citiesDropdown");
         expect(citiesListElement).to.be.an("object");
 
@@ -165,7 +169,7 @@ describe('AppHeader test', () => {
 
         const navItems = wrapper.findAll(".nav-link");
         expect(navItems.wrappers.length).to.equal(5);
-        expect(navItems.wrappers[0].element.innerText.trim().replace("\n", "")).to.equal(constants.HEADERS.CITIES);
+        expect(navItems.wrappers[0].element.innerText.trim().replace("\n", "")).to.equal(testCity.name);
         expect(navItems.wrappers[1].element.innerText).to.equal(constants.HEADERS.STREETS);
         expect(navItems.wrappers[2].element.innerText).to.equal(constants.HEADERS.NAMED_ENTITES);
         expect(navItems.wrappers[3].element.innerText).to.equal(constants.HEADERS.CONTACT);

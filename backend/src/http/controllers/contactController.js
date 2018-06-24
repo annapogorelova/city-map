@@ -49,7 +49,7 @@ function makeContactController(reCaptchaService, mailService) {
     }
 
     function isNameValid(name) {
-        return name && name.length >= 2;
+        return name && name.length >= config.defaults.minEmailSenderNameLength;
     }
 
     function isEmailValid(email) {
@@ -57,7 +57,7 @@ function makeContactController(reCaptchaService, mailService) {
     }
 
     function isMessageValid(message) {
-        return message && message.length >= 20;
+        return message && message.length >= config.defaults.minEmailTextLength;
     }
 }
 

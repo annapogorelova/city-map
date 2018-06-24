@@ -27,7 +27,7 @@
                                name="email" aria-labelledby="emailLabel" required>
                     </div>
                     <div class="form-group required">
-                        <label for="message" id="messageLabel">Повідомлення</label>
+                        <label for="message" id="messageLabel">Повідомлення (щонайменше 20 символів)</label>
                         <textarea class="form-control" v-model="formData.message" id="message" name="message"
                                   minlength="50" maxlength="500" rows="8" aria-labelledby="messageLabel"
                                   required></textarea>
@@ -146,15 +146,15 @@
                         this.isSendingInProgress = false;
                     });
                 } else {
-                    if (!this.isStringValid(this.formData.name, 2)) {
+                    if (!this.isNameValid(this.formData.name, appConfig.minEmailSenderNameLength)) {
                         this.errors.push(constants.VALIDATION_MESSAGES.NAME_INVALID);
                     }
 
-                    if (!this.isStringValid(this.formData.email) || !this.isEmailValid(this.formData.email)) {
+                    if (!this.isEmailValid(this.formData.email)) {
                         this.errors.push(constants.VALIDATION_MESSAGES.EMAIL_INVALID);
                     }
 
-                    if (!this.isStringValid(this.formData.message, 20)) {
+                    if (!this.isStringValid(this.formData.message, appConfig.minEmailTextLength)) {
                         this.errors.push(constants.VALIDATION_MESSAGES.MESSAGE_INVALID);
                     }
 
@@ -169,17 +169,20 @@
                 event.preventDefault();
             },
             isFormValid: function () {
-                return this.isStringValid(this.formData.name, 2) &&
-                    (this.isStringValid(this.formData.email) && this.isEmailValid(this.formData.email)) &&
+                return this.isNameValid(this.formData.name, appConfig.minEmailSenderNameLength) &&
+                    this.isEmailValid(this.formData.email) &&
                     this.isStringValid(this.formData.reCaptchaToken) &&
-                    this.isStringValid(this.formData.message, 20);
+                    this.isStringValid(this.formData.message, appConfig.minEmailTextLength);
             },
             isStringValid: function (value, minLength = null) {
                 return typeof value === "string" && value !== "" && (!minLength || value.length >= minLength);
             },
+            isNameValid: function (name, minLength) {
+                return this.isStringValid(name, minLength) && /^[\u0400-\u04FFa-zA-Z.'-\s]{2,}$/.test(name.toLowerCase());
+            },
             isEmailValid: function (email) {
                 const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                return re.test(String(email).toLowerCase());
+                return re.test(String(email).toLowerCase()) && this.isStringValid(email);
             },
             clearForm: function () {
                 this.formData.name = null;

@@ -57,7 +57,7 @@ function makeContactController(reCaptchaService, mailService) {
     }
 
     function isMessageValid(message) {
-        return message && message.length >= 50;
+        return message && message.length >= 20;
     }
 }
 

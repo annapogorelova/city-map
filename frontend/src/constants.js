@@ -60,5 +60,11 @@ export default Object.freeze({
         STREETS: "Вулиці",
         NAMED_ENTITES: "Персони",
         CONTACT: "Написати автору"
+    },
+    VALIDATION_MESSAGES: {
+        NAME_INVALID: "Вкажіть будь ласка ваше ім'я (мінімум 2 символи)",
+        EMAIL_INVALID: "Вкажіть будь ласка ваш email",
+        MESSAGE_INVALID: "Заповніть будь ласка повідомлення (мінімум 20 символів)",
+        RECAPTCHA_INVALID: "Підтвердіть будь ласка, що ви не робот",
     }
 });

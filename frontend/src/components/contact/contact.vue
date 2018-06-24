@@ -10,8 +10,9 @@
             <div class="col-12 col-lg-8 offset-lg-2">
                 <form>
                     <div class="alert alert-danger" v-if="errors.length">
+                        <i class="fa fa-times float-right" title="Сховати" v-on:click="hideErrors"></i>
                         <ul>
-                            <li v-for="error in errors">{{error}}</li>
+                            <li v-for="error in errors">{{error}};</li>
                         </ul>
                     </div>
                     <div class="form-group required">
@@ -52,13 +53,26 @@
         margin-bottom: 10px;
     }
 
-    @media(max-width: 767px) {
+    ul {
+        margin-bottom: 0;
+        padding-left: 10px;
+    }
+
+    li {
+        list-style: none;
+    }
+
+    i {
+        cursor: pointer;
+    }
+
+    @media(max-width: 600px) {
         button[type=submit] {
             width: 100%;
         }
     }
 
-    @media(min-width: 768px) {
+    @media(min-width: 601px) {
         button[type=submit] {
             float: right;
         }
@@ -103,32 +117,33 @@
                         this.clearForm();
                     });
                 } else {
-                    if(!this.formData.name) {
-                        this.errors.push("Введіть будь ласка ваше ім'я");
+                    if(!this.isStringValid(this.formData.name, 2)) {
+                        this.errors.push(constants.VALIDATION_MESSAGES.NAME_INVALID);
                     }
 
-                    if(!this.formData.email) {
-                        this.errors.push("Введіть будь ласка ваш email");
+                    if(!this.isStringValid(this.formData.email)) {
+                        this.errors.push(constants.VALIDATION_MESSAGES.EMAIL_INVALID);
                     }
 
-                    if(!this.formData.message) {
-                        this.errors.push("Введіть будь ласка текст повідомлення");
+                    if(!this.isStringValid(this.formData.message, 20)) {
+                        this.errors.push(constants.VALIDATION_MESSAGES.MESSAGE_INVALID);
                     }
 
-                    if(!this.formData.reCaptchaToken) {
-                        this.errors.push("Підтвердіть, що ви не робот, будь ласка");
+                    if(!this.isStringValid(this.formData.reCaptchaToken)) {
+                        this.errors.push(constants.VALIDATION_MESSAGES.RECAPTCHA_INVALID);
                     }
                 }
 
                 event.preventDefault();
             },
             isFormValid: function () {
-                return (typeof this.formData.name === "string" && this.formData.name !== "" &&
-                        this.formData.name.length >= 2) &&
-                    (typeof this.formData.email === "string" && this.formData.email !== "") &&
-                    (typeof this.formData.reCaptchaToken === "string" && this.formData.reCaptchaToken !== "") &&
-                    (typeof this.formData.message === "string" && this.formData.message !== "" &&
-                        this.formData.message.length >= 50 && this.formData.message.length <= 500);
+                return this.isStringValid(this.formData.name, 2) &&
+                    this.isStringValid(typeof this.formData.email) &&
+                    this.isStringValid(this.formData.reCaptchaToken) &&
+                    this.isStringValid(this.formData.message, 20);
+            },
+            isStringValid(value, minLength = null) {
+                return typeof value === "string" && value !== "" && (!minLength || value.length >= minLength);
             },
             clearForm: function () {
                 this.formData.name = null;
@@ -138,6 +153,9 @@
                 this.errors = [];
 
                 this.$refs.recaptcha.reset();
+            },
+            hideErrors: function () {
+                this.errors = [];
             },
             onVerified: function (token) {
                 this.formData.reCaptchaToken = token;

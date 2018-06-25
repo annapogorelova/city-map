@@ -13,7 +13,7 @@
         <div class="row" v-if="street.namedEntities && !street.namedEntities.length && !street.description">
             <div class="col-12">
                 <p class="no-named-entity-info-message">
-                    На жаль, на даний момент відсутні дані про назву цієї вулиці.
+                    {{noStreetInfoCaption}}
                 </p>
             </div>
         </div>
@@ -39,7 +39,7 @@
                                 <div class="row tags-container">
                                     <div class="col-12">
                                         <div v-if="namedEntity.tags && namedEntity.tags.length">
-                                            <h3>Категорії:</h3>
+                                            <h4>Категорії:</h4>
                                             <h4 class="tag-container" v-for="tag in namedEntity.tags">
                                                 <span class="badge badge-dark">{{tag.name}}</span>
                                             </h4>
@@ -49,7 +49,7 @@
                                 </div>
                                 <div class="row wiki-links-container">
                                     <div class="col-12">
-                                        <h2 class="wiki-links-header">Посилання на Wikipedia</h2>
+                                        <h4 class="wiki-links-header">Посилання на Wikipedia</h4>
                                         <a class="btn btn-outline-dark wiki-link" v-bind:href="namedEntity.wikiUrl"
                                            :title="namedEntity.name + ' на Wikipedia'"
                                            target="_blank">
@@ -73,7 +73,7 @@
         <div class="row description-footer" v-if="street.wikiUrl">
             <div class="col-12">
                 <div class="footer-border"></div>
-                <h2 class="wiki-links-header">Ця вулиця на Wikipedia:</h2>
+                <h4 class="wiki-links-header">Ця вулиця на Wikipedia:</h4>
                 <a class="btn btn-outline-dark wiki-link" v-bind:href="street.wikiUrl" target="_blank"
                    :title="street.name + ' на Wikipedia'">
                     <i class="fab fa-wikipedia-w"></i>
@@ -102,7 +102,7 @@
         margin-bottom: 0;
     }
 
-    .tags-container h3 {
+    .tags-container h4 {
         margin-bottom: 5px;
     }
 
@@ -233,6 +233,8 @@
     }
 </style>
 <script>
+    import constants from "../../constants";
+
     export default {
         props: {
             street: {
@@ -243,6 +245,9 @@
         computed: {
             defaultImage: function () {
                 return require("../../../static/images/default-image.png");
+            },
+            noStreetInfoCaption: function () {
+                return constants.STRINGS.NO_STREET_INFO;
             }
         }
     }

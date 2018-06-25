@@ -5,7 +5,7 @@
                 <div class="row">
                     <div class="col-12">
                         <h1 class="street-name">{{street.name}}</h1>
-                        <h2 class="old-name" v-if="street.oldName">Стара назва: {{street.oldName}}</h2>
+                        <h2 class="old-name" v-if="street.oldName">{{constants.oldStreetNameCaption}}: {{street.oldName}}</h2>
                     </div>
                 </div>
             </div>
@@ -13,7 +13,7 @@
         <div class="row" v-if="street.namedEntities && !street.namedEntities.length && !street.description">
             <div class="col-12">
                 <p class="no-named-entity-info-message">
-                    {{noStreetInfoCaption}}
+                    {{constants.noStreetInfoCaption}}
                 </p>
             </div>
         </div>
@@ -27,7 +27,7 @@
                     </div>
                     <div class="row image-container" v-if="namedEntity.imageUrl">
                         <div class="col-12">
-                            <div class="named-entity-image-container" :aria-label="'Зображення:' + namedEntity.name">
+                            <div class="named-entity-image-container" :aria-label="constants.imageCaption + ':' + namedEntity.name">
                                 <div class="named-entity-image"
                                      :style="{'background-image': 'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
                             </div>
@@ -39,7 +39,7 @@
                                 <div class="row tags-container">
                                     <div class="col-12">
                                         <div v-if="namedEntity.tags && namedEntity.tags.length">
-                                            <h4>Категорії:</h4>
+                                            <h4>{{constants.categoriesCaption}}:</h4>
                                             <h4 class="tag-container" v-for="tag in namedEntity.tags">
                                                 <span class="badge badge-dark">{{tag.name}}</span>
                                             </h4>
@@ -49,7 +49,7 @@
                                 </div>
                                 <div class="row wiki-links-container">
                                     <div class="col-12">
-                                        <h4 class="wiki-links-header">Посилання на Wikipedia</h4>
+                                        <h4 class="wiki-links-header">{{constants.wikipediaLinkCaption}}</h4>
                                         <a class="btn btn-outline-dark wiki-link" v-bind:href="namedEntity.wikiUrl"
                                            :title="namedEntity.name + ' на Wikipedia'"
                                            target="_blank">
@@ -65,7 +65,7 @@
             </div>
             <div class="row street-description" v-if="street.description">
                 <div class="col-12">
-                    <h2>Інформація про вулицю</h2>
+                    <h2>{{constants.streetInformationCaption}}</h2>
                     <p>{{street.description}}</p>
                 </div>
             </div>
@@ -73,7 +73,7 @@
         <div class="row description-footer" v-if="street.wikiUrl">
             <div class="col-12">
                 <div class="footer-border"></div>
-                <h4 class="wiki-links-header">Ця вулиця на Wikipedia:</h4>
+                <h4 class="wiki-links-header">{{constants.streetOnWikipediaCaption}}:</h4>
                 <a class="btn btn-outline-dark wiki-link" v-bind:href="street.wikiUrl" target="_blank"
                    :title="street.name + ' на Wikipedia'">
                     <i class="fab fa-wikipedia-w"></i>
@@ -134,7 +134,6 @@
         vertical-align: middle;
         padding-top: 5px;
         padding-bottom: 5px;
-        margin-bottom: 5px;
     }
 
     .wiki-links-container {
@@ -233,7 +232,7 @@
     }
 </style>
 <script>
-    import constants from "../../constants";
+    import ConstantsMixin from "../../mixins/constants-mixin"
 
     export default {
         props: {
@@ -242,12 +241,10 @@
                 default: {}
             }
         },
+        mixins: [ConstantsMixin],
         computed: {
             defaultImage: function () {
                 return require("../../../static/images/default-image.png");
-            },
-            noStreetInfoCaption: function () {
-                return constants.STRINGS.NO_STREET_INFO;
             }
         }
     }

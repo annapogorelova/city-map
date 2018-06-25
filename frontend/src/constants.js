@@ -68,6 +68,20 @@ export default Object.freeze({
         RECAPTCHA_INVALID: "Підтвердіть будь ласка, що ви не робот",
     },
     STRINGS: {
-        NO_STREET_INFO: "На жаль, на даний момент відсутні дані про назву цієї вулиці."
+        NO_STREET_INFO: "На жаль, на даний момент відсутні дані про назву цієї вулиці.",
+        NO_STREET_FOUND: "Тут не було знайдено жодної вулиці.",
+        CHOOSE_THE_STREET: "Оберіть вулицю, щоб отримати інформацію про її назву.",
+        SEARCHING: "Шукаємо...",
+        NAMED_AFTER: "Назва на честь",
+        STREET_NAME: "Назва вулиці",
+        OLD_STREET_NAME: "Стара назва",
+        CITY_NOT_CHOSEN: "Місто не було обрано",
+        IMAGE: "Зображення",
+        WIKIPEDIA_LINK_CAPTION: "Посилання на Wikipedia",
+        STREET_INFORMATION: "Інформація про вулицю",
+        STREET_ON_WIKIPEDIA: "Ця вулиця на Wikipedia",
+        HIDE_DETAILS: "Сховати деталі",
+        SHOW_DETAILS: "Показати деталі",
+        CATEGORIES: "Категорії"
     }
 });

@@ -4,13 +4,13 @@
              :style="{width: width + 'px', height: height + 'px'}">
             <div class="sidebar-toggler">
                 <i class="fa fa-chevron-left fa-2x" :class="{'open': isOpen}"
-                   :title="isOpen ? 'Сховати деталі' : 'Показати деталі' "
+                   :title="isOpen ? constants.hideDetailsCaption : constants.showDetailsCaption "
                    v-on:click="toggle"></i>
             </div>
             <div class="sidebar-content">
                 <div class="sidebar-full-screen-toggler">
                     <div class="toggler">
-                        <i v-on:click="toggle" class="fa fa-chevron-down" title="Сховати деталі" aria-label="Сховати деталі"></i>
+                        <i v-on:click="toggle" class="fa fa-chevron-down" :title="constants.hideDetailsCaption" :aria-label="constants.hideDetailsCaption"></i>
                     </div>
                 </div>
                 <div class="sidebar-content-header">
@@ -21,8 +21,8 @@
                 </div>
             </div>
         </div>
-        <div class="full-screen-sidebar-footer" :class="{'show': !isOpen, 'hide': isOpen}" aria-label="Показати деталі"
-             title="Показати деталі">
+        <div class="full-screen-sidebar-footer" :class="{'show': !isOpen, 'hide': isOpen}" :aria-label="constants.showDetailsCaption"
+             :title="constants.showDetailsCaption">
             <div class="toggler" v-on:click="open">
                 <i class="fa fa-chevron-up"></i>
             </div>
@@ -181,10 +181,10 @@
     }
 </style>
 <script>
-    import {ScreenSizeServiceMixin} from "../../mixins/index";
+    import {ScreenSizeServiceMixin, ConstantsMixin} from "../../mixins/index";
 
     export default {
-        mixins: [ScreenSizeServiceMixin],
+        mixins: [ScreenSizeServiceMixin, ConstantsMixin],
         props: {
             width: {
                 type: Number,

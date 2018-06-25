@@ -1,5 +1,6 @@
 <template>
     <div class="row page-wrapper">
+        <loader :loading="searchInProgress && !sidebar.isOpen" :delay="200"></loader>
         <div class="col-12">
             <div id="map-wrapper" class="map-wrapper">
                 <basic-map ref="map"
@@ -21,7 +22,7 @@
                                 <div class="search-container" v-on:click.stop>
                                     <search ref="search"
                                             v-on:search="onSearchStreet"
-                                            v-bind:placeholder="'Назва вулиці'"></search>
+                                            v-bind:placeholder="constants.streetNameCaption"></search>
                                 </div>
                             </div>
                         </div>
@@ -35,13 +36,13 @@
                         <div class="row sidebar-section" v-if="!selectedStreet">
                             <div class="col-12">
                                 <p v-if="!searchInProgress && coordinates.length" class="no-margins">
-                                    Тут не було знайдено жодної вулиці.
+                                    {{constants.noStreetFoundCaption}}
                                 </p>
                                 <p v-if="!searchInProgress && !coordinates.length" class="no-margins">
-                                    Оберіть вулицю, щоб отримати інформацію про її назву.
+                                    {{constants.chooseStreetCaption}}
                                 </p>
                                 <div v-if="searchInProgress">
-                                    <span class="search-in-progress-caption">Шукаємо...</span>
+                                    <span class="search-in-progress-caption">{{constants.searchingCaption}}</span>
                                     <i class="fas fa-circle-notch fa-spin"></i>
                                 </div>
                             </div>
@@ -52,9 +53,9 @@
                             <div class="col-12 sidebar-footer">
                                 <div class="row">
                                     <div class="col-12">
-                                        <h1>{{city ? city.name : "Місто не було обрано"}}</h1>
+                                        <h1>{{city ? city.name : constants.cityNotChosen}}</h1>
                                         <div class="search-in-progress-container" v-if="searchInProgress">
-                                            <span class="search-in-progress-caption">Шукаємо...</span>
+                                            <span class="search-in-progress-caption">{{constants.searchingCaption}}</span>
                                             <i class="fas fa-circle-notch fa-spin"></i>
                                         </div>
                                     </div>
@@ -63,7 +64,7 @@
                                     <div class="col-12">
                                         <h2 v-if="selectedStreet">{{selectedStreet.name}}</h2>
                                         <div v-if="activeNamedEntityTitle">
-                                            <h4 class="named-entity-name"><b>Назва на честь:</b> {{activeNamedEntityTitle}}</h4>
+                                            <h4 class="named-entity-name"><b>{{constants.namedAfterCaption}}:</b> {{activeNamedEntityTitle}}</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -188,20 +189,23 @@
         StreetsServiceMixin,
         NoticesServiceMixin,
         EventBusMixin,
-        CitiesServiceMixin
+        CitiesServiceMixin,
+        ConstantsMixin
     } from "../../mixins/index";
     import constants from "../../constants";
     import appConfig from "../../app.config";
     import Sidebar from "../layout/sidebar";
     import _ from "lodash";
+    import Loader from "../shared/loader";
 
     export default {
-        components: {Sidebar, BasicMap, CitiesList, StreetDescription, Search},
+        components: {Loader, Sidebar, BasicMap, CitiesList, StreetDescription, Search},
         mixins: [
             StreetsServiceMixin,
             NoticesServiceMixin,
             EventBusMixin,
-            CitiesServiceMixin
+            CitiesServiceMixin,
+            ConstantsMixin
         ],
         props: {
             zoom: {
@@ -420,7 +424,7 @@
                     coordinates: coordinates,
                     imageProps: {
                         imageUrl: namedEntity.imageUrl || this.defaultImage,
-                        title: `${namedEntity.name} (показати деталі)`,
+                        title: `${namedEntity.name} (${this.constants.showDetailsCaption.toLowerCase()})`,
                         styles: styles
                     },
                     className: namedEntity.imageUrl ? "" : "default-image-marker"
@@ -430,7 +434,7 @@
                 let marker = L.marker(coordinates);
                 let popupContent = `<b>${street.name}</b>`;
                 if (street.oldName) {
-                    popupContent += `<br/><span>(стара назва: ${street.oldName})</span>`;
+                    popupContent += `<br/><span>(${this.constants.oldStreetNameCaption.toLowerCase()}: ${street.oldName})</span>`;
                 }
                 marker.bindPopup(popupContent);
                 return marker;
@@ -443,6 +447,7 @@
             },
             onMapClick: _.debounce(function (e) {
                 this.coordinates = [e.latlng.lat, e.latlng.lng];
+                this.clearMap();
                 this.setMarker(this.coordinates);
             }, 500),
             selectCity(city) {

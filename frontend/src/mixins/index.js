@@ -7,6 +7,7 @@ import CitiesServiceMixin from "./city-service-mixin";
 import NavigationMixin from "./navigation-mixin";
 import EventBusMixin from "./event-bus-mixin";
 import ScreenSizeServiceMixin from "./screen-size-service-mixin";
+import ConstantsMixin from "./constants-mixin";
 
 export {
     AuthMixin,
@@ -17,5 +18,6 @@ export {
     CitiesServiceMixin,
     NavigationMixin,
     EventBusMixin,
-    ScreenSizeServiceMixin
+    ScreenSizeServiceMixin,
+    ConstantsMixin
 };

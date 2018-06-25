@@ -342,6 +342,8 @@
                 }).then(response => {
                     this.searchInProgress = false;
                     return response.data;
+                }).catch(() => {
+                    this.searchInProgress = false;
                 });
             },
             setMarker: function (coordinates) {

@@ -49,7 +49,7 @@
                                 </div>
                                 <div class="row wiki-links-container">
                                     <div class="col-12">
-                                        <h4 class="wiki-links-header">{{constants.wikipediaLinkCaption}}</h4>
+                                        <h4 class="wiki-links-header">{{constants.wikipediaLinkCaption}}:</h4>
                                         <a class="btn btn-outline-dark wiki-link" v-bind:href="namedEntity.wikiUrl"
                                            :title="namedEntity.name + ' на Wikipedia'"
                                            target="_blank">

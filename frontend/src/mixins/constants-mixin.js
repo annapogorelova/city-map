@@ -18,7 +18,7 @@ export default {
                 streetInformationCaption: constants.STRINGS.STREET_INFORMATION,
                 streetOnWikipediaCaption: constants.STRINGS.STREET_ON_WIKIPEDIA,
                 categoriesCaption: constants.STRINGS.CATEGORIES
-            }
+            };
         }
     }
-}
+};

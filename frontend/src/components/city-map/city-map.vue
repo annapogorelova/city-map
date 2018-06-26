@@ -64,7 +64,8 @@
                                     <div class="col-12">
                                         <h2 v-if="selectedStreet">{{selectedStreet.name}}</h2>
                                         <div v-if="activeNamedEntityTitle">
-                                            <h4 class="named-entity-name"><b>{{constants.namedAfterCaption}}:</b> {{activeNamedEntityTitle}}</h4>
+                                            <h4 class="named-entity-name"><b>{{constants.namedAfterCaption}}:</b>
+                                                {{activeNamedEntityTitle}}</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -146,7 +147,7 @@
         overflow-y: auto;
     }
 
-    @media(max-width: 600px) {
+    @media (max-width: 600px) {
         h2, h4 {
             margin-bottom: 5px !important;
         }
@@ -172,7 +173,7 @@
         font-weight: 500;
     }
 
-    @media(max-width: 320px) {
+    @media (max-width: 320px) {
         .sidebar-footer .street-description {
             max-height: 80px;
         }
@@ -183,7 +184,7 @@
     import CitiesList from "../shared/cities-list";
     import StreetDescription from "./street-description";
     import Search from "../shared/search";
-    import {optional} from "tooleks";
+    import {optional, Defer} from "tooleks";
     import {provideImageMarkerHtml} from "../map/image-marker-provider";
     import {
         StreetsServiceMixin,
@@ -241,7 +242,7 @@
 
                 const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]], []);
                 this.map.setMaxBounds(bounds);
-                if(city) {
+                if (city) {
                     this.$refs.map.panTo(city.coordinates);
                     this.map.setZoom(this.zoom);
                 }
@@ -279,8 +280,8 @@
                 return appConfig.locationTimeout;
             },
             activeNamedEntityTitle: function () {
-                if(optional(() => this.selectedStreet.namedEntities.length)) {
-                    if(this.selectedStreet.namedEntities.length < 3) {
+                if (optional(() => this.selectedStreet.namedEntities.length)) {
+                    if (this.selectedStreet.namedEntities.length < 3) {
                         return this.selectedStreet.namedEntities.map(n => n.name).join(", ");
                     }
 
@@ -295,21 +296,15 @@
                 this.onSearchStreet(search);
             });
 
+            this.cityDefer = new Defer();
+
             this.citySelectOff = this.eventBus.on("city-selected", (city) => {
                 this.selectCity(city);
+                this.cityDefer.resolve(city);
             });
         },
         mounted: function () {
-            this.getLocation().then(coordinates => {
-                if (coordinates.length) {
-                    this.coordinates = coordinates;
-                    this.setMarker(this.coordinates);
-                }
-            }).catch(() => {
-                this.noticesService.error(
-                    constants.NOTICES.FAILED_TO_GET_LOCATION.title,
-                    constants.NOTICES.FAILED_TO_GET_LOCATION.message);
-            });
+            this.init();
         },
         beforeDestroy: function () {
             if (this.searchEventOff) {
@@ -321,6 +316,19 @@
             }
         },
         methods: {
+            init: function () {
+                return Promise.all([
+                    this.getLocation(),
+                    this.cityDefer.promisify()
+                ]).then((data) => {
+                    this.coordinates = data[0];
+                    this.setMarker(this.coordinates, this.cityId);
+                }).catch(() => {
+                    this.noticesService.error(
+                        constants.NOTICES.FAILED_TO_GET_LOCATION.title,
+                        constants.NOTICES.FAILED_TO_GET_LOCATION.message);
+                });
+            },
             getLocation: function () {
                 return new Promise((resolve, reject) => {
                     if (Array.isArray(this.$route.query.coordinates)) {
@@ -334,10 +342,10 @@
                     }
                 });
             },
-            findClosestStreet: function (coordinates) {
+            findClosestStreet: function (coordinates, cityId) {
                 this.searchInProgress = true;
                 return this.streetsService.getStreetByCoordinates({
-                    cityId: this.cityId,
+                    cityId: cityId,
                     coordinates: coordinates
                 }).then(response => {
                     this.searchInProgress = false;
@@ -346,11 +354,11 @@
                     this.searchInProgress = false;
                 });
             },
-            setMarker: function (coordinates) {
+            setMarker: function (coordinates, cityId) {
                 return new Promise((resolve, reject) => {
                     this.selectedStreet = null;
 
-                    this.findClosestStreet(coordinates).then(street => {
+                    this.findClosestStreet(coordinates, cityId).then(street => {
                         try {
                             this.clearMap();
 
@@ -450,7 +458,7 @@
             onMapClick: _.debounce(function (e) {
                 this.coordinates = [e.latlng.lat, e.latlng.lng];
                 this.clearMap();
-                this.setMarker(this.coordinates);
+                this.setMarker(this.coordinates, this.cityId);
             }, 500),
             selectCity(city) {
                 this.city = city;
@@ -489,7 +497,7 @@
             },
             onLocationSuccess(event) {
                 this.coordinates = [event.latitude, event.longitude];
-                this.setMarker(this.coordinates);
+                this.setMarker(this.coordinates, this.cityId);
             },
             onLocationError() {
                 this.noticesService.error(

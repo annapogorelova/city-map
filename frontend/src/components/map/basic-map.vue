@@ -71,6 +71,10 @@
                 type: Number,
                 default: 8,
             },
+            focusZoom: {
+                type: Number,
+                default: 16,
+            },
             bounds: {
                 type: Array,
                 default: () => []
@@ -126,7 +130,7 @@
             locate() {
                 this.locatingInProgress = true;
 
-                this.map.locate({setView: true, timeout: this.locationTimeout})
+                this.map.locate({setView: true, maxZoom: this.focusZoom, timeout: this.locationTimeout})
                     .on("locationfound", (event) => {
                         this.locatingInProgress = false;
                         this.$emit("locationsuccess", event);

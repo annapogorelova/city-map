@@ -95,7 +95,12 @@ module.exports = (config) => {
                         RECAPTCHA_KEY: '"example"',
                         SIGN_IN_ROUTE_NAME: '"sign-in"',
                         LOCATION_TIMEOUT: 5000,
-                        DEFAULT_CITIES_LIMIT: 10
+                        DEFAULT_CITIES_LIMIT: 10,
+                        AUTH_CHECK_INTERVAL: 5000,
+                        // GOOGLE_ANALYTICS_ID: "xxxxxx",
+                        MIN_EMAIL_TEXT_LENGTH: 20,
+                        MIN_EMAIL_SENDER_NAME_LENGTH: 2,
+                        COORDINATES_PRECISION: 6
                     }
                 })
             ]

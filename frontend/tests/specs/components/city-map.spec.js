@@ -5,6 +5,7 @@ import VueRouter from "vue-router";
 import sinon from "sinon";
 import {optional} from "tooleks";
 import constants from "../../../src/constants";
+import appConfig from "../../../src/app.config";
 
 describe("CityMap test", () => {
     let localVue, router;
@@ -160,6 +161,7 @@ describe("CityMap test", () => {
         const panToSpy = sinon.spy(wrapper.vm.$refs.map, "panTo");
         const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
         const setMapZoomSpy = sinon.spy(wrapper.vm.map, "setZoom");
+        const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
 
         const city = testCities[0];
         wrapper.vm.selectCity(city);
@@ -168,9 +170,13 @@ describe("CityMap test", () => {
         expect(wrapper.vm.selectedStreet).to.equal(null);
         expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
         expect(panToSpy.calledOnceWith(city.coordinates)).to.equal(true);
+        expect(setCoordinatesSpy.calledOnceWith(city.coordinates)).to.equal(true);
         expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
 
-        expect(wrapper.vm.coordinates).to.equal(city.coordinates);
+        panToSpy.restore();
+        setMaxBoundsSpy.restore();
+        setMapZoomSpy.restore();
+        setCoordinatesSpy.restore();
 
         done();
     });
@@ -181,23 +187,25 @@ describe("CityMap test", () => {
         const panToSpy = sinon.spy(wrapper.vm.$refs.map, "panTo");
         const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
         const setMapZoomSpy = sinon.spy(wrapper.vm.map, "setZoom");
+        const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
 
         const initialCity = testCities[0];
         wrapper.vm.city = initialCity;
 
         expect(wrapper.vm.city.id).to.equal(initialCity.id);
         expect(wrapper.vm.city.name).to.equal(initialCity.name);
-        expect(wrapper.vm.coordinates).to.equal(initialCity.coordinates);
         expect(wrapper.vm.selectedStreet).to.equal(undefined);
 
         // city $watch should trigger
         expect(panToSpy.calledOnceWith(initialCity.coordinates)).to.equal(true);
         expect(setMaxBoundsSpy.calledWith(getMapBounds(initialCity))).to.equal(true);
         expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
+        expect(setCoordinatesSpy.calledOnceWith(initialCity.coordinates)).to.equal(true);
 
         panToSpy.resetHistory();
         setMaxBoundsSpy.resetHistory();
         setMapZoomSpy.resetHistory();
+        setCoordinatesSpy.resetHistory();
 
         const city = testCities[1];
         wrapper.vm.selectCity(city);
@@ -208,6 +216,7 @@ describe("CityMap test", () => {
         expect(panToSpy.calledOnceWith(city.coordinates)).to.equal(true);
         expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
         expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
+        expect(setCoordinatesSpy.calledOnceWith(city.coordinates)).to.equal(true);
 
         done();
     });
@@ -473,11 +482,15 @@ describe("CityMap test", () => {
         const coordinates = testCities[0].coordinates;
 
         let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
+        let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
 
         wrapper.vm.$refs.map.$emit("locationsuccess", {latitude: coordinates[0], longitude: coordinates[1]});
 
-        expect(wrapper.vm.coordinates).to.deep.equal(coordinates);
+        expect(setCoordinatesSpy.calledOnceWith(coordinates)).to.deep.equal(true);
         expect(setMarkerSpy.calledOnce).to.equal(true);
+
+        setMarkerSpy.restore();
+        setCoordinatesSpy.restore();
 
         done();
     });
@@ -709,17 +722,20 @@ describe("CityMap test", () => {
                 let getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(coordinates);
                 let cityDeferStub = sinon.stub(wrapper.vm.cityDefer, "promisify").resolves(testCities[0]);
                 let setMarkerStub = sinon.stub(wrapper.vm, "setMarker").resolves();
+                let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
 
                 await wrapper.vm.init();
 
                 expect(getLocationStub.calledOnce).to.equal(true);
                 expect(cityDeferStub.calledOnce).to.equal(true);
-                expect(wrapper.vm.coordinates).to.equal(coordinates);
-                expect(setMarkerStub.calledOnceWith(coordinates, testCities[0].id)).to.equal(true);
+                expect(setCoordinatesSpy.calledOnceWith(coordinates)).to.equal(true);
+                expect(setMarkerStub.calledOnceWith(wrapper.vm.coordinates, testCities[0].id)).to.equal(true);
+                expect(setMarkerStub.calledAfter(setCoordinatesSpy)).to.equal(true);
 
                 getLocationStub.restore();
                 cityDeferStub.restore();
                 setMarkerStub.restore();
+                setCoordinatesSpy.restore();
 
                 done();
             } catch (e) {
@@ -738,12 +754,13 @@ describe("CityMap test", () => {
                 let cityDeferSpy = sinon.stub(wrapper.vm.cityDefer, "promisify");
                 let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
                 let noticeErrorSpy = sinon.spy(wrapper.vm.noticesService, "error");
+                let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
 
                 await wrapper.vm.init();
 
                 expect(getLocationStub.calledOnce).to.equal(true);
                 expect(cityDeferSpy.calledOnce).to.equal(true);
-                expect(wrapper.vm.coordinates).to.equal(coordinates);
+                expect(setCoordinatesSpy.notCalled).to.equal(true);
                 expect(setMarkerSpy.notCalled).to.equal(true);
                 expect(noticeErrorSpy.calledOnceWith(
                     constants.NOTICES.FAILED_TO_GET_LOCATION.title,
@@ -753,6 +770,7 @@ describe("CityMap test", () => {
                 cityDeferSpy.restore();
                 setMarkerSpy.restore();
                 noticeErrorSpy.restore();
+                setCoordinatesSpy.restore();
 
                 done();
             } catch (e) {
@@ -766,17 +784,40 @@ describe("CityMap test", () => {
         wrapper.vm.city = testCities[0];
         const coordinates = testCities[0].coordinates;
         let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
+        let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
         let clearMapSpy = sinon.spy(wrapper.vm, "clearMap");
 
         wrapper.vm.map.fire("click", {latlng: {lat: coordinates[0], lng: coordinates[1]}});
 
         setTimeout(() => {
-            expect(wrapper.vm.coordinates[0]).to.equal(coordinates[0]);
-            expect(wrapper.vm.coordinates[1]).to.equal(coordinates[1]);
-            expect(setMarkerSpy.calledOnceWith(coordinates, testCities[0].id)).to.equal(true);
+            expect(setCoordinatesSpy.calledOnceWith(coordinates)).to.equal(true);
+            expect(setMarkerSpy.calledAfter(setCoordinatesSpy)).to.equal(true);
+            expect(setMarkerSpy.calledOnceWith(wrapper.vm.coordinates, testCities[0].id)).to.equal(true);
             expect(clearMapSpy.called).to.equal(true);
 
             done();
         }, 1000);
+    });
+
+    it("should set the coordinates", (done) => {
+        let wrapper = createWrapper();
+        const coordinates = testCities[0].coordinates;
+
+        wrapper.vm.setCoordinates(coordinates);
+
+        expect(wrapper.vm.coordinates[0]).to.equal(coordinates[0].toFixed(appConfig.coordinatesPrecision));
+        expect(wrapper.vm.coordinates[1]).to.equal(coordinates[1].toFixed(appConfig.coordinatesPrecision));
+
+        done();
+    });
+
+    it("should set the coordinates to []", (done) => {
+        let wrapper = createWrapper();
+
+        wrapper.vm.setCoordinates([]);
+
+        expect(wrapper.vm.coordinates.length).to.equal(0);
+
+        done();
     });
 });

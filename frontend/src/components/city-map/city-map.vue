@@ -216,6 +216,10 @@
             focusZoom: {
                 type: Number,
                 default: 16
+            },
+            topBarHeight: {
+                type: Number,
+                default: 60
             }
         },
         data: function () {
@@ -237,7 +241,7 @@
                 }
             },
             city: function (city) {
-                this.coordinates = optional(() => city.coordinates, []);
+                this.setCoordinates(optional(() => city.coordinates, []));
                 this.clearMap();
 
                 const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]], []);
@@ -274,7 +278,7 @@
                 return null;
             },
             mapHeight: function () {
-                return window.innerHeight - 60;
+                return window.innerHeight - this.topBarHeight;
             },
             locationTimeout: function () {
                 return appConfig.locationTimeout;
@@ -321,7 +325,7 @@
                     this.getLocation(),
                     this.cityDefer.promisify()
                 ]).then((data) => {
-                    this.coordinates = data[0];
+                    this.setCoordinates(data[0]);
                     this.setMarker(this.coordinates, this.cityId);
                 }).catch(() => {
                     this.noticesService.error(
@@ -385,7 +389,7 @@
             },
             setSelectedStreet(street, coordinates) {
                 this.selectedStreet = street;
-                this.coordinates = coordinates;
+                this.setCoordinates(coordinates);
                 this.drawStreet(street);
                 this.setStreetMarker(coordinates, street);
             },
@@ -396,6 +400,10 @@
             },
             setMapView(coordinates) {
                 this.map.setView(coordinates, this.focusZoom);
+            },
+            setCoordinates(coordinates) {
+                this.coordinates = coordinates.length ?
+                    coordinates.map(c => parseFloat(c).toFixed(appConfig.coordinatesPrecision)) : [];
             },
             clearMap() {
                 this.removeMarkers();
@@ -456,7 +464,7 @@
                 this.map.on("click", this.onMapClick);
             },
             onMapClick: _.debounce(function (e) {
-                this.coordinates = [e.latlng.lat, e.latlng.lng];
+                this.setCoordinates([e.latlng.lat, e.latlng.lng]);
                 this.clearMap();
                 this.setMarker(this.coordinates, this.cityId);
             }, 500),
@@ -479,7 +487,7 @@
                             this.search.clear();
                             this.setSelectedStreet(street, optional(() => street.ways[0][0], null));
                         } else {
-                            this.coordinates = [];
+                            this.setCoordinates([]);
                             this.selectedStreet = null;
                             this.noticesService.info(
                                 constants.NOTICES.STREET_NOT_FOUND.title,
@@ -496,7 +504,7 @@
                 return L.marker(coordinates, {icon, riseOnHover: true});
             },
             onLocationSuccess(event) {
-                this.coordinates = [event.latitude, event.longitude];
+                this.setCoordinates([event.latitude, event.longitude]);
                 this.setMarker(this.coordinates, this.cityId);
             },
             onLocationError() {

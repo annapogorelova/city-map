@@ -8,6 +8,7 @@ export default {
     locationTimeout: parseInt(process.env.LOCATION_TIMEOUT),
     defaultCitiesCount: parseInt(process.env.DEFAULT_CITIES_LIMIT),
     googleAnalyticsId: process.env.GOOGLE_ANALYTICS_ID,
-    minEmailTextLength: process.env.MIN_EMAIL_TEXT_LENGTH,
-    minEmailSenderNameLength: process.env.MIN_EMAIL_SENDER_NAME_LENGTH
+    minEmailTextLength: parseInt(process.env.MIN_EMAIL_TEXT_LENGTH),
+    minEmailSenderNameLength: parseInt(process.env.MIN_EMAIL_SENDER_NAME_LENGTH),
+    coordinatesPrecision: parseInt(process.env.COORDINATES_PRECISION)
 };

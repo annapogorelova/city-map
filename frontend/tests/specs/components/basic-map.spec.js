@@ -75,7 +75,7 @@ describe("BasicMap test", () => {
         wrapper.vm.locate();
         wrapper.vm.map.fire('locationfound', {latitude: coordinates[0], longitude: coordinates[1]});
 
-        expect(mapLocateStub.calledOnceWith({setView: true, timeout: wrapper.vm.locationTimeout})).to.equal(true);
+        expect(mapLocateStub.calledOnceWith({setView: true, maxZoom: wrapper.vm.focusZoom, timeout: wrapper.vm.locationTimeout})).to.equal(true);
         expect(wrapper.emitted().locationsuccess.length).to.equal(1);
 
         done();
@@ -91,7 +91,7 @@ describe("BasicMap test", () => {
         wrapper.vm.locate();
         wrapper.vm.map.fire('locationerror');
 
-        expect(mapLocateStub.calledOnceWith({setView: true, timeout: wrapper.vm.locationTimeout})).to.equal(true);
+        expect(mapLocateStub.calledOnceWith({setView: true, maxZoom: wrapper.vm.focusZoom, timeout: wrapper.vm.locationTimeout})).to.equal(true);
         expect(wrapper.emitted().locationerror.length).to.equal(1);
 
         done();

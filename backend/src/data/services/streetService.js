@@ -73,16 +73,12 @@ function makeStreetService(db) {
             throw new Error(errors.BAD_REQUEST.key);
         }
 
-        const location = db.sequelize.fn("ST_GeomFromText",
-            db.sequelize.literal(`'POINT(${coordinates[0]} ${coordinates[1]})'`), 4326);
-
         const query = `
             SELECT street.id     
             FROM way
-	        inner join street on way.streetId = street.id
-
+	        INNER JOIN street ON way.streetId = street.id
             WHERE street.cityId = :cityId and
-                ST_Within(ST_GeomFromText(${location.args[0].val}, 4326),
+                ST_Within(ST_GeomFromText(:location, 4326),
 	            ST_Buffer(ST_GeomFromText(ST_AsText(way.coordinates), 4326), :threshold)) = 1
 	            group by street.id, way.id;`;
 
@@ -90,7 +86,8 @@ function makeStreetService(db) {
             type: db.sequelize.QueryTypes.SELECT,
             replacements: {
                 cityId: cityId,
-                threshold: threshold
+                threshold: threshold,
+                location: `POINT(${coordinates[0]} ${coordinates[1]})`
             }
         };
         return db.sequelize.query(query, options).then(data => {

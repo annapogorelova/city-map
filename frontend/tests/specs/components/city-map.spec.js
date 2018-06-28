@@ -331,7 +331,12 @@ describe("CityMap test", () => {
 
         wrapper.vm.coordinates = testCities[0].coordinates;
 
-        expect(routerPushSpy.withArgs({query: {coordinates: testCities[0].coordinates}}).calledOnce).to.equal(true);
+        expect(routerPushSpy.withArgs({
+            query: {
+                lat: testCities[0].coordinates[0],
+                lng: testCities[0].coordinates[1]
+            }
+        }).calledOnce).to.equal(true);
 
         done();
     });
@@ -604,7 +609,11 @@ describe("CityMap test", () => {
         (async () => {
             const $route = {
                 path: "/map",
-                query: {cityId: testCities[0].id, coordinates: testCities[0].coordinates}
+                query: {
+                    cityId: testCities[0].id,
+                    lat: testCities[0].coordinates[0],
+                    lng: testCities[0].coordinates[1]
+                }
             };
 
             let wrapper = createWrapper({route: $route});

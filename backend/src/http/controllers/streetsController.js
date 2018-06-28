@@ -31,9 +31,12 @@ function makeStreetsController(streetService, mapper) {
 
     async function searchStreetsByCoordinates(req, res, next) {
         try {
-            const cityId = parseInt(req.query.cityId);
-            const coordinates = req.query.coordinates;
-            const street = await streetService.searchByCoordinates(cityId, coordinates);
+            const street = await streetService.searchByCoordinates({
+                cityId: parseInt(req.query.cityId),
+                lat: parseFloat(req.query.lat),
+                lng: parseFloat(req.query.lng)
+            });
+
             if (street) {
                 const model = await mapper.map(street, "app.street", "api.v1.street");
                 return res.json({data: model});

@@ -68,7 +68,7 @@ function makeStreetService(db) {
         });
     }
 
-    async function searchByCoordinates(cityId, coordinates, threshold = 0.0003) {
+    async function searchByCoordinates({cityId, lat, lng, threshold = 0.0003}) {
         if(isNaN(cityId)) {
             throw new Error(errors.BAD_REQUEST.key);
         }
@@ -87,7 +87,7 @@ function makeStreetService(db) {
             replacements: {
                 cityId: cityId,
                 threshold: threshold,
-                location: `POINT(${coordinates[0]} ${coordinates[1]})`
+                location: `POINT(${lat} ${lng})`
             }
         };
         return db.sequelize.query(query, options).then(data => {

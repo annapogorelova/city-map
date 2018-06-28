@@ -137,7 +137,7 @@ describe("streets route", () => {
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
-                .query({cityId: createdCity.id, coordinates: testCoordinates})
+                .query({cityId: createdCity.id, lat: testCoordinates[0], lng: testCoordinates[1]})
                 .end((err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
 
@@ -165,7 +165,7 @@ describe("streets route", () => {
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
-                .query({cityId: createdCity.id, coordinates: testCoordinates})
+                .query({cityId: createdCity.id, lat: testCoordinates[0], lng: testCoordinates[1]})
                 .end((err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.notExists(res.body.data);

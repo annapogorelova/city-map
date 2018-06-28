@@ -252,7 +252,7 @@
                 }
             },
             coordinates: function (coordinates) {
-                this.$router.push({query: {...this.$route.query, coordinates: coordinates}});
+                this.$router.push({query: {...this.$route.query, lat: coordinates[0], lng: coordinates[1]}});
             }
         },
         computed: {
@@ -335,8 +335,8 @@
             },
             getLocation: function () {
                 return new Promise((resolve, reject) => {
-                    if (Array.isArray(this.$route.query.coordinates)) {
-                        resolve(this.$route.query.coordinates.map(c => parseFloat(c)));
+                    if (this.$route.query.lat && this.$route.query.lng) {
+                        resolve([parseFloat(this.$route.query.lat), parseFloat(this.$route.query.lng)]);
                     } else {
                         navigator.geolocation.getCurrentPosition((position) => {
                             resolve([position.coords.latitude, position.coords.longitude]);

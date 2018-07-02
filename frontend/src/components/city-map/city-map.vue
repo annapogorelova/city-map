@@ -42,7 +42,7 @@
                                     {{constants.chooseStreetCaption}}
                                 </p>
                                 <div v-if="searchInProgress">
-                                    <span class="search-in-progress-caption">{{constants.searchingCaption}}</span>
+                                    <span class="search-caption">{{constants.searchingCaption}}</span>
                                     <i class="fas fa-circle-notch fa-spin"></i>
                                 </div>
                             </div>
@@ -54,8 +54,8 @@
                                 <div class="row">
                                     <div class="col-12">
                                         <h1>{{city ? city.name : constants.cityNotChosen}}</h1>
-                                        <div class="search-in-progress-container" v-if="searchInProgress">
-                                            <span class="search-in-progress-caption">{{constants.searchingCaption}}</span>
+                                        <div class="search-in-progress" v-if="searchInProgress">
+                                            <span class="search-caption">{{constants.searchingCaption}}</span>
                                             <i class="fas fa-circle-notch fa-spin"></i>
                                         </div>
                                     </div>
@@ -77,17 +77,28 @@
         </div>
     </div>
 </template>
-<style scoped>
+<style scoped lang="scss">
+    h1, h2 {
+        margin-bottom: 0;
+    }
+
+    @media (max-width: 600px) {
+        h2, h4 {
+            margin-bottom: 5px !important;
+        }
+    }
+
+    b {
+        font-weight: 500;
+    }
+
     .page-wrapper {
         overflow: hidden;
-    }
-
-    .page-wrapper {
         padding: 0;
-    }
 
-    .page-wrapper > div {
-        padding: 0;
+        & > div {
+            padding: 0;
+        }
     }
 
     .map-wrapper {
@@ -118,59 +129,47 @@
         width: 100%;
     }
 
-    .sidebar-footer p {
-        margin-bottom: 0;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        font-size: 0.9em;
-    }
+    .sidebar-footer {
+        h1, h2 {
+            margin-bottom: 8px;
+        }
 
-    h1, h2 {
-        margin-bottom: 0;
+        h2.named-entity-name {
+            font-weight: 400;
+        }
+
+        h4 {
+            font-weight: 400;
+        }
+
+        p {
+            margin-bottom: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 0.9em;
+        }
+
+        .street-description {
+            max-height: 70px;
+            overflow-y: auto;
+
+            p {
+                white-space: normal;
+            }
+        }
     }
 
     .fa-spin {
         margin-left: 5px;
     }
 
-    .search-in-progress-container {
+    .search-in-progress {
         margin-top: 8px;
     }
 
-    .search-in-progress-caption {
+    .search-caption {
         font-size: 1rem !important;
-    }
-
-    .sidebar-footer .street-description {
-        max-height: 70px;
-        overflow-y: auto;
-    }
-
-    @media (max-width: 600px) {
-        h2, h4 {
-            margin-bottom: 5px !important;
-        }
-    }
-
-    .sidebar-footer .street-description p {
-        white-space: normal;
-    }
-
-    .sidebar-footer h1, h2 {
-        margin-bottom: 8px;
-    }
-
-    .sidebar-footer h2.named-entity-name {
-        font-weight: 400;
-    }
-
-    .sidebar-footer h4 {
-        font-weight: 400;
-    }
-
-    b {
-        font-weight: 500;
     }
 
     @media (max-width: 320px) {

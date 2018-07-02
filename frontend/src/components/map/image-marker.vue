@@ -4,7 +4,7 @@
     </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
     .image-marker-container {
         position: relative;
         width: 100%;
@@ -24,12 +24,13 @@
         background-position: center;
         background-color: #e5e5e5;
         transition: 0.2s;
-    }
-    .image-marker:hover, .image-marker:focus {
-        top: -2.7em;
-        left: -2.7em;
-        width: 8em;
-        height: 8em;
+
+        &:hover, &:focus {
+            top: -2.7em;
+            left: -2.7em;
+            width: 8em;
+            height: 8em;
+        }
     }
 </style>
 

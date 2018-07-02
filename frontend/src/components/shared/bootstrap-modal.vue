@@ -68,7 +68,7 @@
         }
     }
 </script>
-<style scoped bb f>
+<style scoped>
     body {
         padding-right: 0 !important;
     }

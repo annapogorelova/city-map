@@ -1,10 +1,10 @@
 <template>
-    <div class="street-description-container">
-        <div class="row street-description-header">
+    <div class="description-container">
+        <div class="row description-header">
             <div class="col-12">
                 <div class="row">
                     <div class="col-12">
-                        <h1 class="street-name">{{street.name}}</h1>
+                        <h1 class="name">{{street.name}}</h1>
                         <h2 class="old-name" v-if="street.oldName">{{constants.oldStreetNameCaption}}: {{street.oldName}}</h2>
                     </div>
                 </div>
@@ -12,30 +12,29 @@
         </div>
         <div class="row" v-if="street.namedEntities && !street.namedEntities.length && !street.description">
             <div class="col-12">
-                <p class="no-named-entity-info-message">
+                <p class="no-info-message">
                     {{constants.noStreetInfoCaption}}
                 </p>
             </div>
         </div>
         <div>
-            <div class="row named-entity-container" v-for="namedEntity of street.namedEntities">
+            <div class="row named-entity" v-for="namedEntity of street.namedEntities">
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12">
-                            <h2 class="named-entity-name">{{namedEntity.name}}</h2>
+                            <h2>{{namedEntity.name}}</h2>
                         </div>
                     </div>
                     <div class="row image-container" v-if="namedEntity.imageUrl">
                         <div class="col-12">
-                            <div class="named-entity-image-container" :aria-label="constants.imageCaption + ':' + namedEntity.name">
-                                <div class="named-entity-image"
-                                     :style="{'background-image': 'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}"></div>
+                            <div class="image" :aria-label="constants.imageCaption + ':' + namedEntity.name"
+                                 :style="{'background-image': 'url(' + (namedEntity.imageUrl ? namedEntity.imageUrl : defaultImage) + ')'}">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <div class="named-entity-description-container">
+                            <div class="description-container">
                                 <div class="row tags-container">
                                     <div class="col-12">
                                         <div v-if="namedEntity.tags && namedEntity.tags.length">
@@ -63,7 +62,7 @@
                     <div class="description-border"></div>
                 </div>
             </div>
-            <div class="row street-description" v-if="street.description">
+            <div class="row street" v-if="street.description">
                 <div class="col-12">
                     <h2>{{constants.streetInformationCaption}}</h2>
                     <p>{{street.description}}</p>
@@ -83,14 +82,10 @@
         </div>
     </div>
 </template>
-<style scoped>
+<style scoped lang="scss">
     h1 {
         font-size: 1em;
         font-weight: 300;
-    }
-
-    h1.street-name {
-        font-weight: 500;
     }
 
     h2 {
@@ -100,6 +95,20 @@
 
     p, h1, h2, h3, h4, h5, h6 {
         margin-bottom: 0;
+    }
+
+    .description-header {
+        .name {
+            font-weight: 500;
+        }
+
+        .old-name {
+            margin-top: 5px;
+        }
+
+        h4 {
+            margin-top: 5px;
+        }
     }
 
     .tags-container h4 {
@@ -116,10 +125,6 @@
         text-overflow: ellipsis;
         overflow: hidden;
         max-width: 100%;
-    }
-
-    .description {
-        margin-top: 10px;
     }
 
     h6.tag-container {
@@ -160,21 +165,17 @@
         border-radius: 0;
     }
 
-    .street-description {
+    .street {
         margin-top: 15px;
-    }
 
-    .street-description h2 {
-        font-weight: 500;
-        margin-bottom: 10px;
-    }
+        h2 {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
 
-    .street-description p {
-        margin-bottom: 15px;
-    }
-
-    .street-description-header h4 {
-        margin-top: 5px;
+        p {
+            margin-bottom: 15px;
+        }
     }
 
     .description-footer .footer-border{
@@ -182,47 +183,50 @@
         border-top: 1px solid #939697;
     }
 
-    .named-entity-container:not(:last-child) .description-border {
-        border-bottom: 1px solid #939697;
+    .named-entity {
+        &:not(:last-child) .description-border {
+            border-bottom: 1px solid #939697;
+        }
+
+        &:not(:first-child) {
+            margin-top: 15px;
+        }
+
+        &:only-child .description-border {
+            border-bottom: none;
+        }
+
+        &:first-child {
+            margin-top: 10px;
+        }
+
+        .image-container {
+            margin-top: 15px;
+            margin-bottom: 10px;
+
+            .image {
+                height: 200px;
+                width: 180px;
+                margin: auto;
+                background-position: top;
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-color: #e5e5e5;
+                border-radius: 0;
+            }
+        }
+
+        .description-container {
+            margin-top: 5px;
+            margin-bottom: 15px;
+
+            .description {
+                margin-top: 5px;
+            }
+        }
     }
 
-    .named-entity-container:not(:first-child) {
-        margin-top: 15px;
-    }
-
-    .named-entity-container:only-child .description-border {
-        border-bottom: none;
-    }
-
-    .named-entity-container:first-child {
-        margin-top: 10px;
-    }
-
-    .named-entity-image-container {
-        height: 200px;
-        width: 180px;
-        margin: auto;
-    }
-
-    .named-entity-description-container {
-        margin-top: 5px;
-        margin-bottom: 15px;
-    }
-
-    .named-entity-description-container .description {
-        margin-top: 5px;
-    }
-
-    .old-name {
-        margin-top: 5px;
-    }
-
-    .image-container {
-        margin-top: 15px;
-        margin-bottom: 10px;
-    }
-
-    .no-named-entity-info-message {
+    .no-info-message {
         margin-top: 10px;
         margin-bottom: 10px;
     }

@@ -49,7 +49,7 @@
         }
     }
 </script>
-<style>
+<style lang="scss">
     .list-enter-active, .list-leave-active {
         transition: all 0.85s ease;
     }
@@ -65,50 +65,47 @@
         max-height: 100%;
         overflow: hidden;
         z-index: 999999;
-    }
 
-    .notices-wrapper .notice {
-        display: block;
-        width: 300px;
-        padding: 10px;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-    }
+        .notice {
+            display: block;
+            width: 300px;
+            padding: 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 6px 10px 0 0;
 
-    .notices-wrapper .notice:first-child {
-        margin-top: 10px;
-    }
+            .notice-title {
+                font-weight: bold;
+            }
 
-    .notices-wrapper .notice {
-        margin: 6px 10px 0 0;
-    }
+            &:first-child {
+                margin-top: 10px;
+            }
 
-    .notices-wrapper .notice:hover {
-        opacity: 0.95;
-    }
+            &:hover {
+                opacity: 0.95;
+            }
 
-    .notices-wrapper .notice.notice-success {
-        color: #fff;
-        background-color: #51A351;
-    }
+            &.notice-success {
+                color: #fff;
+                background-color: #51A351;
+            }
 
-    .notices-wrapper .notice.notice-warning {
-        color: #fff;
-        background-color: #FFB745;
-    }
+            &.notice-warning {
+                color: #fff;
+                background-color: #FFB745;
+            }
 
-    .notices-wrapper .notice.notice-error {
-        color: #fff;
-        background-color: #E7552C;
-    }
+            &.notice-error {
+                color: #fff;
+                background-color: #E7552C;
+            }
 
-    .notices-wrapper .notice.notice-info {
-        color: #fff;
-        background-color: #5CC5EF;
-    }
-
-    .notices-wrapper .notice .notice-title {
-        font-weight: bold;
+            &.notice-info {
+                color: #fff;
+                background-color: #5CC5EF;
+            }
+        }
     }
 </style>

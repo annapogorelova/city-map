@@ -96,7 +96,7 @@
         }
     }
 </script>
-<style>
+<style lang="scss">
     .sign-out {
         margin-left: 10px;
     }
@@ -104,13 +104,13 @@
     .app-navbar {
         padding-top: 5px;
         padding-bottom: 5px;
-    }
 
-    .app-navbar .nav-link {
-        color: rgba(255, 255, 255, 0.8) !important;
-        padding-top: 5px !important;
-        padding-bottom: 5px !important;
-        font-size: 1rem !important;
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+            font-size: 1rem !important;
+        }
     }
 
     .app-navbar .nav-link.router-link-active, .nav-item.dropdown.show .nav-link {
@@ -129,12 +129,12 @@
         margin-right: 8px;
     }
 
-    .navbar-brand span {
-        font-size: 1rem !important;
-        vertical-align: middle;
-    }
-
     .navbar-brand {
         font-size: 1rem !important;
+
+        span {
+            font-size: 1rem !important;
+            vertical-align: middle;
+        }
     }
 </style>

@@ -30,7 +30,7 @@
         </div>
     </div>
 </template>
-<style scoped>
+<style scoped lang="scss">
     .sidebar {
         position: absolute;
         top: 0;
@@ -38,6 +38,14 @@
         z-index: 999999;
         transition: transform 0.7s;
         width: 500px;
+
+        &.open {
+            transform: translateX(0px);
+        }
+
+        &.closed {
+            transform: translateX(400px);
+        }
     }
 
     .sidebar-content {
@@ -54,14 +62,6 @@
         width: 100%;
     }
 
-    .sidebar.open {
-        transform: translateX(0px);
-    }
-
-    .sidebar.closed {
-        transform: translateX(400px);
-    }
-
     .sidebar-toggler {
         position: absolute;
         width: 40px;
@@ -76,24 +76,24 @@
         box-shadow: -2px 1px 6px 0px rgba(0, 0, 0, 0.5);
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
-    }
 
-    .sidebar-toggler i {
-        line-height: inherit;
-        vertical-align: middle;
-        cursor: pointer;
-        transition: 0.5s;
-        padding-left: 10px;
-        padding-right: 10px;
-        border-left: 2px solid rgba(255, 255, 255, 0.7);
-    }
+        i {
+            line-height: inherit;
+            vertical-align: middle;
+            cursor: pointer;
+            transition: 0.5s;
+            padding-left: 10px;
+            padding-right: 10px;
+            border-left: 2px solid rgba(255, 255, 255, 0.7);
 
-    .sidebar-toggler i.closed {
-        transform: rotate(-180deg);
-    }
+            &.closed {
+                transform: rotate(-180deg);
+            }
 
-    .sidebar-toggler i.open {
-        transform: rotate(180deg);
+            &.open {
+                transform: rotate(180deg);
+            }
+        }
     }
 
     .sidebar-content-header {
@@ -159,16 +159,13 @@
             height: 40px;
             text-align: right;
             z-index: 9999;
-        }
 
-        .toggler i {
-            margin-top: 15px;
-            margin-right: 25px;
-            cursor: pointer;
-        }
-
-        .toggler i {
-            z-index: 9999;
+            i {
+                margin-top: 15px;
+                margin-right: 25px;
+                cursor: pointer;
+                z-index: 9999;
+            }
         }
 
         .full-screen-sidebar-footer.hide, .full-screen-sidebar-footer.hide .toggler {

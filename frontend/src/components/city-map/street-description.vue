@@ -5,7 +5,7 @@
                 <div class="row">
                     <div class="col-12">
                         <h1 class="name">{{street.name}}</h1>
-                        <h2 class="old-name" v-if="street.oldName">{{constants.oldStreetNameCaption}}: {{street.oldName}}</h2>
+                        <span class="old-name" v-if="street.oldName">({{constants.oldStreetNameCaption}}: {{street.oldName}})</span>
                     </div>
                 </div>
             </div>
@@ -104,6 +104,7 @@
 
         .old-name {
             margin-top: 5px;
+            font-weight: 400;
         }
 
         h4 {
@@ -155,16 +156,6 @@
         }
     }
 
-    .named-entity-image {
-        background-position: top;
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-color: #e5e5e5;
-        height: 100%;
-        width: 100%;
-        border-radius: 0;
-    }
-
     .street {
         margin-top: 15px;
 
@@ -180,24 +171,18 @@
 
     .description-footer .footer-border{
         padding-top: 15px;
-        border-top: 1px solid #939697;
+        border-top: 1px solid #bec0c0;
     }
 
     .named-entity {
-        &:not(:last-child) .description-border {
-            border-bottom: 1px solid #939697;
-        }
+        margin-top: 15px;
 
-        &:not(:first-child) {
-            margin-top: 15px;
+        &:not(:last-child) .description-border {
+            border-bottom: 1px solid #bec0c0;
         }
 
         &:only-child .description-border {
             border-bottom: none;
-        }
-
-        &:first-child {
-            margin-top: 10px;
         }
 
         .image-container {

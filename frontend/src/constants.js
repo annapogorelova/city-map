@@ -70,7 +70,8 @@ export default Object.freeze({
     STRINGS: {
         NO_STREET_INFO: "На жаль, на даний момент відсутні дані про назву цієї вулиці.",
         NO_STREET_FOUND: "Тут не було знайдено жодної вулиці.",
-        CHOOSE_THE_STREET: "Оберіть вулицю, щоб отримати інформацію про її назву.",
+        CHOOSE_THE_STREET: "Оберіть на карті вулицю, щоб отримати інформацію про її назву.",
+        HOW_TO_CHOOSE_STREET: "Щоб обрати вулицю поставте маркер на карті у будь якому місці вулиці, або здійсніть пошук вулиці по назві.",
         SEARCHING: "Шукаємо...",
         NAMED_AFTER: "Назва на честь",
         STREET_NAME: "Назва вулиці",
@@ -82,6 +83,9 @@ export default Object.freeze({
         STREET_ON_WIKIPEDIA: "Ця вулиця на Wikipedia",
         HIDE_DETAILS: "Сховати деталі",
         SHOW_DETAILS: "Показати деталі",
-        CATEGORIES: "Категорії"
+        CATEGORIES: "Категорії",
+        SEARCH_PLACEHOLDER: "Введіть назву та натисніть Enter",
+        SEARCH_LABEL: "Пошук вулиці по назві:",
+        HIDE: "Сховати"
     }
 });

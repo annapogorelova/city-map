@@ -4,8 +4,9 @@ export default {
     computed: {
         constants: function () {
             return {
-                noStreetFoundCaption: constants.STRINGS.NO_STREET_INFO,
+                noStreetInfoCaption: constants.STRINGS.NO_STREET_INFO,
                 chooseStreetCaption: constants.STRINGS.CHOOSE_THE_STREET,
+                howToChooseStreet: constants.STRINGS.HOW_TO_CHOOSE_STREET,
                 searchingCaption: constants.STRINGS.SEARCHING,
                 namedAfterCaption: constants.STRINGS.NAMED_AFTER,
                 streetNameCaption: constants.STRINGS.STREET_NAME,
@@ -17,7 +18,10 @@ export default {
                 wikipediaLinkCaption: constants.STRINGS.WIKIPEDIA_LINK_CAPTION,
                 streetInformationCaption: constants.STRINGS.STREET_INFORMATION,
                 streetOnWikipediaCaption: constants.STRINGS.STREET_ON_WIKIPEDIA,
-                categoriesCaption: constants.STRINGS.CATEGORIES
+                categoriesCaption: constants.STRINGS.CATEGORIES,
+                searchPlaceholder: constants.STRINGS.SEARCH_PLACEHOLDER,
+                searchLabel: constants.STRINGS.SEARCH_LABEL,
+                hide: constants.STRINGS.HIDE
             };
         }
     }

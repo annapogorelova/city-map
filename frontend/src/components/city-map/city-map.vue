@@ -12,17 +12,14 @@
                            :zoom="zoom"></basic-map>
                 <sidebar ref="sidebar" :width="400" :height="mapHeight">
                     <template slot="header">
-                        <div class="row">
-                            <div class="col-12">
-                                <h1 v-if="city">{{city.name}}</h1>
-                            </div>
-                        </div>
                         <div class="row sidebar-section">
                             <div class="col-12">
                                 <div class="search-container" v-on:click.stop>
+                                    <label for="streetSearchInput">{{constants.searchLabel}}</label>
                                     <search ref="search"
                                             v-on:search="onSearchStreet"
-                                            v-bind:placeholder="constants.streetNameCaption"></search>
+                                            v-bind:inputId="'streetSearchInput'"
+                                            v-bind:placeholder="constants.searchPlaceholder"></search>
                                 </div>
                             </div>
                         </div>
@@ -33,13 +30,13 @@
                                 <street-description :street="selectedStreet"></street-description>
                             </div>
                         </div>
-                        <div class="row sidebar-section" v-if="!selectedStreet">
-                            <div class="col-12">
-                                <p v-if="!searchInProgress && coordinates.length" class="no-margins">
-                                    {{constants.noStreetFoundCaption}}
-                                </p>
-                                <p v-if="!searchInProgress && !coordinates.length" class="no-margins">
+                        <div class="row sidebar-section">
+                            <div class="col-12" v-if="!selectedStreet">
+                                <p v-if="!searchInProgress">
                                     {{constants.chooseStreetCaption}}
+                                </p>
+                                <p v-if="!searchInProgress" class="text-muted">
+                                    {{constants.howToChooseStreet}}
                                 </p>
                                 <div v-if="searchInProgress">
                                     <span class="search-caption">{{constants.searchingCaption}}</span>
@@ -127,6 +124,10 @@
 
     .search-container {
         width: 100%;
+
+        label {
+            margin-bottom: 5px;
+        }
     }
 
     .sidebar-footer {
@@ -176,6 +177,10 @@
         .sidebar-footer .street-description {
             max-height: 80px;
         }
+    }
+
+    p.text-muted {
+        font-size: 0.7rem !important;
     }
 </style>
 <script>
@@ -326,10 +331,6 @@
                 ]).then((data) => {
                     this.setCoordinates(data[0]);
                     this.setMarker(this.coordinates, this.cityId);
-                }).catch(() => {
-                    this.noticesService.error(
-                        constants.NOTICES.FAILED_TO_GET_LOCATION.title,
-                        constants.NOTICES.FAILED_TO_GET_LOCATION.message);
                 });
             },
             getLocation: function () {
@@ -507,7 +508,7 @@
                 this.setMarker(this.coordinates, this.cityId);
             },
             onLocationError() {
-                this.noticesService.error(
+                this.noticesService.warning(
                     constants.NOTICES.FAILED_TO_GET_LOCATION.title,
                     constants.NOTICES.FAILED_TO_GET_LOCATION.message
                 )

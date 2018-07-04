@@ -503,13 +503,13 @@ describe("CityMap test", () => {
     it("should display notice when map emits 'locationerror' event", (done) => {
         let wrapper = createWrapper();
 
-        let noticesServiceErrorSpy = sinon.spy(wrapper.vm.noticesService, "error");
+        let noticesServiceWarningSpy = sinon.spy(wrapper.vm.noticesService, "warning");
 
         wrapper.vm.$refs.map.$emit("locationerror");
 
-        expect(noticesServiceErrorSpy.calledOnce).to.equal(true);
+        expect(noticesServiceWarningSpy.calledOnce).to.equal(true);
 
-        noticesServiceErrorSpy.restore();
+        noticesServiceWarningSpy.restore();
 
         done();
     });
@@ -753,27 +753,23 @@ describe("CityMap test", () => {
         })();
     });
 
-    it("should catch the rejected location and show notice", (done) => {
+    it("should not set coordinates when location regected", (done) => {
         (async () => {
+            let wrapper = createWrapper();
+            wrapper.vm.city = testCities[0];
+            let getLocationStub = sinon.stub(wrapper.vm, "getLocation").rejects();
+            let cityDeferSpy = sinon.stub(wrapper.vm.cityDefer, "promisify");
+            let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
+            let noticeErrorSpy = sinon.spy(wrapper.vm.noticesService, "error");
+            let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
+
             try {
-                let wrapper = createWrapper();
-                wrapper.vm.city = testCities[0];
-                const coordinates = testCities[0].coordinates;
-                let getLocationStub = sinon.stub(wrapper.vm, "getLocation").rejects();
-                let cityDeferSpy = sinon.stub(wrapper.vm.cityDefer, "promisify");
-                let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
-                let noticeErrorSpy = sinon.spy(wrapper.vm.noticesService, "error");
-                let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
-
                 await wrapper.vm.init();
-
+            } catch (e) {
                 expect(getLocationStub.calledOnce).to.equal(true);
                 expect(cityDeferSpy.calledOnce).to.equal(true);
                 expect(setCoordinatesSpy.notCalled).to.equal(true);
                 expect(setMarkerSpy.notCalled).to.equal(true);
-                expect(noticeErrorSpy.calledOnceWith(
-                    constants.NOTICES.FAILED_TO_GET_LOCATION.title,
-                    constants.NOTICES.FAILED_TO_GET_LOCATION.message)).to.equal(true);
 
                 getLocationStub.restore();
                 cityDeferSpy.restore();
@@ -782,8 +778,6 @@ describe("CityMap test", () => {
                 setCoordinatesSpy.restore();
 
                 done();
-            } catch (e) {
-                console.log(e)
             }
         })();
     });

@@ -3,7 +3,9 @@
         <transition-group name="list" tag="div">
             <div v-for="(notice, i) in notices" v-bind:key="i" v-on:click="deleteByIndex(i)"
                  v-bind:class="['notice notice-' + notice.type]">
-                <i class="fa fa-times float-right" v-on:click="deleteByIndex(i)"></i>
+                <a :title="constants.hide" :aria-label="constants.hide" v-on:click="deleteByIndex(i)">
+                    <i class="fa fa-times float-right"></i>
+                </a>
                 <div class="notice-title">{{ notice.title }}</div>
                 <div class="notice-text">{{ notice.text }}</div>
             </div>
@@ -11,6 +13,8 @@
     </div>
 </template>
 <script>
+    import {ConstantsMixin} from "../../mixins/index"
+
     export default {
         props: {
             deleteInterval: {
@@ -22,6 +26,7 @@
                 default: 3000
             }
         },
+        mixins: [ConstantsMixin],
         data: function () {
             return {
                 notices: [],

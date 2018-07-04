@@ -1,10 +1,10 @@
 <template>
     <div class="input-group">
         <input type="text" v-bind:placeholder="placeholder"
+               :id="'#' + inputId"
                class="form-control form-control-sm"
                v-model="search"
-               v-on:keyup.enter="onSearch"
-               aria-labelledby="Назва вулиці"/>
+               v-on:keyup.enter="onSearch"/>
         <span class="input-group-btn">
             <button class="btn btn-outline-success btn-sm btn-search" type="button" v-on:click="onSearch" aria-label="Шукати вулицю">
                 <i class="fa fa-search"></i>
@@ -21,6 +21,10 @@
 <script>
     export default {
         props: {
+            inputId: {
+                type: String,
+                default: "searchField"
+            },
             placeholder: {
                 type: String,
                 default: "Шукати..."

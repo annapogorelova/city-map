@@ -97,7 +97,7 @@
     }
 
     .sidebar-content-header {
-        border-bottom: 1px solid #939697;
+        border-bottom: 1px solid #bec0c0;
         padding-bottom: 15px;
         padding-left: 5px;
         padding-right: 5px;

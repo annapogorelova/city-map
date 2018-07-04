@@ -53,7 +53,7 @@ describe("StreetDescription test", () => {
             attachToDocument: true
         });
 
-        expect(wrapper.find(".named-entity-container").exists()).to.equal(true);
+        expect(wrapper.find(".named-entity").exists()).to.equal(true);
 
         done();
     });

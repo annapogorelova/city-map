@@ -24,6 +24,10 @@ router.beforeEach((to, from, next) => {
     } else {
         next();
     }
+
+    if(!dc.get("screenSize").isLarge()) {
+        $(".navbar-collapse").collapse("hide");
+    }
 });
 
 export default router;

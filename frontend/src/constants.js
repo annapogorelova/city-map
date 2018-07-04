@@ -59,7 +59,8 @@ export default Object.freeze({
         CITIES: "Міста",
         STREETS: "Вулиці",
         NAMED_ENTITES: "Персони",
-        CONTACT: "Написати автору"
+        CONTACT: "Написати автору",
+        ABOUT: "Про проект"
     },
     VALIDATION_MESSAGES: {
         NAME_INVALID: "Вкажіть будь ласка ваше ім'я (щонайменше 2 літери)",

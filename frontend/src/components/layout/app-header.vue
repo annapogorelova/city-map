@@ -22,6 +22,9 @@
                     <router-link class="nav-link" to="/admin/named-entities">{{namedEntitiesHeader}}</router-link>
                 </li>
                 <li class="nav-item">
+                    <router-link class="nav-link" to="/about">{{aboutHeader}}</router-link>
+                </li>
+                <li class="nav-item">
                     <router-link class="nav-link" to="/contact">{{contactHeader}}</router-link>
                 </li>
                 <li class="nav-item" v-if="isAuthenticated">
@@ -59,6 +62,7 @@
             streetsHeader: () => constants.HEADERS.STREETS,
             namedEntitiesHeader: () => constants.HEADERS.NAMED_ENTITES,
             contactHeader: () => constants.HEADERS.CONTACT,
+            aboutHeader: () => constants.HEADERS.ABOUT,
             logo: function () {
                 return require("../../../static/images/logo.png");
             }

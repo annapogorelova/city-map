@@ -5,6 +5,7 @@ import StreetsList from "../components/admin/streets-list";
 import NamedEntitiesList from "../components/admin/named-entities-list";
 import NotFoundPageComponent from "../components/shared/not-found";
 import ContactComponent from "../components/contact/contact";
+import AboutComponent from "../components/about/about";
 import appConfig from "../app.config";
 
 const routes = [
@@ -71,6 +72,16 @@ const routes = [
             dependsOnCity: false
         },
         component: ContactComponent
+    },
+    {
+        path: "/about",
+        name: "about",
+        meta: {
+            requiresAuth: false,
+            showHeader: true,
+            dependsOnCity: false
+        },
+        component: AboutComponent
     },
     {
         path: "*",

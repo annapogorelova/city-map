@@ -143,9 +143,10 @@ describe('AppHeader test', () => {
         expect(brand.element.innerText).to.equal(appConfig.appName);
 
         const navItems = wrapper.findAll(".nav-link");
-        expect(navItems.wrappers.length).to.equal(2);
+        expect(navItems.wrappers.length).to.equal(3);
         expect(navItems.wrappers[0].element.innerText.trim().replace("\n", "")).to.equal(testCity.name);
-        expect(navItems.wrappers[1].element.innerText).to.equal(constants.HEADERS.CONTACT);
+        expect(navItems.wrappers[1].element.innerText).to.equal(constants.HEADERS.ABOUT);
+        expect(navItems.wrappers[2].element.innerText).to.equal(constants.HEADERS.CONTACT);
     });
 
     it("should have all headers that are valid for the unauthorized state", () => {
@@ -168,11 +169,12 @@ describe('AppHeader test', () => {
         expect(brand.element.innerText).to.equal(appConfig.appName);
 
         const navItems = wrapper.findAll(".nav-link");
-        expect(navItems.wrappers.length).to.equal(5);
+        expect(navItems.wrappers.length).to.equal(6);
         expect(navItems.wrappers[0].element.innerText.trim().replace("\n", "")).to.equal(testCity.name);
         expect(navItems.wrappers[1].element.innerText).to.equal(constants.HEADERS.STREETS);
         expect(navItems.wrappers[2].element.innerText).to.equal(constants.HEADERS.NAMED_ENTITES);
-        expect(navItems.wrappers[3].element.innerText).to.equal(constants.HEADERS.CONTACT);
+        expect(navItems.wrappers[3].element.innerText).to.equal(constants.HEADERS.ABOUT);
+        expect(navItems.wrappers[4].element.innerText).to.equal(constants.HEADERS.CONTACT);
 
         authServiceStub.reset();
     });

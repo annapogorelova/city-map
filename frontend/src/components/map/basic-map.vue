@@ -69,7 +69,7 @@
             },
             zoom: {
                 type: Number,
-                default: 8,
+                default: 10,
             },
             focusZoom: {
                 type: Number,

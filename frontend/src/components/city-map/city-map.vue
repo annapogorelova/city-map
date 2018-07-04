@@ -399,7 +399,8 @@
                 });
             },
             setMapView(coordinates) {
-                this.map.setView(coordinates, this.focusZoom);
+                const currentZoom = this.map.getZoom();
+                this.map.setView(coordinates, currentZoom >= this.focusZoom ? currentZoom : this.focusZoom);
             },
             setCoordinates(coordinates) {
                 this.coordinates = coordinates.length ?

@@ -65,7 +65,9 @@
             <div class="row street" v-if="street.description">
                 <div class="col-12">
                     <h2>{{constants.streetInformationCaption}}</h2>
-                    <p>{{street.description}}</p>
+                    <div>
+                        <p v-for="paragraph in street.description.split('\n')">{{paragraph}}</p>
+                    </div>
                 </div>
             </div>
         </div>

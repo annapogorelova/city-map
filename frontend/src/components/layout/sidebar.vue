@@ -37,7 +37,7 @@
         right: 0;
         z-index: 999999;
         transition: transform 0.7s;
-        width: 500px;
+        width: 400px;
 
         &.open {
             transform: translateX(0px);
@@ -109,13 +109,13 @@
         padding-right: 5px;
     }
 
-    @media (min-width: 601px) {
+    @media (min-width: 768px), (max-width: 767px) and (orientation: landscape) {
         .sidebar-full-screen-toggler, .full-screen-sidebar-footer {
             display: none;
         }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 767px) and (orientation: portrait) {
         .sidebar-container, .sidebar {
             width: 100% !important;
         }

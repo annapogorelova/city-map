@@ -29,7 +29,7 @@
         overflow: hidden;
     }
 
-    @media(max-width: 600px) {
+    @media (max-width: 767px) and (orientation: portrait) {
         .footer {
             width: 100%;
             border-right: none;

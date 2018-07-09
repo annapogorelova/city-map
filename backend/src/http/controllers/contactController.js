@@ -9,6 +9,13 @@ function makeContactController(reCaptchaService, mailService) {
         sendMessage
     });
 
+    /**
+     * Send "contact me" message
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async function sendMessage(req, res, next) {
         try {
             const formData = req.body;
@@ -41,6 +48,10 @@ function makeContactController(reCaptchaService, mailService) {
         }
     }
 
+    /**
+     * Validate contact form data
+     * @param formData
+     */
     function validateFormData(formData) {
         if(!isNameValid(formData.name) || !isEmailValid(formData.email)
             || !isMessageValid(formData.message) || !formData.reCaptchaToken) {
@@ -48,14 +59,29 @@ function makeContactController(reCaptchaService, mailService) {
         }
     }
 
+    /**
+     * Validates sender name
+     * @param name
+     * @returns {*|boolean}
+     */
     function isNameValid(name) {
         return name && name.length >= config.defaults.minEmailSenderNameLength;
     }
 
+    /**
+     * Validates sender email
+     * @param email
+     * @returns {*|boolean}
+     */
     function isEmailValid(email) {
         return email && commonConstants.emailRegex.test(String(email).toLowerCase());
     }
 
+    /**
+     * Validates message
+     * @param message
+     * @returns {*|boolean}
+     */
     function isMessageValid(message) {
         return message && message.length >= config.defaults.minEmailTextLength;
     }

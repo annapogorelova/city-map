@@ -3,16 +3,36 @@
 const config = require("config");
 const httpConstants = require("../../app/constants/httpConstants");
 
+/**
+ * Makes auth controller
+ * @param userService
+ * @param jwtService
+ * @returns {Readonly<{postAuth: postAuth, expireAuth: (function(*, *): *)}>}
+ */
 function makeAuthController(userService, jwtService) {
     return Object.freeze({
         postAuth,
         expireAuth
     });
 
+    /**
+     * Issues jwt token
+     * @param payload
+     * @param secret
+     * @param expiresIn
+     * @returns {*}
+     * @private
+     */
     function _issueToken(payload, secret, expiresIn) {
         return jwtService.sign(payload, secret, {expiresIn: expiresIn});
     }
 
+    /**
+     * Authenticates user by credentials, sets cookie to response
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     */
     async function postAuth(req, res) {
         try {
             const user = await userService.getByEmail(req.body.email);
@@ -58,6 +78,12 @@ function makeAuthController(userService, jwtService) {
         }
     }
 
+    /**
+     * Signs the user out
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     */
     async function expireAuth(req, res) {
         return res.cookie(config.security.headerName, "")
             .status(httpConstants.statusCodes.NO_CONTENT)

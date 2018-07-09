@@ -3,6 +3,12 @@
 const config = require("config");
 const httpConstants = require("../../app/constants/httpConstants");
 
+/**
+ * Makes named entity controller
+ * @param namedEntityService
+ * @param mapper
+ * @returns {Readonly<{search: (function(*, *): *), create: create, update: update, remove: remove}>}
+ */
 function makeNamedEntityController(namedEntityService, mapper) {
     return Object.freeze({
         search,
@@ -11,6 +17,12 @@ function makeNamedEntityController(namedEntityService, mapper) {
         remove
     });
 
+    /**
+     * Search named entities with pagination
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     */
     async function search(req, res) {
         const search = req.query.search;
         const offset = parseInt(req.query.offset) || 0;
@@ -24,6 +36,13 @@ function makeNamedEntityController(namedEntityService, mapper) {
         return res.json({data: models, count: count});
     }
 
+    /**
+     * Create named entity
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async function create(req, res, next) {
         const namedEntity = req.body;
 
@@ -37,6 +56,13 @@ function makeNamedEntityController(namedEntityService, mapper) {
         }
     }
 
+    /**
+     * Update a named entity
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async function update(req, res, next) {
         const id = parseInt(req.params.id);
         const namedEntity = req.body;
@@ -51,6 +77,13 @@ function makeNamedEntityController(namedEntityService, mapper) {
         }
     }
 
+    /**
+     * Remove a named entity
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async function remove(req, res, next) {
         const id = parseInt(req.params.id);
 

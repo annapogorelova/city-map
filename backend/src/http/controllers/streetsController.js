@@ -3,6 +3,12 @@
 const config = require("config");
 const constants = require("../../app/constants/httpConstants");
 
+/**
+ * Makes streets controller
+ * @param streetService
+ * @param mapper
+ * @returns {Readonly<{searchCityStreets: searchCityStreets, searchStreetsByCoordinates: searchStreetByCoordinates, update: update}>}
+ */
 function makeStreetsController(streetService, mapper) {
     return Object.freeze({
         searchCityStreets,
@@ -10,6 +16,13 @@ function makeStreetsController(streetService, mapper) {
         update
     });
 
+    /**
+     * Search streets by city and name
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async function searchCityStreets(req, res, next) {
         try {
             const search = req.query.search;
@@ -29,6 +42,13 @@ function makeStreetsController(streetService, mapper) {
         }
     }
 
+    /**
+     * Search closest street by coordinates
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async function searchStreetByCoordinates(req, res, next) {
         try {
             const street = await streetService.searchByCoordinates({
@@ -48,6 +68,13 @@ function makeStreetsController(streetService, mapper) {
         }
     }
 
+    /**
+     * Update a street
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async function update(req, res, next) {
         const id = parseInt(req.params.id);
         const street = req.body;

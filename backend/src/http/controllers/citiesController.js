@@ -3,6 +3,12 @@
 const constants = require("../../app/constants/httpConstants");
 const config = require("config");
 
+/**
+ * Makes cities controller
+ * @param cityService
+ * @param mapper
+ * @returns {Readonly<{getCity: getCity, createCity: createCity, searchCities: (function(*, *): *)}>}
+ */
 function makeCitiesController(cityService, mapper) {
     return Object.freeze({
         getCity,
@@ -10,6 +16,13 @@ function makeCitiesController(cityService, mapper) {
         searchCities
     });
 
+    /**
+     * Get city by id
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<*>}
+     */
     async function getCity(req, res, next) {
         let params = req.params;
         let id = parseInt(params.id);
@@ -27,6 +40,12 @@ function makeCitiesController(cityService, mapper) {
         }
     }
 
+    /**
+     * Create city
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     */
     async function createCity(req, res) {
         let model = req.body;
 
@@ -41,6 +60,12 @@ function makeCitiesController(cityService, mapper) {
         return res.json({data: createdCityModel});
     }
 
+    /**
+     * Search cities with pagination
+     * @param req
+     * @param res
+     * @returns {Promise<*>}
+     */
     async function searchCities(req, res) {
         const limit = parseInt(req.query.limit) || config.defaults.pageLimit;
         const isPublished = req.user ? null : true;

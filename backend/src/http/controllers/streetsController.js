@@ -6,7 +6,7 @@ const constants = require("../../app/constants/httpConstants");
 function makeStreetsController(streetService, mapper) {
     return Object.freeze({
         searchCityStreets,
-        searchStreetsByCoordinates,
+        searchStreetsByCoordinates: searchStreetByCoordinates,
         update
     });
 
@@ -29,7 +29,7 @@ function makeStreetsController(streetService, mapper) {
         }
     }
 
-    async function searchStreetsByCoordinates(req, res, next) {
+    async function searchStreetByCoordinates(req, res, next) {
         try {
             const street = await streetService.searchByCoordinates({
                 cityId: parseInt(req.query.cityId),

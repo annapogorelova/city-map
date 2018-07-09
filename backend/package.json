@@ -1,6 +1,6 @@
 {
   "name": "city-map-backend",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node $NODE_DEBUG_OPTION ./bin/www --arguments",
@@ -10,7 +10,8 @@
     "update-named-entities-dev": "export NODE_ENV=dev && node ./src/lib/scripts/namedEntitiesUpdater.js",
     "update-named-entities-test": "export NODE_ENV=test && node ./src/lib/scripts/namedEntitiesUpdater.js",
     "lint": "./node_modules/.bin/eslint --fix ./src",
-    "debug": "node --nolazy --inspect=56745 ./bin/www"
+    "debug": "node --nolazy --inspect=56745 ./bin/www",
+    "generate-api-docs": "rm -rf ./apidoc/ && apidoc -i ./src/http/ -o apidoc/"
   },
   "nyc": {
     "exclude": [

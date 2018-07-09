@@ -1,0 +1,10 @@
+{
+  "name": "StreetInfo",
+  "version": "1.0.0",
+  "description": "StreetInfo backend project API.",
+  "title": "StreetInfo backend project API.",
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  }
+}

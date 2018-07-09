@@ -241,7 +241,7 @@ describe("named entities route test", () => {
 
             request
                 .end(async (err, res) => {
-                    assert.equal(res.status, httpConstants.statusCodes.OK);
+                    assert.equal(res.status, httpConstants.statusCodes.NO_CONTENT);
                     const namedEntity = await db.namedEntity.findById(createdNamedEntity.id);
                     assert.notExists(namedEntity);
 

@@ -57,8 +57,8 @@ function makeNamedEntityController(namedEntityService, mapper) {
         try {
             await namedEntityService.remove(id);
             return res
-                .status(httpConstants.statusCodes.OK)
-                .send({ message: "Named entity was deleted." });
+                .status(httpConstants.statusCodes.NO_CONTENT)
+                .send();
         } catch (error) {
             next(error);
         }

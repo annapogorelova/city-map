@@ -1,7 +1,7 @@
 "use strict";
 
 const config = require("config");
-const constants = require("../../app/constants/httpConstants");
+const httpConstants = require("../../app/constants/httpConstants");
 
 function makeAuthController(userService, jwtService) {
     return Object.freeze({
@@ -18,8 +18,8 @@ function makeAuthController(userService, jwtService) {
             const user = await userService.getByEmail(req.body.email);
             if (!user) {
                 return res
-                    .status(constants.statusCodes.UNAUTHORIZED)
-                    .send({message: constants.messages.UNAUTHORIZED});
+                    .status(httpConstants.statusCodes.UNAUTHORIZED)
+                    .send({message: httpConstants.messages.UNAUTHORIZED});
             }
 
             const isPasswordValid = await userService.isPasswordValid(req.body.password, user.password);
@@ -47,19 +47,21 @@ function makeAuthController(userService, jwtService) {
                         }
                     });
             } else {
-                return res.status(constants.statusCodes.UNAUTHORIZED).send({
-                    message: constants.messages.UNAUTHORIZED
+                return res.status(httpConstants.statusCodes.UNAUTHORIZED).send({
+                    message: httpConstants.messages.UNAUTHORIZED
                 });
             }
         } catch (error) {
-            return res.status(constants.statusCodes.INTERNAL_SERVER_ERROR).send({
-                message: constants.messages.PROBLEM_AUTHORIZING
+            return res.status(httpConstants.statusCodes.INTERNAL_SERVER_ERROR).send({
+                message: httpConstants.messages.PROBLEM_AUTHORIZING
             });
         }
     }
 
     async function expireAuth(req, res) {
-        return res.cookie(config.security.headerName, "").send({});
+        return res.cookie(config.security.headerName, "")
+            .status(httpConstants.statusCodes.NO_CONTENT)
+            .send();
     }
 }
 

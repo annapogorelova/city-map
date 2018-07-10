@@ -177,7 +177,7 @@
     }
 
     .named-entity {
-        margin-top: 15px;
+        margin-top: 10px;
 
         &:not(:last-child) .description-border {
             border-bottom: 1px solid #bec0c0;

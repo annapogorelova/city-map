@@ -69,7 +69,7 @@
         font-size: 0.9rem;
     }
 
-    @media(max-width: 320px) {
+    @media(max-width: 767px) {
         h1 {
             font-size: 1rem !important;
         }

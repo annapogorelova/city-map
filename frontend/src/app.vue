@@ -83,7 +83,7 @@
         }
 
         h6 {
-            font-size: 0.7rem !important;
+            font-size: 0.8rem !important;
         }
 
         p, label, input, textarea, span, .badge, .form-control, li {

@@ -61,8 +61,8 @@
                                     <div class="col-12">
                                         <h2 v-if="selectedStreet">{{selectedStreet.name}}</h2>
                                         <div v-if="activeNamedEntityTitle">
-                                            <h4 class="named-entity-name"><b>{{constants.namedAfterCaption}}:</b>
-                                                {{activeNamedEntityTitle}}</h4>
+                                            <h2 class="named-entity-name"><b>{{constants.namedAfterCaption}}:</b>
+                                                {{activeNamedEntityTitle}}</h2>
                                         </div>
                                     </div>
                                 </div>
@@ -157,6 +157,10 @@
 
             p {
                 white-space: normal;
+            }
+
+            h2 {
+                font-size: 0.9rem !important;
             }
         }
     }

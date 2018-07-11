@@ -44,7 +44,7 @@ const routes = [
         component: CityMap
     },
     {
-        path: "/admin/streets",
+        path: "/dark/streets",
         name: "admin-streets",
         meta: {
             requiresAuth: true,
@@ -54,7 +54,7 @@ const routes = [
         component: StreetsList
     },
     {
-        path: "/admin/named-entities",
+        path: "/dark/named-entities",
         name: "admin-named-entities",
         meta: {
             requiresAuth: true,

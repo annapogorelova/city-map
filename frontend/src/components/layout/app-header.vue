@@ -16,10 +16,10 @@
                                  v-bind:preselect-default="true"></cities-list>
                 </li>
                 <li class="nav-item" v-if="isAuthenticated">
-                    <router-link class="nav-link" to="/admin/streets">{{streetsHeader}}</router-link>
+                    <router-link class="nav-link" to="/dark/streets">{{streetsHeader}}</router-link>
                 </li>
                 <li class="nav-item" v-if="isAuthenticated">
-                    <router-link class="nav-link" to="/admin/named-entities">{{namedEntitiesHeader}}</router-link>
+                    <router-link class="nav-link" to="/dark/named-entities">{{namedEntitiesHeader}}</router-link>
                 </li>
                 <li class="nav-item">
                     <router-link class="nav-link" to="/about">{{aboutHeader}}</router-link>

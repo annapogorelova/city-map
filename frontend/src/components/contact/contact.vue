@@ -178,7 +178,7 @@
                 return typeof value === "string" && value !== "" && (!minLength || value.length >= minLength);
             },
             isNameValid: function (name, minLength) {
-                return this.isStringValid(name, minLength) && /^[\u0400-\u04FFa-zA-Z.'-\s]{2,}$/.test(name.toLowerCase());
+                return this.isStringValid(name, minLength) && /^[\u0400-\u04FFa-zA-Z.,'-\s]{2,}$/.test(name.toLowerCase());
             },
             isEmailValid: function (email) {
                 const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

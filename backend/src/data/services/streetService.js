@@ -68,7 +68,7 @@ function makeStreetService(db) {
         });
     }
 
-    async function searchByCoordinates({cityId, lat, lng, threshold = 0.0003}) {
+    async function searchByCoordinates({cityId, lat, lng, threshold = 0.0002}) {
         if(isNaN(cityId)) {
             throw new Error(errors.BAD_REQUEST.key);
         }

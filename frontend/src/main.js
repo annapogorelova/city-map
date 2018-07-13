@@ -9,6 +9,7 @@ import "../assets/css/fontawesome-all.min.css";
 import "../assets/css/tables.css";
 import dc from "./dependency-container";
 import "./filters/index";
+import "./directives/index";
 
 Vue.config.productionTip = false;
 Vue.prototype.$dc = dc;

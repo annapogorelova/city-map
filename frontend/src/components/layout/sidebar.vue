@@ -7,7 +7,8 @@
                    :title="isOpen ? constants.hideDetailsCaption : constants.showDetailsCaption "
                    v-on:click="toggle"></i>
             </div>
-            <div class="sidebar-content">
+            <div class="sidebar-content"
+                 v-on-swipe="onSwipeSidebarContent">
                 <div class="sidebar-full-screen-toggler">
                     <div class="toggler">
                         <i v-on:click="toggle" class="fa fa-chevron-down"
@@ -23,7 +24,10 @@
                 </div>
             </div>
         </div>
-        <div class="full-screen-sidebar-footer" :class="{'show': !isOpen, 'hide': isOpen}" :aria-label="constants.showDetailsCaption"
+        <div class="full-screen-sidebar-footer"
+             v-on-swipe-up="onSwipeSidebarFooter"
+             :class="{'show': !isOpen, 'hide': isOpen}"
+             :aria-label="constants.showDetailsCaption"
              :title="constants.showDetailsCaption">
             <div class="toggler" v-on:click="open">
                 <i class="fa fa-chevron-up"></i>
@@ -220,6 +224,21 @@
             toggle: function () {
                 this.isOpen = !this.isOpen;
                 this.$emit(this.isOpen ? "open" : "close");
+            },
+            onSwipeSidebarFooter: function () {
+                if(this.screenSizeService.isTouchDevice()) {
+                    this.open();
+                }
+            },
+            onSwipeSidebarContent: function (event) {
+                if(!this.screenSizeService.isTouchDevice()) {
+                    return;
+                }
+
+                if((this.screenSizeService.getWindowWidth() >= 768 && event.direction === "right") ||
+                    (this.screenSizeService.getWindowWidth() < 768 && event.direction === "down")) {
+                    this.close();
+                }
             }
         }
     }

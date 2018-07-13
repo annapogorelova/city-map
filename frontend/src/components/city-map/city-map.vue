@@ -169,7 +169,7 @@
             }
         }
 
-        @media(max-width: 360px) {
+        @media(max-width: 767px) {
             p.choose-street-caption {
                 margin-right: 25px;
             }

@@ -106,8 +106,8 @@
     }
 
     .app-navbar {
-        padding-top: 5px;
-        padding-bottom: 5px;
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
 
         .nav-link {
             color: rgba(255, 255, 255, 0.8) !important;

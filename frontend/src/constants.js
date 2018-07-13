@@ -87,6 +87,7 @@ export default Object.freeze({
         CATEGORIES: "Категорії",
         SEARCH_PLACEHOLDER: "Введіть назву та натисніть Enter",
         SEARCH_LABEL: "Пошук вулиці по назві:",
-        HIDE: "Сховати"
+        HIDE: "Сховати",
+        READ_DESCRIPTION: "Читати про вулицю"
     }
 });

@@ -10,7 +10,9 @@
             <div class="sidebar-content">
                 <div class="sidebar-full-screen-toggler">
                     <div class="toggler">
-                        <i v-on:click="toggle" class="fa fa-chevron-down" :title="constants.hideDetailsCaption" :aria-label="constants.hideDetailsCaption"></i>
+                        <i v-on:click="toggle" class="fa fa-chevron-down"
+                           :title="constants.hideDetailsCaption"
+                           :aria-label="constants.hideDetailsCaption"></i>
                     </div>
                 </div>
                 <div class="sidebar-content-header">
@@ -174,6 +176,12 @@
 
         .full-screen-sidebar-footer.show {
             z-index: 99998;
+        }
+    }
+
+    @media (max-width: 360px) and (orientation: portrait) {
+        .full-screen-sidebar-footer {
+            height: 140px !important;
         }
     }
 </style>

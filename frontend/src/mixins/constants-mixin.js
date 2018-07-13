@@ -21,7 +21,8 @@ export default {
                 categoriesCaption: constants.STRINGS.CATEGORIES,
                 searchPlaceholder: constants.STRINGS.SEARCH_PLACEHOLDER,
                 searchLabel: constants.STRINGS.SEARCH_LABEL,
-                hide: constants.STRINGS.HIDE
+                hide: constants.STRINGS.HIDE,
+                readDescription: constants.STRINGS.READ_DESCRIPTION
             };
         }
     }

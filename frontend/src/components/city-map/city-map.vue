@@ -50,19 +50,28 @@
                             <div class="col-12 sidebar-footer">
                                 <div class="row">
                                     <div class="col-12">
-                                        <h1>{{city ? city.name : constants.cityNotChosen}}</h1>
                                         <div class="search-in-progress" v-if="searchInProgress">
                                             <span class="search-caption">{{constants.searchingCaption}}</span>
                                             <i class="fas fa-circle-notch fa-spin"></i>
                                         </div>
+                                        <div v-if="!searchInProgress && !selectedStreet">
+                                            <p v-if="!searchInProgress" class="choose-street-caption">
+                                                {{constants.chooseStreetCaption}}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="row street-description">
-                                    <div class="col-12">
-                                        <h2 v-if="selectedStreet">{{selectedStreet.name}}</h2>
+                                    <div class="col-12" v-if="selectedStreet">
+                                        <h2>{{selectedStreet.name}}</h2>
                                         <div v-if="activeNamedEntityTitle">
                                             <h2 class="named-entity-name"><b>{{constants.namedAfterCaption}}:</b>
                                                 {{activeNamedEntityTitle}}</h2>
+                                        </div>
+                                        <div v-if="!activeNamedEntityTitle && selectedStreet.description">
+                                            <button type="button" class="btn btn-sm btn-outline-dark open-sidebar" v-on:click="sidebar.open">
+                                                {{constants.readDescription}}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -143,14 +152,6 @@
             font-weight: 400;
         }
 
-        p {
-            margin-bottom: 0;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            font-size: 0.9em;
-        }
-
         .street-description {
             max-height: 70px;
             overflow-y: auto;
@@ -160,7 +161,17 @@
             }
 
             h2 {
-                font-size: 0.9rem !important;
+                font-size: 1rem !important;
+            }
+
+            button.open-sidebar {
+                margin-top: 10px;
+            }
+        }
+
+        @media(max-width: 360px) {
+            p.choose-street-caption {
+                margin-right: 25px;
             }
         }
     }
@@ -170,16 +181,20 @@
     }
 
     .search-in-progress {
-        margin-top: 8px;
+        margin-top: 5px;
     }
 
     .search-caption {
         font-size: 1rem !important;
     }
 
-    @media (max-width: 320px) {
+    @media (max-width: 360px) {
         .sidebar-footer .street-description {
-            max-height: 80px;
+            max-height: 90px;
+
+            h2 {
+                margin-right: 20px;
+            }
         }
     }
 

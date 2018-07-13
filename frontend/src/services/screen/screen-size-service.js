@@ -34,4 +34,12 @@ export default class ScreenSizeService {
         const query = ['(', prefixes.join('touch-enabled),('), 'heartz', ')'].join('');
         return window.matchMedia(query).matches;
     }
+
+    isLandScape() {
+        return window.innerHeight < window.innerWidth;
+    }
+
+    isPortrait() {
+        return window.innerHeight > window.innerWidth;
+    }
 }

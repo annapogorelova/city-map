@@ -10,9 +10,8 @@ const swipeDirections = {
 
 Vue.directive("on-swipe-up", {
     inserted: function (el, bindings) {
-        const handler = bindings.value;
-        let hammer = new Hammer(el);
-
+        const handler = bindings.value.handler;
+        let hammer = new Hammer(el, bindings.value.options);
         hammer.get("swipe").set({ direction: Hammer.DIRECTION_VERTICAL });
         hammer.on("swipeup", () => handler());
     },
@@ -21,23 +20,10 @@ Vue.directive("on-swipe-up", {
     },
 });
 
-Vue.directive("on-swipe-down", {
-    inserted: function (el, bindings) {
-        const handler = bindings.value;
-        let hammer = new Hammer(el);
-
-        hammer.get("swipe").set({ direction: Hammer.DIRECTION_VERTICAL });
-        hammer.on("swipedown", () => handler());
-    },
-    unbind: function (el) {
-        Hammer(el).off("swipedown");
-    },
-});
-
 Vue.directive("on-swipe", {
     inserted: function (el, bindings) {
-        const handler = bindings.value;
-        let hammer = new Hammer(el);
+        const handler = bindings.value.handler;
+        let hammer = new Hammer(el, bindings.value.options);
         hammer.get("swipe").set({ direction: Hammer.DIRECTION_ALL });
         hammer.on("swipe", ({direction}) => handler({direction: swipeDirections[direction]}));
     },

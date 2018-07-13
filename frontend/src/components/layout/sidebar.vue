@@ -8,7 +8,7 @@
                    v-on:click="toggle"></i>
             </div>
             <div class="sidebar-content"
-                 v-on-swipe="onSwipeSidebarContent">
+                 v-on-swipe="{handler: onSwipeSidebarContent, options: {threshold: 5}}">
                 <div class="sidebar-full-screen-toggler">
                     <div class="toggler">
                         <i v-on:click="toggle" class="fa fa-chevron-down"
@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="full-screen-sidebar-footer"
-             v-on-swipe-up="onSwipeSidebarFooter"
+             v-on-swipe-up="{handler: onSwipeSidebarFooter, options: {threshold: 5}}"
              :class="{'show': !isOpen, 'hide': isOpen}"
              :aria-label="constants.showDetailsCaption"
              :title="constants.showDetailsCaption">
@@ -226,17 +226,25 @@
                 this.$emit(this.isOpen ? "open" : "close");
             },
             onSwipeSidebarFooter: function () {
+                console.log("swipe up")
                 if(this.screenSizeService.isTouchDevice()) {
                     this.open();
                 }
             },
             onSwipeSidebarContent: function (event) {
-                if(!this.screenSizeService.isTouchDevice()) {
+                if (!this.screenSizeService.isTouchDevice()) {
                     return;
                 }
 
-                if((this.screenSizeService.getWindowWidth() >= 768 && event.direction === "right") ||
-                    (this.screenSizeService.getWindowWidth() < 768 && event.direction === "down")) {
+                if (event.direction === "right") {
+                    if (this.screenSizeService.getWindowWidth() >= 768 ||
+                        (this.screenSizeService.getWindowWidth() < 768 &&
+                            this.screenSizeService.isLandScape())) {
+                        this.close();
+                    }
+                } else if (event.direction === "down" &&
+                    this.screenSizeService.getWindowWidth() < 768 &&
+                    this.screenSizeService.isPortrait()) {
                     this.close();
                 }
             }

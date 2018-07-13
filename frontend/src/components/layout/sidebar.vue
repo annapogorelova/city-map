@@ -7,8 +7,7 @@
                    :title="isOpen ? constants.hideDetailsCaption : constants.showDetailsCaption "
                    v-on:click="toggle"></i>
             </div>
-            <div class="sidebar-content"
-                 v-on-swipe="{handler: onSwipeSidebarContent, options: {threshold: 5}}">
+            <div class="sidebar-content">
                 <div class="sidebar-full-screen-toggler">
                     <div class="toggler">
                         <i v-on:click="toggle" class="fa fa-chevron-down"

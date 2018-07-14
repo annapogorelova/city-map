@@ -15,21 +15,25 @@
                            :aria-label="constants.hideDetailsCaption"></i>
                     </div>
                 </div>
-                <div class="sidebar-content-header">
+                <div class="sidebar-content-header"
+                     v-on-swipe-down="{handler: onSwipeSidebarHeaderDown, options: {threshold: 5}}">
                     <slot name="header"></slot>
                 </div>
-                <div class="sidebar-content-body">
+                <div class="sidebar-content-body"
+                     v-on-swipe-right="{handler: onSwipeSidebarContentRight, options: {threshold: 5}}">
                     <slot name="content"></slot>
                 </div>
             </div>
         </div>
         <div class="full-screen-sidebar-footer"
-             v-on-swipe-up="{handler: onSwipeSidebarFooter, options: {threshold: 5}}"
              :class="{'show': !isOpen, 'hide': isOpen}"
              :aria-label="constants.showDetailsCaption"
              :title="constants.showDetailsCaption">
-            <div class="toggler" v-on:click="open">
-                <i class="fa fa-chevron-up"></i>
+            <div class="swipe-toggler"
+                 v-on-swipe-up="{handler: onSwipeSidebarFooter, options: {threshold: 5, velocity: 0.2}}">
+                <div class="toggler" v-on:click="open">
+                    <i class="fa fa-chevron-up"></i>
+                </div>
             </div>
             <slot name="footer"></slot>
         </div>
@@ -53,6 +57,15 @@
         }
     }
 
+    .toggler {
+        width: 100px;
+        height: 40px;
+
+        i {
+            cursor: pointer;
+        }
+    }
+
     .sidebar-content {
         position: relative;
         padding: 15px 20px 15px 20px;
@@ -65,6 +78,22 @@
         overflow-x: hidden;
         opacity: 0.9;
         width: 100%;
+
+        .sidebar-full-screen-toggler {
+            .toggler {
+                position: absolute;
+                right: 0;
+                top: 0;
+                text-align: right;
+                z-index: 9999;
+
+                i {
+                    margin-top: 15px;
+                    margin-right: 25px;
+                    z-index: 9999;
+                }
+            }
+        }
     }
 
     .sidebar-toggler {
@@ -154,26 +183,34 @@
             -moz-box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
             box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
             opacity: 0.9;
-        }
 
-        .toggler {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 100px;
-            height: 40px;
-            text-align: right;
-            z-index: 9999;
+            .swipe-toggler {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                top: 0;
+                left: 0;
+                z-index: 99999;
 
-            i {
-                margin-top: 15px;
-                margin-right: 25px;
-                cursor: pointer;
-                z-index: 9999;
+                .toggler {
+                    float: right;
+                    right: 0;
+                    top: 0;
+                    text-align: right;
+                    z-index: 9999;
+
+                    i {
+                        margin-top: 15px;
+                        margin-right: 25px;
+                        z-index: 999999;
+                    }
+                }
             }
         }
 
-        .full-screen-sidebar-footer.hide, .full-screen-sidebar-footer.hide .toggler {
+        .full-screen-sidebar-footer.hide,
+        .full-screen-sidebar-footer.hide .swipe-toggler,
+        .full-screen-sidebar-footer.hide .swipe-toggler .toggler {
             z-index: 9999;
         }
 
@@ -225,25 +262,25 @@
                 this.$emit(this.isOpen ? "open" : "close");
             },
             onSwipeSidebarFooter: function () {
-                console.log("swipe up")
                 if(this.screenSizeService.isTouchDevice()) {
                     this.open();
                 }
             },
-            onSwipeSidebarContent: function (event) {
-                if (!this.screenSizeService.isTouchDevice()) {
+            onSwipeSidebarHeaderDown: function () {
+                if(this.screenSizeService.isTouchDevice() &&
+                    (this.screenSizeService.getWindowWidth() < 768 &&
+                    this.screenSizeService.isPortrait())) {
+                    this.close();
+                }
+            },
+            onSwipeSidebarContentRight: function () {
+                if(!this.screenSizeService.isTouchDevice()) {
                     return;
                 }
 
-                if (event.direction === "right") {
-                    if (this.screenSizeService.getWindowWidth() >= 768 ||
-                        (this.screenSizeService.getWindowWidth() < 768 &&
-                            this.screenSizeService.isLandScape())) {
-                        this.close();
-                    }
-                } else if (event.direction === "down" &&
-                    this.screenSizeService.getWindowWidth() < 768 &&
-                    this.screenSizeService.isPortrait()) {
+                if (this.screenSizeService.getWindowWidth() >= 768 ||
+                    (this.screenSizeService.getWindowWidth() < 768 &&
+                        this.screenSizeService.isLandScape())) {
                     this.close();
                 }
             }

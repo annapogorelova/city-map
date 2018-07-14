@@ -69,7 +69,8 @@
                                                 {{activeNamedEntityTitle}}</h2>
                                         </div>
                                         <div v-if="!activeNamedEntityTitle && selectedStreet.description">
-                                            <button type="button" class="btn btn-sm btn-outline-dark open-sidebar" v-on:click="sidebar.open">
+                                            <button type="button" class="btn btn-sm btn-outline-dark open-sidebar"
+                                                    v-on:click="sidebar.open">
                                                 {{constants.readDescription}}
                                             </button>
                                         </div>
@@ -242,7 +243,7 @@
             },
             topBarHeight: {
                 type: Number,
-                default: 60
+                default: 52
             }
         },
         data: function () {

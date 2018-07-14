@@ -20,6 +20,29 @@ Vue.directive("on-swipe-up", {
     },
 });
 
+Vue.directive("on-swipe-down", {
+    inserted: function (el, bindings) {
+        const handler = bindings.value.handler;
+        let hammer = new Hammer(el, bindings.value.options);
+        hammer.get("swipe").set({ direction: Hammer.DIRECTION_VERTICAL });
+        hammer.on("swipedown", () => handler());
+    },
+    unbind: function (el) {
+        Hammer(el).off("swipedown");
+    },
+});
+
+Vue.directive("on-swipe-right", {
+    inserted: function (el, bindings) {
+        const handler = bindings.value.handler;
+        let hammer = new Hammer(el, bindings.value.options);
+        hammer.on("swiperight", () => handler());
+    },
+    unbind: function (el) {
+        Hammer(el).off("swiperight");
+    },
+});
+
 Vue.directive("on-swipe", {
     inserted: function (el, bindings) {
         const handler = bindings.value.handler;

@@ -88,6 +88,6 @@ export default Object.freeze({
         SEARCH_PLACEHOLDER: "Введіть назву та натисніть Enter",
         SEARCH_LABEL: "Пошук вулиці по назві:",
         HIDE: "Сховати",
-        READ_DESCRIPTION: "Читати про вулицю"
+        READ_DESCRIPTION: "Читати детальніше"
     }
 });

@@ -15,8 +15,7 @@
                            :aria-label="constants.hideDetailsCaption"></i>
                     </div>
                 </div>
-                <div class="sidebar-content-header"
-                     v-on-swipe-down="{handler: onSwipeSidebarHeaderDown, options: {threshold: 5}}">
+                <div class="sidebar-content-header">
                     <slot name="header"></slot>
                 </div>
                 <div class="sidebar-content-body"
@@ -29,11 +28,8 @@
              :class="{'show': !isOpen, 'hide': isOpen}"
              :aria-label="constants.showDetailsCaption"
              :title="constants.showDetailsCaption">
-            <div class="swipe-toggler"
-                 v-on-swipe-up="{handler: onSwipeSidebarFooter, options: {threshold: 5, velocity: 0.2}}">
-                <div class="toggler" v-on:click="open">
-                    <i class="fa fa-chevron-up"></i>
-                </div>
+            <div class="toggler" v-on:click="open">
+                <i class="fa fa-chevron-up"></i>
             </div>
             <slot name="footer"></slot>
         </div>
@@ -174,7 +170,7 @@
         .full-screen-sidebar-footer {
             position: absolute;
             bottom: 0;
-            height: 160px;
+            height: 180px;
             width: 100%;
             background-color: #ffffff;
             padding: 15px 20px 40px 20px;
@@ -184,26 +180,17 @@
             box-shadow: 0px 0px 6px 1px rgba(0, 0, 0, 0.5);
             opacity: 0.9;
 
-            .swipe-toggler {
+            .toggler {
                 position: absolute;
-                height: 100%;
-                width: 100%;
+                right: 0;
                 top: 0;
-                left: 0;
-                z-index: 99999;
+                text-align: right;
+                z-index: 9999;
 
-                .toggler {
-                    float: right;
-                    right: 0;
-                    top: 0;
-                    text-align: right;
-                    z-index: 9999;
-
-                    i {
-                        margin-top: 15px;
-                        margin-right: 25px;
-                        z-index: 999999;
-                    }
+                i {
+                    margin-top: 15px;
+                    margin-right: 25px;
+                    z-index: 999999;
                 }
             }
         }
@@ -216,12 +203,6 @@
 
         .full-screen-sidebar-footer.show {
             z-index: 99998;
-        }
-    }
-
-    @media (max-width: 360px) and (orientation: portrait) {
-        .full-screen-sidebar-footer {
-            height: 140px !important;
         }
     }
 </style>
@@ -260,18 +241,6 @@
             toggle: function () {
                 this.isOpen = !this.isOpen;
                 this.$emit(this.isOpen ? "open" : "close");
-            },
-            onSwipeSidebarFooter: function () {
-                if(this.screenSizeService.isTouchDevice()) {
-                    this.open();
-                }
-            },
-            onSwipeSidebarHeaderDown: function () {
-                if(this.screenSizeService.isTouchDevice() &&
-                    (this.screenSizeService.getWindowWidth() < 768 &&
-                    this.screenSizeService.isPortrait())) {
-                    this.close();
-                }
             },
             onSwipeSidebarContentRight: function () {
                 if(!this.screenSizeService.isTouchDevice()) {

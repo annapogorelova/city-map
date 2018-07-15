@@ -58,6 +58,9 @@
                                             <p v-if="!searchInProgress" class="choose-street-caption">
                                                 {{constants.chooseStreetCaption}}
                                             </p>
+                                            <p v-if="!searchInProgress" class="text-muted">
+                                                {{constants.howToChooseStreet}}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -68,7 +71,7 @@
                                             <h2 class="named-entity-name"><b>{{constants.namedAfterCaption}}:</b>
                                                 {{activeNamedEntityTitle}}</h2>
                                         </div>
-                                        <div v-if="!activeNamedEntityTitle && selectedStreet.description">
+                                        <div v-if="selectedStreet.namedEntities.length || selectedStreet.description">
                                             <button type="button" class="btn btn-sm btn-outline-dark open-sidebar"
                                                     v-on:click="sidebar.open">
                                                 {{constants.readDescription}}
@@ -154,7 +157,7 @@
         }
 
         .street-description {
-            max-height: 70px;
+            max-height: 120px;
             overflow-y: auto;
 
             p {
@@ -162,11 +165,11 @@
             }
 
             h2 {
-                font-size: 1rem !important;
+                font-size: 0.9rem !important;
             }
 
             button.open-sidebar {
-                margin-top: 10px;
+                margin-top: 5px;
             }
         }
 
@@ -191,8 +194,6 @@
 
     @media (max-width: 360px) {
         .sidebar-footer .street-description {
-            max-height: 90px;
-
             h2 {
                 margin-right: 20px;
             }

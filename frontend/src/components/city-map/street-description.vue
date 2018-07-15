@@ -213,6 +213,13 @@
         }
     }
 
+    @media(max-width: 360px) {
+        .named-entity .image-container .image {
+            height: 150px !important;
+            width: 130px !important;
+        }
+    }
+
     .no-info-message {
         margin-top: 10px;
         margin-bottom: 10px;

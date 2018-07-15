@@ -423,9 +423,27 @@
                 const currentZoom = this.map.getZoom();
                 this.map.setView(coordinates, currentZoom >= this.focusZoom ? currentZoom : this.focusZoom);
             },
+            /**
+             * Sets new coordinates if they have changed, returns true if changed, false if not
+             * @param coordinates
+             * @returns {boolean}
+             */
             setCoordinates(coordinates) {
-                this.coordinates = coordinates.length ?
+                const newCoordinates = coordinates.length ?
                     coordinates.map(c => parseFloat(c).toFixed(appConfig.coordinatesPrecision)) : [];
+                if (this.coordinatesChanged(newCoordinates, this.coordinates)) {
+                    this.coordinates = newCoordinates;
+                    return true;
+                }
+
+                return false;
+            },
+            coordinatesChanged(newCoordinates, oldCoordinates) {
+                if(!newCoordinates.length && !oldCoordinates.length) {
+                    return false;
+                }
+
+                return newCoordinates[0] !== oldCoordinates[0] || newCoordinates[1] !== oldCoordinates[1];
             },
             clearMap() {
                 this.removeMarkers();
@@ -526,8 +544,10 @@
                 return L.marker(coordinates, {icon, riseOnHover: true});
             },
             onLocationSuccess(event) {
-                this.setCoordinates([event.latitude, event.longitude]);
-                this.setMarker(this.coordinates, this.cityId);
+                let updated = this.setCoordinates([event.latitude, event.longitude]);
+                if (updated) {
+                    this.setMarker(this.coordinates, this.cityId);
+                }
             },
             onLocationError() {
                 this.noticesService.warning(

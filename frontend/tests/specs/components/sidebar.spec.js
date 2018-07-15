@@ -5,10 +5,15 @@ import dc from "../../../src/dependency-container";
 
 describe("Sidebar test", () => {
     let localVue;
+    let dummySwipeRightDirective = {
+        inserted: function (el, bindings) {
+        }
+    };
 
     beforeEach((done) => {
         localVue = createLocalVue();
         localVue.prototype.$dc = dc;
+        localVue.directive("on-swipe-right", dummySwipeRightDirective);
         done();
     });
 

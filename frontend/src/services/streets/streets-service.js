@@ -11,8 +11,13 @@ export default class StreetsService {
         });
     }
 
-    getStreetByCoordinates({cityId, coordinates}) {
-        return this.apiService.get("/streets", {cityId: cityId, lat: coordinates[0], lng: coordinates[1]});
+    getStreetByCoordinates({cityId, coordinates, isLocated}) {
+        return this.apiService.get("/streets", {
+            cityId: cityId,
+            lat: coordinates[0],
+            lng: coordinates[1],
+            isLocated: isLocated
+        });
     }
 
     update(street) {

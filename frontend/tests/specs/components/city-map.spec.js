@@ -10,6 +10,11 @@ import appConfig from "../../../src/app.config";
 describe("CityMap test", () => {
     let localVue, router;
 
+    let dummySwipeRightDirective = {
+        inserted: function (el, bindings) {
+        }
+    };
+
     const testCities = [{
         id: 1,
         name: "Львів",
@@ -80,6 +85,7 @@ describe("CityMap test", () => {
         localVue.prototype.$dc = dc;
         router = new VueRouter();
         localVue.use(router);
+        localVue.directive("on-swipe-right", dummySwipeRightDirective);
 
         done();
     });
@@ -469,12 +475,13 @@ describe("CityMap test", () => {
 
             const coordinates = testCities[0].coordinates;
             const street = testStreets[0];
+            const isLocated = false;
 
             const getStreetStub = sinon.stub(wrapper.vm.streetsService, "getStreetByCoordinates").resolves({data: street});
 
-            const foundStreet = await wrapper.vm.findClosestStreet(coordinates, testCities[0].id);
+            const foundStreet = await wrapper.vm.findClosestStreet(coordinates, testCities[0].id, isLocated);
 
-            expect(getStreetStub.calledOnceWith({coordinates: coordinates, cityId: testCities[0].id})).to.equal(true);
+            expect(getStreetStub.calledOnceWith({coordinates: coordinates, cityId: testCities[0].id, isLocated: isLocated})).to.equal(true);
             expect(foundStreet).to.equal(street);
 
             done();

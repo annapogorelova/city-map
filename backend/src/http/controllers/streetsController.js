@@ -2,6 +2,8 @@
 
 const config = require("config");
 const constants = require("../../app/constants/httpConstants");
+const defaultGeoSearchThreshold = 0.0002;
+const increasedGeoSearchThreshold = 0.0005;
 
 /**
  * Makes streets controller
@@ -51,10 +53,13 @@ function makeStreetsController(streetService, mapper) {
      */
     async function searchStreetByCoordinates(req, res, next) {
         try {
+            const isLocated = JSON.parse(req.query.isLocated);
+            const threshold = isLocated ? increasedGeoSearchThreshold : defaultGeoSearchThreshold;
             const street = await streetService.searchByCoordinates({
                 cityId: parseInt(req.query.cityId),
                 lat: parseFloat(req.query.lat),
-                lng: parseFloat(req.query.lng)
+                lng: parseFloat(req.query.lng),
+                threshold: threshold
             });
 
             if (street) {

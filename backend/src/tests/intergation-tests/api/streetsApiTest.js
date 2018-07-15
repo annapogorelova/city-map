@@ -110,7 +110,7 @@ describe("streets route", () => {
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
-                .query({coordinates: [42.2, 29.1]})
+                .query({lat: 42.2, lng: 29.1, isLocated: false})
                 .end((err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.BAD_REQUEST);
                     assert.equal(res.body.message, errors.BAD_REQUEST.message);
@@ -137,7 +137,7 @@ describe("streets route", () => {
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
-                .query({cityId: createdCity.id, lat: testCoordinates[0], lng: testCoordinates[1]})
+                .query({cityId: createdCity.id, lat: testCoordinates[0], lng: testCoordinates[1], isLocated: false})
                 .end((err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
 
@@ -165,7 +165,7 @@ describe("streets route", () => {
 
             chai.request(server)
                 .get(testUtils.getApiUrl(requestUrl))
-                .query({cityId: createdCity.id, lat: testCoordinates[0], lng: testCoordinates[1]})
+                .query({cityId: createdCity.id, lat: testCoordinates[0], lng: testCoordinates[1], isLocated: false})
                 .end((err, res) => {
                     assert.equal(res.status, httpConstants.statusCodes.OK);
                     assert.notExists(res.body.data);

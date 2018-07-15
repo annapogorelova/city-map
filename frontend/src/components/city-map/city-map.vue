@@ -351,7 +351,7 @@
                     this.cityDefer.promisify()
                 ]).then((data) => {
                     this.setCoordinates(data[0]);
-                    this.setMarker(this.coordinates, this.cityId);
+                    this.setMarker(this.coordinates, this.cityId, true);
                 });
             },
             getLocation: function () {
@@ -367,11 +367,12 @@
                     }
                 });
             },
-            findClosestStreet: function (coordinates, cityId) {
+            findClosestStreet: function (coordinates, cityId, isLocated) {
                 this.searchInProgress = true;
                 return this.streetsService.getStreetByCoordinates({
                     cityId: cityId,
-                    coordinates: coordinates
+                    coordinates: coordinates,
+                    isLocated: isLocated
                 }).then(response => {
                     this.searchInProgress = false;
                     return response.data;
@@ -379,11 +380,11 @@
                     this.searchInProgress = false;
                 });
             },
-            setMarker: function (coordinates, cityId) {
+            setMarker: function (coordinates, cityId, isLocated = false) {
                 return new Promise((resolve, reject) => {
                     this.selectedStreet = null;
 
-                    this.findClosestStreet(coordinates, cityId).then(street => {
+                    this.findClosestStreet(coordinates, cityId, isLocated).then(street => {
                         try {
                             this.clearMap();
 
@@ -546,7 +547,7 @@
             onLocationSuccess(event) {
                 let updated = this.setCoordinates([event.latitude, event.longitude]);
                 if (updated) {
-                    this.setMarker(this.coordinates, this.cityId);
+                    this.setMarker(this.coordinates, this.cityId, true);
                 }
             },
             onLocationError() {

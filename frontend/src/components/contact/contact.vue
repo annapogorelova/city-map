@@ -80,9 +80,17 @@
         margin-top: 15px;
     }
 
+    .page-wrapper {
+        margin-bottom: 20px;
+    }
+
     @media (max-width: 600px) {
         button[type=submit] {
             width: 100%;
+        }
+
+        .page-wrapper {
+            margin-bottom: 50px;
         }
     }
 

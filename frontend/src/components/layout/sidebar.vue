@@ -252,6 +252,10 @@
                         this.screenSizeService.isLandScape())) {
                     this.close();
                 }
+            },
+            isSidebarFooterShown: function () {
+                return (this.screenSizeService.getWindowWidth() < 768 &&
+                    this.screenSizeService.isPortrait());
             }
         }
     }

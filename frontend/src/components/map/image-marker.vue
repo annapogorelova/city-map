@@ -16,20 +16,23 @@
         top: -1.6em;
         left: -1.6em;
         display: block;
-        width: 6em;
-        height: 6em;
+        width: 5.5em;
+        height: 5.5em;
         border-radius: 50%;
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
-        background-color: #e5e5e5;
+        background-color: #f4f4f4;
         transition: 0.2s;
+        -webkit-box-shadow: 0px 0px 5px 2px rgba(0,0,0,0.4);
+        -moz-box-shadow: 0px 0px 5px 2px rgba(0,0,0,0.4);
+        box-shadow: 0px 0px 5px 2px rgba(0,0,0,0.4);
 
         &:hover, &:focus {
-            top: -2.7em;
-            left: -2.7em;
-            width: 8em;
-            height: 8em;
+            top: -2.1em;
+            left: -2.1em;
+            width: 6.5em;
+            height: 6.5em;
         }
     }
 </style>
@@ -47,7 +50,7 @@
                     "background-image": `url(${this.imageUrl})`,
                     ...this.styles,
                 };
-            },
+            }
         },
     };
 </script>

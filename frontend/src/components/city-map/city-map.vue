@@ -126,11 +126,6 @@
         border: none;
     }
 
-    .default-image-marker .image-marker {
-        border: 1px solid #000000;
-        background-color: #e5e5e5;
-    }
-
     .sidebar-section:not(:first-child) {
         margin-top: 10px;
     }
@@ -293,6 +288,9 @@
             defaultImage: function () {
                 return require("../../../static/images/default-image.png");
             },
+            streetMarkerImage: function () {
+                return require("../../../static/images/city.png");
+            },
             cityId: function () {
                 if (this.city) {
                     return this.city.id;
@@ -440,7 +438,7 @@
                 return false;
             },
             coordinatesChanged(newCoordinates, oldCoordinates) {
-                if(!newCoordinates.length && !oldCoordinates.length) {
+                if (!newCoordinates.length && !oldCoordinates.length) {
                     return false;
                 }
 
@@ -462,17 +460,21 @@
                 if (street.namedEntities.length) {
                     const namedEntities = _.sortBy(street.namedEntities, n => n.imageUrl !== null);
                     for (let i = 0; i < namedEntities.length; i++) {
-                        const marker = this.makeNamedEntityMarker(
+                        let marker = this.makeNamedEntityMarker(
                             coordinates,
                             namedEntities[i],
                             namedEntities.length > 1 ? {"margin-left": `-${i * 50}px`} : null);
 
-                        marker.on("click", this.sidebar.toggle).addTo(this.map);
+                        if(i === 0) {
+                            this.bindPopup(street, marker);
+                        }
+
+                        this.addImageMarkerToMap(marker);
                         this.markers.push(marker);
                     }
                 } else {
-                    const marker = this.makeStreetMarker(coordinates, street);
-                    marker.on("click", this.sidebar.toggle).addTo(this.map).openPopup();
+                    let marker = this.makeStreetMarker(coordinates, street);
+                    this.addImageMarkerToMap(marker);
                     this.markers.push(marker);
                 }
 
@@ -490,13 +492,35 @@
                 });
             },
             makeStreetMarker(coordinates, street) {
-                let marker = L.marker(coordinates);
+                let marker = this.renderImageMarker({
+                    coordinates: coordinates,
+                    imageProps: {
+                        imageUrl: this.streetMarkerImage,
+                        title: street.name,
+                        styles: null
+                    }
+                });
+
+                this.bindPopup(street, marker);
+                return marker;
+            },
+            bindPopup: function (street, marker) {
                 let popupContent = `<b>${street.name}</b>`;
                 if (street.oldName) {
                     popupContent += `<br/><span>(${this.constants.oldStreetNameCaption.toLowerCase()}: ${street.oldName})</span>`;
                 }
-                marker.bindPopup(popupContent);
-                return marker;
+
+                marker.bindPopup(popupContent, {offset: L.point(8, -10)});
+            },
+            addImageMarkerToMap: function(marker) {
+                marker.on("click", (event) => {
+                    event.target.closePopup();
+                    this.sidebar.toggle();
+                }).addTo(this.map);
+
+                if(!this.sidebar.isOpen && !this.sidebar.isSidebarFooterShown()) {
+                    marker.openPopup()
+                }
             },
             drawPolyline(coordinates) {
                 return L.polyline(coordinates, {opacity: 0.6, weight: 5}).addTo(this.map);

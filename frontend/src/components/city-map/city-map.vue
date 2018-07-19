@@ -510,7 +510,7 @@
                     popupContent += `<br/><span>(${this.constants.oldStreetNameCaption.toLowerCase()}: ${street.oldName})</span>`;
                 }
 
-                marker.bindPopup(popupContent, {offset: L.point(8, -10)});
+                marker.bindPopup(popupContent, {offset: L.point(7, -15)});
             },
             addImageMarkerToMap: function(marker) {
                 marker.on("click", (event) => {

@@ -830,4 +830,107 @@ describe("CityMap test", () => {
 
         done();
     });
+
+    it("should add marker to map and open marker popup", (done) => {
+        let wrapper = createWrapper();
+        let marker = L.marker(testCities[0].coordinates);
+
+        wrapper.vm.sidebar.isOpen = false;
+
+        let sidebarFooterShownStub = sinon.stub(wrapper.vm.sidebar, "isSidebarFooterShown").returns(false);
+        let addToSpy = sinon.spy(marker, "addTo");
+        let markerOnSpy = sinon.spy(marker, "on");
+        let closePopupSpy = sinon.spy(marker, "closePopup");
+        let openPopupSpy = sinon.spy(marker, "openPopup");
+        let sidebarToggle = sinon.spy(wrapper.vm.sidebar, "toggle");
+
+        wrapper.vm.addImageMarkerToMap(marker);
+
+        expect(markerOnSpy.withArgs("click").calledOnce).to.equal(true);
+        expect(addToSpy.calledOnceWith(wrapper.vm.map)).to.equal(true);
+        expect(sidebarFooterShownStub.calledOnce).to.equal(true);
+        expect(openPopupSpy.calledOnce).to.equal(true);
+
+        // Test the event handlers being called
+
+        marker.fire("click");
+        expect(closePopupSpy.calledOnce).to.equal(true);
+        expect(sidebarToggle.calledOnce).to.equal(true);
+
+        sidebarFooterShownStub.restore();
+
+        done();
+    });
+
+    it("should add marker to map and NOT open marker popup", (done) => {
+        let wrapper = createWrapper();
+        let marker = L.marker(testCities[0].coordinates);
+
+        wrapper.vm.sidebar.isOpen = true;
+
+        let sidebarFooterShownStub = sinon.stub(wrapper.vm.sidebar, "isSidebarFooterShown").returns(true);
+        let addToSpy = sinon.spy(marker, "addTo");
+        let markerOnSpy = sinon.spy(marker, "on");
+        let closePopupSpy = sinon.spy(marker, "closePopup");
+        let openPopupSpy = sinon.spy(marker, "openPopup");
+        let sidebarToggle = sinon.spy(wrapper.vm.sidebar, "toggle");
+
+        wrapper.vm.addImageMarkerToMap(marker);
+
+        expect(markerOnSpy.withArgs("click").calledOnce).to.equal(true);
+        expect(addToSpy.calledOnceWith(wrapper.vm.map)).to.equal(true);
+        expect(sidebarFooterShownStub.notCalled).to.equal(true);
+        expect(openPopupSpy.notCalled).to.equal(true);
+
+        // Test the event handlers being called
+
+        marker.fire("click");
+        expect(closePopupSpy.calledOnce).to.equal(true);
+        expect(sidebarToggle.calledOnce).to.equal(true);
+
+        sidebarFooterShownStub.restore();
+
+        done();
+    });
+
+    it("activeNamedEntityTitle should return single named entity name", (done) => {
+        let wrapper = createWrapper();
+        let testStreet = {...testStreets[0]};
+        wrapper.vm.selectedStreet = testStreet;
+
+        let activeNamedEntityTitle = wrapper.vm.activeNamedEntityTitle;
+
+        expect(activeNamedEntityTitle).to.equal(testStreet.namedEntities[0].name);
+
+        done();
+    });
+
+    it("activeNamedEntityTitle should return the comma separated named entities names", (done) => {
+        let wrapper = createWrapper();
+
+        let testStreet = {...testStreets[0]};
+        testStreet.namedEntities.push(testStreet.namedEntities[0]);
+        wrapper.vm.selectedStreet = testStreet;
+
+        let activeNamedEntityTitle = wrapper.vm.activeNamedEntityTitle;
+
+        expect(activeNamedEntityTitle).to.equal(`${testStreet.namedEntities[0].name}, ${testStreet.namedEntities[0].name}`);
+
+        done();
+    });
+
+    it("activeNamedEntityTitle should return the shortened list of named entity names", (done) => {
+        let wrapper = createWrapper();
+
+        let testStreet = {...testStreets[0]};
+        testStreet.namedEntities.push(testStreet.namedEntities[0]);
+        testStreet.namedEntities.push(testStreet.namedEntities[0]);
+        wrapper.vm.selectedStreet = testStreet;
+
+        let activeNamedEntityTitle = wrapper.vm.activeNamedEntityTitle;
+
+        expect(activeNamedEntityTitle).to.equal(`${testStreet.namedEntities[0].name} та ${testStreet.namedEntities.length - 1} інших`);
+
+        done();
+    });
 });

@@ -25,7 +25,7 @@
     "lodash": "^4.17.10",
     "moment": "^2.22.1",
     "popper.js": "^1.12.9",
-    "tooleks": "^1.1.2",
+    "tooleks": "^1.4.4",
     "vue": "^2.5.16",
     "vue-meta": "^1.5.0",
     "vue-router": "^3.0.1"

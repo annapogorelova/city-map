@@ -219,6 +219,10 @@
             height: {
                 type: Number,
                 default: 500
+            },
+            fullScreenThreshold: {
+                type: Number,
+                default: 768
             }
         },
         data: function () {
@@ -247,14 +251,14 @@
                     return;
                 }
 
-                if (this.screenSizeService.getWindowWidth() >= 768 ||
-                    (this.screenSizeService.getWindowWidth() < 768 &&
+                if (this.screenSizeService.getWindowWidth() >= this.fullScreenThreshold ||
+                    (this.screenSizeService.getWindowWidth() < this.fullScreenThreshold &&
                         this.screenSizeService.isLandScape())) {
                     this.close();
                 }
             },
             isSidebarFooterShown: function () {
-                return (this.screenSizeService.getWindowWidth() < 768 &&
+                return (this.screenSizeService.getWindowWidth() < this.fullScreenThreshold &&
                     this.screenSizeService.isPortrait());
             }
         }

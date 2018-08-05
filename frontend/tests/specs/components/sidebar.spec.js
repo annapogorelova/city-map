@@ -92,4 +92,128 @@ describe("Sidebar test", () => {
 
         done();
     });
+
+    it("onSwipeSidebarContentRight should not do anything if device is not touch", (done) => {
+        let wrapper = shallowMount(Sidebar, {localVue});
+
+        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenSizeService, "isTouchDevice").returns(false);
+        let closeSpy = sinon.spy(wrapper.vm, "close");
+
+        wrapper.vm.onSwipeSidebarContentRight();
+
+        expect(closeSpy.notCalled).to.equal(true);
+
+        isTouchDeviceStub.restore();
+        closeSpy.restore();
+
+        done();
+    });
+
+    it("onSwipeSidebarContentRight should not do anything if device is smaller than the threshold" +
+        " and in a portrait mode", (done) => {
+        let wrapper = shallowMount(Sidebar, {localVue});
+
+        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenSizeService, "isTouchDevice").returns(true);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
+        let isLandScapeStub = sinon.stub(wrapper.vm.screenSizeService, "isLandScape").returns(false);
+        let closeSpy = sinon.spy(wrapper.vm, "close");
+
+        wrapper.vm.onSwipeSidebarContentRight();
+
+        expect(closeSpy.notCalled).to.equal(true);
+
+        isTouchDeviceStub.restore();
+        windowWidthStub.restore();
+        isLandScapeStub.restore();
+        closeSpy.restore();
+
+        done();
+    });
+
+    it("onSwipeSidebarContentRight should call 'close' if device is smaller than the threshold" +
+        " but is in a landscape mode", (done) => {
+        let wrapper = shallowMount(Sidebar, {localVue});
+
+        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenSizeService, "isTouchDevice").returns(true);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
+        let isLandScapeStub = sinon.stub(wrapper.vm.screenSizeService, "isLandScape").returns(true);
+        let closeSpy = sinon.spy(wrapper.vm, "close");
+
+        wrapper.vm.onSwipeSidebarContentRight();
+
+        expect(closeSpy.calledOnce).to.equal(true);
+
+        isTouchDeviceStub.restore();
+        windowWidthStub.restore();
+        isLandScapeStub.restore();
+        closeSpy.restore();
+
+        done();
+    });
+
+    it("onSwipeSidebarContentRight should call 'close' if device is equal to the threshold", (done) => {
+        let wrapper = shallowMount(Sidebar, {localVue});
+
+        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenSizeService, "isTouchDevice").returns(true);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold);
+        let closeSpy = sinon.spy(wrapper.vm, "close");
+
+        wrapper.vm.onSwipeSidebarContentRight();
+
+        expect(closeSpy.calledOnce).to.equal(true);
+
+        isTouchDeviceStub.restore();
+        windowWidthStub.restore();
+        closeSpy.restore();
+
+        done();
+    });
+
+    it("isSidebarFooterShown should return 'false' if device is smaller than the threshold and" +
+        " is in the landscape mode", (done) => {
+        let wrapper = shallowMount(Sidebar, {localVue});
+
+        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
+        let isPortraitStub = sinon.stub(wrapper.vm.screenSizeService, "isPortrait").returns(false);
+
+        const result = wrapper.vm.isSidebarFooterShown();
+
+        expect(result).to.equal(false);
+
+        windowWidthStub.restore();
+        isPortraitStub.restore();
+
+        done();
+    });
+
+    it("isSidebarFooterShown should return 'false' if device is equal to the threshold", (done) => {
+        let wrapper = shallowMount(Sidebar, {localVue});
+
+        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold);
+
+        const result = wrapper.vm.isSidebarFooterShown();
+
+        expect(result).to.equal(false);
+
+        windowWidthStub.restore();
+
+        done();
+    });
+
+    it("isSidebarFooterShown should return 'true' if device is smaller than the threshold and" +
+        " is in the portrait mode", (done) => {
+        let wrapper = shallowMount(Sidebar, {localVue});
+
+        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
+        let isPortraitStub = sinon.stub(wrapper.vm.screenSizeService, "isPortrait").returns(true);
+
+        const result = wrapper.vm.isSidebarFooterShown();
+
+        expect(result).to.equal(true);
+
+        windowWidthStub.restore();
+        isPortraitStub.restore();
+
+        done();
+    });
 });

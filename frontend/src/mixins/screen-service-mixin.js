@@ -1,10 +1,10 @@
 export default {
     data: function () {
         return {
-            screenSizeService: undefined
+            screenService: undefined
         };
     },
     created: function () {
-        this.screenSizeService = this.$dc.get("screenSize");
+        this.screenService = this.$dc.get("screen");
     }
 };

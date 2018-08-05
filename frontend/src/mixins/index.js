@@ -6,7 +6,7 @@ import NamedEntitiesServiceMixin from "./named-entities-service-mixin";
 import CitiesServiceMixin from "./city-service-mixin";
 import NavigationMixin from "./navigation-mixin";
 import EventBusMixin from "./event-bus-mixin";
-import ScreenSizeServiceMixin from "./screen-size-service-mixin";
+import ScreenServiceMixin from "./screen-service-mixin";
 import ConstantsMixin from "./constants-mixin";
 
 export {
@@ -18,6 +18,6 @@ export {
     CitiesServiceMixin,
     NavigationMixin,
     EventBusMixin,
-    ScreenSizeServiceMixin,
+    ScreenServiceMixin,
     ConstantsMixin
 };

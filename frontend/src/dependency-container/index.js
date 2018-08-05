@@ -6,7 +6,7 @@ import {StreetsService} from "../services/streets";
 import {CitiesService} from "../services/cities";
 import {NamedEntitiesService} from "../services/named-entities";
 import {NoticesService} from "../services/notices";
-import {ScreenSizeService} from "../services/screen";
+import {ScreenService} from "../services/screen";
 import axios from "axios";
 import appConfig from "../app.config";
 
@@ -30,7 +30,7 @@ dc.registerBinding("api", () => new ApiService(
 
 dc.registerBinding("localStorage", () => new LocalStorageService(localStorage));
 
-dc.registerInstance("screenSize", new ScreenSizeService());
+dc.registerInstance("screen", new ScreenService());
 
 dc.registerBinding("notices", () => new NoticesService(new EventEmitter, 5000), { singleton: true, factory: true});
 

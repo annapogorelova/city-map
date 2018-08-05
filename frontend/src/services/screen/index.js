@@ -1,3 +1,3 @@
-import ScreenSizeService from "./screen-size-service";
+import ScreenService from "./screen-service";
 
-export {ScreenSizeService};
+export {ScreenService};

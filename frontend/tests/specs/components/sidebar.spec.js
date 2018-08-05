@@ -18,7 +18,7 @@ describe("Sidebar test", () => {
     });
 
     it("should have isOpen true if the screen is not extra small", (done) => {
-        let screenSizeStub = sinon.stub(localVue.prototype.$dc.get("screenSize"), "isExtraSmall").returns(false);
+        let screenSizeStub = sinon.stub(localVue.prototype.$dc.get("screen"), "isExtraSmall").returns(false);
 
         let wrapper = shallowMount(Sidebar, {localVue});
 
@@ -30,7 +30,7 @@ describe("Sidebar test", () => {
     });
 
     it("should have isOpen false if the screen is extra small", (done) => {
-        let screenSizeStub = sinon.stub(localVue.prototype.$dc.get("screenSize"), "isExtraSmall").returns(true);
+        let screenSizeStub = sinon.stub(localVue.prototype.$dc.get("screen"), "isExtraSmall").returns(true);
 
         let wrapper = shallowMount(Sidebar, {localVue});
 
@@ -96,7 +96,7 @@ describe("Sidebar test", () => {
     it("onSwipeSidebarContentRight should not do anything if device is not touch", (done) => {
         let wrapper = shallowMount(Sidebar, {localVue});
 
-        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenSizeService, "isTouchDevice").returns(false);
+        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenService, "isTouchDevice").returns(false);
         let closeSpy = sinon.spy(wrapper.vm, "close");
 
         wrapper.vm.onSwipeSidebarContentRight();
@@ -113,9 +113,9 @@ describe("Sidebar test", () => {
         " and in a portrait mode", (done) => {
         let wrapper = shallowMount(Sidebar, {localVue});
 
-        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenSizeService, "isTouchDevice").returns(true);
-        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
-        let isLandScapeStub = sinon.stub(wrapper.vm.screenSizeService, "isLandScape").returns(false);
+        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenService, "isTouchDevice").returns(true);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
+        let isLandScapeStub = sinon.stub(wrapper.vm.screenService, "isLandScape").returns(false);
         let closeSpy = sinon.spy(wrapper.vm, "close");
 
         wrapper.vm.onSwipeSidebarContentRight();
@@ -134,9 +134,9 @@ describe("Sidebar test", () => {
         " but is in a landscape mode", (done) => {
         let wrapper = shallowMount(Sidebar, {localVue});
 
-        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenSizeService, "isTouchDevice").returns(true);
-        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
-        let isLandScapeStub = sinon.stub(wrapper.vm.screenSizeService, "isLandScape").returns(true);
+        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenService, "isTouchDevice").returns(true);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
+        let isLandScapeStub = sinon.stub(wrapper.vm.screenService, "isLandScape").returns(true);
         let closeSpy = sinon.spy(wrapper.vm, "close");
 
         wrapper.vm.onSwipeSidebarContentRight();
@@ -154,8 +154,8 @@ describe("Sidebar test", () => {
     it("onSwipeSidebarContentRight should call 'close' if device is equal to the threshold", (done) => {
         let wrapper = shallowMount(Sidebar, {localVue});
 
-        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenSizeService, "isTouchDevice").returns(true);
-        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold);
+        let isTouchDeviceStub = sinon.stub(wrapper.vm.screenService, "isTouchDevice").returns(true);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold);
         let closeSpy = sinon.spy(wrapper.vm, "close");
 
         wrapper.vm.onSwipeSidebarContentRight();
@@ -173,8 +173,8 @@ describe("Sidebar test", () => {
         " is in the landscape mode", (done) => {
         let wrapper = shallowMount(Sidebar, {localVue});
 
-        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
-        let isPortraitStub = sinon.stub(wrapper.vm.screenSizeService, "isPortrait").returns(false);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
+        let isPortraitStub = sinon.stub(wrapper.vm.screenService, "isPortrait").returns(false);
 
         const result = wrapper.vm.isSidebarFooterShown();
 
@@ -189,7 +189,7 @@ describe("Sidebar test", () => {
     it("isSidebarFooterShown should return 'false' if device is equal to the threshold", (done) => {
         let wrapper = shallowMount(Sidebar, {localVue});
 
-        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold);
 
         const result = wrapper.vm.isSidebarFooterShown();
 
@@ -204,8 +204,8 @@ describe("Sidebar test", () => {
         " is in the portrait mode", (done) => {
         let wrapper = shallowMount(Sidebar, {localVue});
 
-        let windowWidthStub = sinon.stub(wrapper.vm.screenSizeService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
-        let isPortraitStub = sinon.stub(wrapper.vm.screenSizeService, "isPortrait").returns(true);
+        let windowWidthStub = sinon.stub(wrapper.vm.screenService, "getWindowWidth").returns(wrapper.vm.fullScreenThreshold - 1);
+        let isPortraitStub = sinon.stub(wrapper.vm.screenService, "isPortrait").returns(true);
 
         const result = wrapper.vm.isSidebarFooterShown();
 

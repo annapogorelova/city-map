@@ -207,10 +207,10 @@
     }
 </style>
 <script>
-    import {ScreenSizeServiceMixin, ConstantsMixin} from "../../mixins/index";
+    import {ScreenServiceMixin, ConstantsMixin} from "../../mixins/index";
 
     export default {
-        mixins: [ScreenSizeServiceMixin, ConstantsMixin],
+        mixins: [ScreenServiceMixin, ConstantsMixin],
         props: {
             width: {
                 type: Number,
@@ -231,7 +231,7 @@
             }
         },
         created: function () {
-            this.isOpen = !this.screenSizeService.isExtraSmall();
+            this.isOpen = !this.screenService.isExtraSmall();
         },
         methods: {
             open: function () {
@@ -247,19 +247,19 @@
                 this.$emit(this.isOpen ? "open" : "close");
             },
             onSwipeSidebarContentRight: function () {
-                if(!this.screenSizeService.isTouchDevice()) {
+                if(!this.screenService.isTouchDevice()) {
                     return;
                 }
 
-                if (this.screenSizeService.getWindowWidth() >= this.fullScreenThreshold ||
-                    (this.screenSizeService.getWindowWidth() < this.fullScreenThreshold &&
-                        this.screenSizeService.isLandScape())) {
+                if (this.screenService.getWindowWidth() >= this.fullScreenThreshold ||
+                    (this.screenService.getWindowWidth() < this.fullScreenThreshold &&
+                        this.screenService.isLandScape())) {
                     this.close();
                 }
             },
             isSidebarFooterShown: function () {
-                return (this.screenSizeService.getWindowWidth() < this.fullScreenThreshold &&
-                    this.screenSizeService.isPortrait());
+                return (this.screenService.getWindowWidth() < this.fullScreenThreshold &&
+                    this.screenService.isPortrait());
             }
         }
     }

@@ -1,4 +1,4 @@
-export default class ScreenSizeService {
+export default class ScreenService {
     isExtraSmall() {
         return this.getWindowWidth() < 768;
     }
@@ -18,12 +18,14 @@ export default class ScreenSizeService {
     }
 
     getWindowWidth() {
+        const window = this.getWindow();
         return window.innerWidth
             || document.documentElement.clientWidth
             || document.body.clientWidth;
     }
 
     isTouchDevice() {
+        const window = this.getWindow();
         const prefixes = " -webkit- -moz- -o- -ms- ".split(" ");
 
         if (("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch) {
@@ -36,10 +38,16 @@ export default class ScreenSizeService {
     }
 
     isLandScape() {
+        const window = this.getWindow();
         return window.innerHeight < window.innerWidth;
     }
 
     isPortrait() {
+        const window = this.getWindow();
         return window.innerHeight > window.innerWidth;
+    }
+
+    getWindow() {
+        return window;
     }
 }

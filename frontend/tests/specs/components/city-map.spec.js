@@ -164,25 +164,24 @@ describe("CityMap test", () => {
     it("should set city on 'city-selected' event (previous city not set)", (done) => {
         let wrapper = createWrapper();
 
-        const panToSpy = sinon.spy(wrapper.vm.$refs.map, "panTo");
-        const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
-        const setMapZoomSpy = sinon.spy(wrapper.vm.map, "setZoom");
         const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
+        const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
+        const setCenterSpy = sinon.spy(wrapper.vm.$refs.map, "setCenter");
 
         const city = testCities[0];
         wrapper.vm.selectCity(city);
 
         expect(wrapper.vm.city).to.equal(city);
         expect(wrapper.vm.selectedStreet).to.equal(null);
-        expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
-        expect(panToSpy.calledOnceWith(city.coordinates)).to.equal(true);
-        expect(setCoordinatesSpy.calledOnceWith(city.coordinates)).to.equal(true);
-        expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
 
-        panToSpy.restore();
-        setMaxBoundsSpy.restore();
-        setMapZoomSpy.restore();
+        expect(setCoordinatesSpy.calledOnceWith(city.coordinates)).to.equal(true);
+        expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
+        expect(setCenterSpy.calledOnceWith(city.coordinates[0], city.coordinates[1], wrapper.vm.zoom)).to.equal(true);
+        expect(setCenterSpy.calledAfter(setMaxBoundsSpy)).to.equal(true);
+
         setCoordinatesSpy.restore();
+        setMaxBoundsSpy.restore();
+        setCenterSpy.restore();
 
         done();
     });
@@ -190,10 +189,9 @@ describe("CityMap test", () => {
     it("should set new city on 'city-selected'", (done) => {
         let wrapper = createWrapper();
 
-        const panToSpy = sinon.spy(wrapper.vm.$refs.map, "panTo");
-        const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
-        const setMapZoomSpy = sinon.spy(wrapper.vm.map, "setZoom");
         const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
+        const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
+        const setCenterSpy = sinon.spy(wrapper.vm.$refs.map, "setCenter");
 
         const initialCity = testCities[0];
         wrapper.vm.city = initialCity;
@@ -203,15 +201,14 @@ describe("CityMap test", () => {
         expect(wrapper.vm.selectedStreet).to.equal(undefined);
 
         // city $watch should trigger
-        expect(panToSpy.calledOnceWith(initialCity.coordinates)).to.equal(true);
-        expect(setMaxBoundsSpy.calledWith(getMapBounds(initialCity))).to.equal(true);
-        expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
         expect(setCoordinatesSpy.calledOnceWith(initialCity.coordinates)).to.equal(true);
+        expect(setMaxBoundsSpy.calledWith(getMapBounds(initialCity))).to.equal(true);
+        expect(setCenterSpy.calledOnceWith(initialCity.coordinates[0], initialCity.coordinates[1], wrapper.vm.zoom)).to.equal(true);
+        expect(setCenterSpy.calledAfter(setMaxBoundsSpy)).to.equal(true);
 
-        panToSpy.resetHistory();
-        setMaxBoundsSpy.resetHistory();
-        setMapZoomSpy.resetHistory();
         setCoordinatesSpy.resetHistory();
+        setMaxBoundsSpy.resetHistory();
+        setCenterSpy.resetHistory();
 
         const city = testCities[1];
         wrapper.vm.selectCity(city);
@@ -219,10 +216,14 @@ describe("CityMap test", () => {
         expect(wrapper.vm.city).to.equal(city);
         expect(wrapper.vm.selectedStreet).to.equal(null);
 
-        expect(panToSpy.calledOnceWith(city.coordinates)).to.equal(true);
-        expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
-        expect(setMapZoomSpy.calledOnceWith(wrapper.vm.zoom)).to.equal(true);
         expect(setCoordinatesSpy.calledOnceWith(city.coordinates)).to.equal(true);
+        expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
+        expect(setCenterSpy.calledOnceWith(city.coordinates[0], city.coordinates[1], wrapper.vm.zoom)).to.equal(true);
+        expect(setCenterSpy.calledAfter(setMaxBoundsSpy)).to.equal(true);
+
+        setCoordinatesSpy.restore();
+        setMaxBoundsSpy.restore();
+        setCenterSpy.restore();
 
         done();
     });

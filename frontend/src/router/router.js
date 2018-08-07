@@ -25,7 +25,7 @@ router.beforeEach((to, from, next) => {
         next();
     }
 
-    if(!dc.get("screenSize").isLarge()) {
+    if(!dc.get("screen").isLarge()) {
         $(".navbar-collapse").collapse("hide");
     }
 });

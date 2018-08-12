@@ -8,7 +8,7 @@ import constants from "../../../src/constants";
 import appConfig from "../../../src/app.config";
 
 describe("CityMap test", () => {
-    let localVue, router;
+    let localVue, router, $store;
 
     let dummySwipeRightDirective = {
         inserted: function (el, bindings) {
@@ -60,11 +60,7 @@ describe("CityMap test", () => {
         ]]
     }];
 
-    function getMapBounds(city) {
-        return optional(() => [city.bounds[0][0], city.bounds[0][2]]);
-    }
-
-    function createWrapper({route} = {}) {
+    function createWrapper({route, store} = {}) {
         const $route = {
             path: "/map",
             query: {}
@@ -74,7 +70,8 @@ describe("CityMap test", () => {
             localVue,
             mocks: {
                 $route: route || $route,
-                $router: router
+                $router: router,
+                $store: store || $store
             },
             attachToDocument: true
         });
@@ -87,6 +84,16 @@ describe("CityMap test", () => {
         localVue.use(router);
         localVue.directive("on-swipe-right", dummySwipeRightDirective);
 
+        $store = {
+            subscribe: sinon.stub(),
+            state: {
+                cities: {
+                    selectedCity: undefined,
+                    cities: testCities
+                }
+            }
+        };
+
         done();
     });
 
@@ -96,16 +103,13 @@ describe("CityMap test", () => {
         expect(typeof(CityMap.beforeDestroy)).to.equal("function");
     });
 
-    it("should subscribe to 'search' and 'city-selected' on created hook", (done) => {
+    it("should subscribe to 'search' on created hook", (done) => {
         let wrapper = createWrapper();
-
         expect(wrapper.vm.searchEventOff).to.not.equal(undefined);
-        expect(wrapper.vm.citySelectOff).to.not.equal(undefined);
-
         done();
     });
 
-    it("should unsubscribe from 'search' and 'city-selected' on destroy", (done) => {
+    it("should unsubscribe from 'search' on destroy", (done) => {
         const destroySpy = sinon.stub();
 
         const $route = {
@@ -117,7 +121,8 @@ describe("CityMap test", () => {
             localVue,
             mocks: {
                 $route: $route,
-                $router: router
+                $router: router,
+                $store: $store
             },
             destroyed() {
                 destroySpy();
@@ -126,180 +131,26 @@ describe("CityMap test", () => {
         });
 
         let searchEventOffSpy = sinon.spy(wrapper.vm, "searchEventOff");
-        let citySelectOffSpy = sinon.spy(wrapper.vm, "citySelectOff");
 
         wrapper.destroy();
 
         expect(destroySpy.called).to.equal(true);
         expect(searchEventOffSpy.called).to.equal(true);
-        expect(citySelectOffSpy.called).to.equal(true);
 
         done();
     });
 
-    it("should have cityId null", (done) => {
+    it("should have cityId undefined", (done) => {
         const $route = {
             path: "/map",
             query: {}
         };
 
-        let wrapper = createWrapper({route: $route});
-
-        expect(wrapper.vm.cityId).to.equal(null);
-        done();
-    });
-
-    it("should take cityId from url query", (done) => {
-        const $route = {
-            path: "/map",
-            query: {cityId: 1}
-        };
-
-        let wrapper = createWrapper({route: $route});
-
-        expect(wrapper.vm.cityId).to.equal(1);
-        done();
-    });
-
-    it("should set city on 'city-selected' event (previous city not set)", (done) => {
-        let wrapper = createWrapper();
-
-        const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
-        const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
-        const setCenterSpy = sinon.spy(wrapper.vm.$refs.map, "setCenter");
-
-        const city = testCities[0];
-        wrapper.vm.selectCity(city);
-
-        expect(wrapper.vm.city).to.equal(city);
-        expect(wrapper.vm.selectedStreet).to.equal(null);
-
-        expect(setCoordinatesSpy.calledOnceWith(city.coordinates)).to.equal(true);
-        expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
-        expect(setCenterSpy.calledOnceWith(city.coordinates[0], city.coordinates[1], wrapper.vm.zoom)).to.equal(true);
-        expect(setCenterSpy.calledAfter(setMaxBoundsSpy)).to.equal(true);
-
-        setCoordinatesSpy.restore();
-        setMaxBoundsSpy.restore();
-        setCenterSpy.restore();
-
-        done();
-    });
-
-    it("should set new city on 'city-selected'", (done) => {
-        let wrapper = createWrapper();
-
-        const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
-        const setMaxBoundsSpy = sinon.spy(wrapper.vm.map, "setMaxBounds");
-        const setCenterSpy = sinon.spy(wrapper.vm.$refs.map, "setCenter");
-
-        const initialCity = testCities[0];
-        wrapper.vm.city = initialCity;
-
-        expect(wrapper.vm.city.id).to.equal(initialCity.id);
-        expect(wrapper.vm.city.name).to.equal(initialCity.name);
-        expect(wrapper.vm.selectedStreet).to.equal(undefined);
-
-        // city $watch should trigger
-        expect(setCoordinatesSpy.calledOnceWith(initialCity.coordinates)).to.equal(true);
-        expect(setMaxBoundsSpy.calledWith(getMapBounds(initialCity))).to.equal(true);
-        expect(setCenterSpy.calledOnceWith(initialCity.coordinates[0], initialCity.coordinates[1], wrapper.vm.zoom)).to.equal(true);
-        expect(setCenterSpy.calledAfter(setMaxBoundsSpy)).to.equal(true);
-
-        setCoordinatesSpy.resetHistory();
-        setMaxBoundsSpy.resetHistory();
-        setCenterSpy.resetHistory();
-
-        const city = testCities[1];
-        wrapper.vm.selectCity(city);
-
-        expect(wrapper.vm.city).to.equal(city);
-        expect(wrapper.vm.selectedStreet).to.equal(null);
-
-        expect(setCoordinatesSpy.calledOnceWith(city.coordinates)).to.equal(true);
-        expect(setMaxBoundsSpy.calledWith(getMapBounds(city))).to.equal(true);
-        expect(setCenterSpy.calledOnceWith(city.coordinates[0], city.coordinates[1], wrapper.vm.zoom)).to.equal(true);
-        expect(setCenterSpy.calledAfter(setMaxBoundsSpy)).to.equal(true);
-
-        setCoordinatesSpy.restore();
-        setMaxBoundsSpy.restore();
-        setCenterSpy.restore();
-
-        done();
-    });
-
-    it("should load the city when $route.query.cityId is set for the first time", (done) => {
-        const $route = {
-            path: "/map",
-            query: {cityId: undefined}
-        };
-
-        let wrapper = createWrapper({route: $route});
-
-        const city = testCities[0];
-
-        let selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
-        let citiesServiceStub = sinon.stub(wrapper.vm.citiesService, "getCity").resolves({data: city});
-
-        wrapper.setData({$route: {query: {cityId: city.id}}});
-
-        expect(citiesServiceStub.calledWith(city.id)).to.equal(true);
-
-        wrapper.vm.$nextTick(() => {
-            expect(selectCitySpy.calledWith(city)).to.equal(true);
-            expect(wrapper.vm.city).to.equal(city);
-            expect(wrapper.vm.selectedStreet).to.equal(null);
-
-            done();
+        let wrapper = createWrapper({
+            route: $route
         });
-    });
 
-    it("should load the city when $route.query.cityId is changed (city exists)", (done) => {
-        const $route = {
-            path: "/map",
-            query: {cityId: undefined}
-        };
-
-        let wrapper = createWrapper({route: $route});
-
-        wrapper.vm.city = testCities[0];
-        wrapper.vm.selectedStreet = testStreets[0];
-
-        const newCity = testCities[1];
-
-        let selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
-        let citiesServiceStub = sinon.stub(wrapper.vm.citiesService, "getCity").resolves({data: newCity});
-
-        wrapper.setData({$route: {query: {cityId: newCity.id}}});
-
-        expect(citiesServiceStub.calledWith(newCity.id)).to.equal(true);
-
-        wrapper.vm.$nextTick(() => {
-            expect(selectCitySpy.calledWith(newCity)).to.equal(true);
-            expect(wrapper.vm.city).to.equal(newCity);
-            expect(wrapper.vm.selectedStreet).to.equal(null);
-
-            done();
-        });
-    });
-
-    it("should not load the new city if the cityId has not changed", (done) => {
-        const $route = {
-            path: "/map",
-            query: {cityId: 1}
-        };
-
-        let wrapper = createWrapper({route: $route});
-
-        const city = testCities[0];
-        wrapper.vm.city = city;
-
-        let citiesServiceStub = sinon.stub(wrapper.vm.citiesService, "getCity").resolves({data: city});
-
-        wrapper.setData({$route: {query: {cityId: city.id}}});
-
-        expect(citiesServiceStub.notCalled).to.equal(true);
-
+        expect(wrapper.vm.cityId).to.be.an("undefined");
         done();
     });
 
@@ -307,7 +158,6 @@ describe("CityMap test", () => {
         let wrapper = createWrapper();
 
         wrapper.vm.sidebar.isOpen = false;
-
         wrapper.vm.selectedStreet = testStreets[0];
 
         const sidebarOpenSpy = sinon.spy(wrapper.vm.sidebar, "open");
@@ -322,7 +172,6 @@ describe("CityMap test", () => {
         let wrapper = createWrapper();
 
         wrapper.vm.sidebar.isOpen = true;
-
         wrapper.vm.selectedStreet = testStreets[1];
 
         const sidebarOpenSpy = sinon.spy(wrapper.vm.sidebar, "open");
@@ -400,7 +249,9 @@ describe("CityMap test", () => {
             const street = testStreets[0];
             const coordinates = street.ways[0][0];
 
-            let wrapper = createWrapper({route: $route});
+            let wrapper = createWrapper({
+                route: $route
+            });
             let searchClearSpy = sinon.spy(wrapper.vm.search, "clear");
             let clearMapSpy = sinon.spy(wrapper.vm, "clearMap");
             let setSelectedStreetSpy = sinon.spy(wrapper.vm, "setSelectedStreet");
@@ -422,7 +273,7 @@ describe("CityMap test", () => {
             done();
         })();
     });
-
+    //
     it("should react to street not found", (done) => {
         (async () => {
             const $route = {
@@ -430,7 +281,10 @@ describe("CityMap test", () => {
                 query: {}
             };
 
-            let wrapper = createWrapper({route: $route});
+            let wrapper = createWrapper({
+                route: $route
+            });
+
             let noticesServiceSpy = sinon.spy(wrapper.vm.noticesService, "info");
 
             sinon.stub(wrapper.vm.streetsService, "search").resolves({data: []});
@@ -444,6 +298,8 @@ describe("CityMap test", () => {
                 constants.NOTICES.STREET_NOT_FOUND.title,
                 constants.NOTICES.STREET_NOT_FOUND.message)).to.equal(true);
 
+            noticesServiceSpy.restore();
+
             done();
         })();
     });
@@ -455,7 +311,9 @@ describe("CityMap test", () => {
                 query: {}
             };
 
-            let wrapper = createWrapper({route: $route});
+            let wrapper = createWrapper({
+                route: $route
+            });
 
             try {
                 await wrapper.vm.onSearchStreet("");
@@ -472,7 +330,9 @@ describe("CityMap test", () => {
                 query: {cityId: testCities[0].id}
             };
 
-            let wrapper = createWrapper({route: $route});
+            let wrapper = createWrapper({
+                route: $route
+            });
 
             const coordinates = testCities[0].coordinates;
             const street = testStreets[0];
@@ -482,31 +342,17 @@ describe("CityMap test", () => {
 
             const foundStreet = await wrapper.vm.findClosestStreet(coordinates, testCities[0].id, isLocated);
 
-            expect(getStreetStub.calledOnceWith({coordinates: coordinates, cityId: testCities[0].id, isLocated: isLocated})).to.equal(true);
+            expect(getStreetStub.calledOnceWith({
+                coordinates: coordinates,
+                cityId: testCities[0].id,
+                isLocated: isLocated
+            })).to.equal(true);
             expect(foundStreet).to.equal(street);
 
             done();
         })();
     });
 
-    it("should set marker when map emits 'locationsuccess' event", (done) => {
-        let wrapper = createWrapper();
-
-        const coordinates = testCities[0].coordinates;
-
-        let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
-        let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
-
-        wrapper.vm.$refs.map.$emit("locationsuccess", {latitude: coordinates[0], longitude: coordinates[1]});
-
-        expect(setCoordinatesSpy.calledOnceWith(coordinates)).to.deep.equal(true);
-        expect(setMarkerSpy.calledOnce).to.equal(true);
-
-        setMarkerSpy.restore();
-        setCoordinatesSpy.restore();
-
-        done();
-    });
 
     it("should display notice when map emits 'locationerror' event", (done) => {
         let wrapper = createWrapper();
@@ -578,8 +424,6 @@ describe("CityMap test", () => {
             expect(markerLatLng.lng).to.equal(coordinates[1]);
 
             const popup = wrapper.vm.markers[0].getPopup();
-            expect(popup.isOpen()).to.equal(true);
-
             const expectedContent = `<b>${constants.NOTICES.NOT_A_STREET.title}</b><br>${constants.NOTICES.NOT_A_STREET.message}`
                 .replace(/(\r\n\t|\n|\r\t)/gm,"");
             const content = popup.getContent();
@@ -613,28 +457,6 @@ describe("CityMap test", () => {
         })();
     });
 
-    it("should get the location from the $route query", (done) => {
-        (async () => {
-            const $route = {
-                path: "/map",
-                query: {
-                    cityId: testCities[0].id,
-                    lat: testCities[0].coordinates[0],
-                    lng: testCities[0].coordinates[1]
-                }
-            };
-
-            let wrapper = createWrapper({route: $route});
-
-            const location = await wrapper.vm.getLocation();
-
-            expect(location[0]).to.equal(testCities[0].coordinates[0]);
-            expect(location[1]).to.equal(testCities[0].coordinates[1]);
-
-            done();
-        })();
-    });
-
     it("should get the location from navigator.geolocation", (done) => {
         (async () => {
             let wrapper = createWrapper();
@@ -657,16 +479,20 @@ describe("CityMap test", () => {
         })();
     });
 
-    it("should show notice error when failed to retrieve the location from navigator.geolocation", (done) => {
-        let wrapper = createWrapper();
+    it("should return null when failed to retrieve the location from navigator.geolocation", (done) => {
+        (async () => {
+            let wrapper = createWrapper();
 
-        let getCurrentPositionStub = sinon.stub(navigator.geolocation, "getCurrentPosition").callsArg(1);
+            let getCurrentPositionStub = sinon.stub(navigator.geolocation, "getCurrentPosition").callsArg(1);
 
-        wrapper.vm.getLocation().catch(() => {
+            const location = await wrapper.vm.getLocation();
+
+            expect(location).to.equal(null);
             expect(getCurrentPositionStub.calledOnce).to.equal(true);
             getCurrentPositionStub.restore();
+
             done();
-        })
+        })();
     });
 
     it("should react to 'search' event", (done) => {
@@ -681,18 +507,6 @@ describe("CityMap test", () => {
         done();
     });
 
-    it("should react to 'city-selected' event", (done) => {
-        let wrapper = createWrapper();
-
-        let selectCityStub = sinon.stub(wrapper.vm, "selectCity");
-
-        wrapper.vm.eventBus.emit("city-selected", testCities[0]);
-
-        expect(selectCityStub.calledOnceWith(testCities[0])).to.equal(true);
-
-        done();
-    });
-
     it("should return the default image", (done) => {
         let wrapper = createWrapper();
 
@@ -702,6 +516,8 @@ describe("CityMap test", () => {
 
         done();
     });
+
+    // init method tests
 
     it("should call init when mounted", (done) => {
         const $route = {
@@ -715,7 +531,8 @@ describe("CityMap test", () => {
             localVue,
             mocks: {
                 $route: $route,
-                $router: router
+                $router: router,
+                $store: $store
             },
             methods: {
                 init() {
@@ -730,85 +547,610 @@ describe("CityMap test", () => {
         done();
     });
 
-    it("should successfully process the result of location and city in init method", (done) => {
+    it("init method should set city from $route.query.cityId without coordinates", (done) => {
         (async () => {
+            const $route = {
+                path: "/map",
+                query: {
+                    cityId: testCities[0].id
+                }
+            };
+
+            const store = {...$store, commit: sinon.stub()};
+
             try {
-                let wrapper = createWrapper();
-                wrapper.vm.city = testCities[0];
-                const coordinates = testCities[0].coordinates;
-                let getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(coordinates);
-                let cityDeferStub = sinon.stub(wrapper.vm.cityDefer, "promisify").resolves(testCities[0]);
-                let setMarkerStub = sinon.stub(wrapper.vm, "setMarker").resolves();
-                let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
+                const wrapper = createWrapper({route: $route, store: store});
+
+                const citiesDeferStub = sinon.stub(wrapper.vm.citiesDefer, "promisify").resolves(testCities);
+                const getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(null);
+                const selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
 
                 await wrapper.vm.init();
+                expect(selectCitySpy.calledOnceWith(testCities[0])).to.equal(true);
 
-                expect(getLocationStub.calledOnce).to.equal(true);
-                expect(cityDeferStub.calledOnce).to.equal(true);
-                expect(setCoordinatesSpy.calledOnceWith(coordinates)).to.equal(true);
-                expect(setMarkerStub.calledOnceWith(wrapper.vm.coordinates, testCities[0].id)).to.equal(true);
-                expect(setMarkerStub.calledAfter(setCoordinatesSpy)).to.equal(true);
-
+                citiesDeferStub.restore();
                 getLocationStub.restore();
-                cityDeferStub.restore();
-                setMarkerStub.restore();
-                setCoordinatesSpy.restore();
+                selectCitySpy.restore();
 
                 done();
-            } catch (e) {
-                console.log(e)
+            } catch (error) {
+                console.log(error);
             }
         })();
     });
 
-    it("should not set coordinates when location regected", (done) => {
+    it("init method should set the default city if cityId from $route.query.cityId is invalid", (done) => {
         (async () => {
-            let wrapper = createWrapper();
-            wrapper.vm.city = testCities[0];
-            let getLocationStub = sinon.stub(wrapper.vm, "getLocation").rejects();
-            let cityDeferSpy = sinon.stub(wrapper.vm.cityDefer, "promisify");
-            let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
-            let noticeErrorSpy = sinon.spy(wrapper.vm.noticesService, "error");
-            let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
+            const $route = {
+                path: "/map",
+                query: {
+                    cityId: 999
+                }
+            };
+
+            const store = {...$store, commit: sinon.stub()};
 
             try {
+                const wrapper = createWrapper({route: $route, store: store});
+
+                const citiesDeferStub = sinon.stub(wrapper.vm.citiesDefer, "promisify").resolves(testCities);
+                const getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(testCities[1].coordinates);
+                const selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
+
                 await wrapper.vm.init();
-            } catch (e) {
-                expect(getLocationStub.calledOnce).to.equal(true);
-                expect(cityDeferSpy.calledOnce).to.equal(true);
-                expect(setCoordinatesSpy.notCalled).to.equal(true);
+                expect(selectCitySpy.calledOnceWith(testCities[0])).to.equal(true);
+
+                citiesDeferStub.restore();
+                getLocationStub.restore();
+                selectCitySpy.restore();
+
+                done();
+            } catch (error) {
+                console.log(error);
+            }
+        })();
+    });
+
+    it("init method should set city from $route.query.cityId with coordinates, that belong to the city", (done) => {
+        (async () => {
+            const $route = {
+                path: "/map",
+                query: {
+                    cityId: testCities[0].id
+                }
+            };
+
+            const store = {...$store};
+            const city = testCities[0];
+
+            try {
+                const wrapper = createWrapper({route: $route, store: store});
+
+                const citiesDeferStub = sinon.stub(wrapper.vm.citiesDefer, "promisify").resolves(testCities);
+                const getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(city.coordinates);
+                const selectCityStub = sinon.stub(wrapper.vm, "selectCity");
+                const coordinatesBelongToCityStub = sinon.stub(wrapper.vm, "coordinatesBelongToCity").returns(true);
+
+                const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
+                const setMarkerStub = sinon.stub(wrapper.vm, "setMarker");
+
+                await wrapper.vm.init();
+
+                expect(selectCityStub.calledWith(testCities[0])).to.equal(true);
+                expect(selectCityStub.calledOnce).to.equal(true);
+
+                expect(coordinatesBelongToCityStub.calledWith(city.coordinates, city)).to.equal(true);
+                expect(coordinatesBelongToCityStub.calledOnce).to.equal(true);
+
+                expect(setCoordinatesSpy.calledOnceWith(city.coordinates)).to.equal(true);
+
+                const expectedCoordinates = city.coordinates.map(c => parseFloat(c.toFixed(appConfig.coordinatesPrecision)));
+
+                expect(wrapper.vm.coordinates).to.have.ordered.members(expectedCoordinates);
+
+                expect(setMarkerStub.calledWith(expectedCoordinates, city.id, true)).to.equal(true);
+                expect(setMarkerStub.calledOnce).to.equal(true);
+
+                citiesDeferStub.restore();
+                getLocationStub.restore();
+                selectCityStub.restore();
+                coordinatesBelongToCityStub.restore();
+
+                done();
+            } catch (error) {
+                console.log(error);
+            }
+        })();
+    });
+
+    it("init method should set city from $route.query.cityId with coordinates, that don't belong to the city", (done) => {
+        (async () => {
+            const $route = {
+                path: "/map",
+                query: {
+                    cityId: testCities[0].id
+                }
+            };
+
+            const store = {...$store};
+            const city = testCities[0];
+            const coordinates = city.coordinates.map(c => c - 0.1);
+
+            try {
+                const wrapper = createWrapper({route: $route, store: store});
+
+                const citiesDeferStub = sinon.stub(wrapper.vm.citiesDefer, "promisify").resolves(testCities);
+                const getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(coordinates);
+                const selectCityStub = sinon.stub(wrapper.vm, "selectCity");
+                const coordinatesBelongToCityStub = sinon.stub(wrapper.vm, "coordinatesBelongToCity").returns(false);
+
+                const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
+                const setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
+
+                await wrapper.vm.init();
+
+                expect(selectCityStub.calledWith(testCities[0])).to.equal(true);
+                expect(selectCityStub.calledOnce).to.equal(true);
+
+                expect(coordinatesBelongToCityStub.calledWith(coordinates, city)).to.equal(true);
+                expect(coordinatesBelongToCityStub.calledOnce).to.equal(true);
+
+                expect(setCoordinatesSpy.calledOnceWith([])).to.equal(true);
+                expect(wrapper.vm.coordinates.length).to.equal(0);
+
                 expect(setMarkerSpy.notCalled).to.equal(true);
 
+                citiesDeferStub.restore();
                 getLocationStub.restore();
-                cityDeferSpy.restore();
-                setMarkerSpy.restore();
-                noticeErrorSpy.restore();
-                setCoordinatesSpy.restore();
+                selectCityStub.restore();
+                coordinatesBelongToCityStub.restore();
 
                 done();
+            } catch (error) {
+                console.log(error);
             }
         })();
     });
 
-    it("should set coordinates and marker on map click", (done) => {
-        let wrapper = createWrapper();
-        wrapper.vm.city = testCities[0];
-        const coordinates = testCities[0].coordinates;
-        let setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
-        let setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
-        let clearMapSpy = sinon.spy(wrapper.vm, "clearMap");
+    it("init method should autodetect and select the city by coordinates", (done) => {
+        (async () => {
+            const $route = {
+                path: "/map",
+                query: {}
+            };
 
-        wrapper.vm.map.fire("click", {latlng: {lat: coordinates[0], lng: coordinates[1]}});
+            try {
+                const wrapper = createWrapper({route: $route});
 
-        setTimeout(() => {
-            expect(setCoordinatesSpy.calledOnceWith(coordinates)).to.equal(true);
-            expect(setMarkerSpy.calledAfter(setCoordinatesSpy)).to.equal(true);
-            expect(setMarkerSpy.calledOnceWith(wrapper.vm.coordinates, testCities[0].id)).to.equal(true);
-            expect(clearMapSpy.called).to.equal(true);
+                const city = testCities[0];
 
-            done();
-        }, 1000);
+                const citiesDeferStub = sinon.stub(wrapper.vm.citiesDefer, "promisify").resolves(testCities);
+                const getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(city.coordinates);
+                const autoDetectCityStub = sinon.stub(wrapper.vm, "autoDetectCity").returns(city);
+                const selectCityStub = sinon.stub(wrapper.vm, "selectCity");
+
+                await wrapper.vm.init();
+
+                expect(autoDetectCityStub.calledWith(city.coordinates)).to.equal(true);
+                expect(autoDetectCityStub.calledOnce).to.equal(true);
+
+                expect(selectCityStub.calledWith(city)).to.equal(true);
+                expect(selectCityStub.calledOnce).to.equal(true);
+
+                citiesDeferStub.restore();
+                getLocationStub.restore();
+                autoDetectCityStub.restore();
+                selectCityStub.restore();
+
+                done();
+            } catch (error) {
+                console.log(error);
+            }
+        })();
     });
+
+    it("should select the first city in list if no cityId and no coordinates on init", (done) => {
+        (async () => {
+            const $route = {
+                path: "/map",
+                query: {}
+            };
+
+            try {
+                const wrapper = createWrapper({route: $route});
+
+                const city = testCities[0];
+
+                const citiesDeferStub = sinon.stub(wrapper.vm.citiesDefer, "promisify").resolves(testCities);
+                const getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(null);
+                const selectCityStub = sinon.stub(wrapper.vm, "selectCity");
+
+                const autoDetectCitySpy = sinon.spy(wrapper.vm, "autoDetectCity");
+
+                await wrapper.vm.init();
+
+                expect(autoDetectCitySpy.notCalled).to.equal(true);
+
+                expect(selectCityStub.calledWith(city)).to.equal(true);
+                expect(selectCityStub.calledOnce).to.equal(true);
+
+                citiesDeferStub.restore();
+                getLocationStub.restore();
+                selectCityStub.restore();
+
+                done();
+            } catch (error) {
+                console.log(error);
+            }
+        })();
+    });
+
+    it("should show notice about the auto detected city being unsupported", (done) => {
+        (async () => {
+            const $route = {
+                path: "/map",
+                query: {}
+            };
+
+            try {
+                const wrapper = createWrapper({route: $route});
+
+                const unknownCoordinates = [52.520007, 13.404954];
+
+                const citiesDeferStub = sinon.stub(wrapper.vm.citiesDefer, "promisify").resolves(testCities);
+                const getLocationStub = sinon.stub(wrapper.vm, "getLocation").resolves(unknownCoordinates);
+                const autoDetectCityStub = sinon.stub(wrapper.vm, "autoDetectCity").returns(undefined);
+
+                const selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
+                const noticesSpy = sinon.spy(wrapper.vm.noticesService, "info");
+
+                await wrapper.vm.init();
+
+                expect(autoDetectCityStub.calledWith(unknownCoordinates)).to.equal(true);
+                expect(autoDetectCityStub.calledOnce).to.equal(true);
+
+                expect(selectCitySpy.notCalled).to.equal(true);
+
+                expect(noticesSpy.calledOnceWith(
+                    constants.NOTICES.CITY_NOT_SUPPORTED.title,
+                    constants.NOTICES.CITY_NOT_SUPPORTED.message)).to.equal(true);
+
+                citiesDeferStub.restore();
+                getLocationStub.restore();
+                autoDetectCityStub.restore();
+                noticesSpy.restore();
+
+                done();
+            } catch (error) {
+                console.log(error);
+            }
+        })();
+    });
+
+    //
+
+    it("autoDetectCity should detect the city by coordinates within its bounds", (done) => {
+        const $route = {
+            path: "/map",
+            query: {}
+        };
+
+        const wrapper = createWrapper({route: $route});
+        const city = testCities[0];
+        const coordinates = city.bounds[0][0].map(c => c + 0.001);
+
+        const result = wrapper.vm.autoDetectCity(coordinates);
+
+        expect(result).to.equal(city);
+
+        done();
+    });
+
+    it("autoDetectCity not detect any city by unknown coordinates", (done) => {
+        const $route = {
+            path: "/map",
+            query: {}
+        };
+
+        const wrapper = createWrapper({route: $route});
+        const unknownCoordinates = [52.520007, 13.404954];
+
+        const result = wrapper.vm.autoDetectCity(unknownCoordinates);
+
+        expect(result).to.be.an("undefined");
+
+        done();
+    });
+
+    //onLocationSuccess
+
+    it("should set new coordinates onLocationSuccess", (done) => {
+        const $route = {
+            path: "/map",
+            query: {}
+        };
+
+        const city = testCities[0];
+        const coordinates = city.coordinates.map(c => c + 0.0001);
+
+        let store = {...$store};
+        store.state.cities.selectedCity = city;
+
+        const wrapper = createWrapper({
+            route: $route,
+            store: store
+        });
+
+        const formatCoordinatesStub = sinon.stub(wrapper.vm, "formatCoordinates").returns(coordinates);
+        const coordinatesChangedStub = sinon.stub(wrapper.vm, "coordinatesChanged").returns(true);
+        const coordinatesBelongToCityStub = sinon.stub(wrapper.vm, "coordinatesBelongToCity").returns(true);
+        const setMarkerStub = sinon.stub(wrapper.vm, "setMarker");
+
+        wrapper.vm.onLocationSuccess({latitude: coordinates[0], longitude: coordinates[1]});
+
+        expect(formatCoordinatesStub.calledWith(coordinates)).to.equal(true);
+        expect(formatCoordinatesStub.calledOnce).to.equal(true);
+
+        expect(coordinatesChangedStub.calledWith(coordinates)).to.equal(true);
+        expect(coordinatesChangedStub.calledOnce).to.equal(true);
+
+        expect(coordinatesBelongToCityStub.calledWith(coordinates)).to.equal(true);
+        expect(coordinatesBelongToCityStub.calledOnce).to.equal(true);
+
+        expect(wrapper.vm.coordinates).to.equal(coordinates);
+        expect(setMarkerStub.calledWith(coordinates, city.id, true)).to.equal(true);
+
+        formatCoordinatesStub.restore();
+        coordinatesChangedStub.restore();
+        coordinatesBelongToCityStub.restore();
+        setMarkerStub.restore();
+
+        done();
+    });
+
+    it("should not update location if coordinates haven't changed onLocationSuccess", (done) => {
+        const $route = {
+            path: "/map",
+            query: {}
+        };
+
+        const city = testCities[0];
+        const coordinates = city.coordinates.map(c => c + 0.0001);
+
+        let store = {...$store};
+        store.state.cities.selectedCity = city;
+
+        const wrapper = createWrapper({
+            route: $route,
+            store: store
+        });
+
+        wrapper.vm.coordinates = city.coordinates;
+
+        const formatCoordinatesStub = sinon.stub(wrapper.vm, "formatCoordinates").returns(coordinates);
+        const coordinatesChangedStub = sinon.stub(wrapper.vm, "coordinatesChanged").returns(false);
+        const coordinatesBelongToCityStub = sinon.stub(wrapper.vm, "coordinatesBelongToCity").returns(true);
+        const setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
+
+        wrapper.vm.onLocationSuccess({latitude: coordinates[0], longitude: coordinates[1]});
+
+        expect(formatCoordinatesStub.calledWith(coordinates)).to.equal(true);
+        expect(formatCoordinatesStub.calledOnce).to.equal(true);
+
+        expect(coordinatesChangedStub.calledWith(coordinates)).to.equal(true);
+        expect(coordinatesChangedStub.calledOnce).to.equal(true);
+
+        expect(coordinatesBelongToCityStub.calledWith(coordinates)).to.equal(true);
+        expect(coordinatesBelongToCityStub.calledOnce).to.equal(true);
+
+        expect(wrapper.vm.coordinates).to.equal(city.coordinates);
+        expect(setMarkerSpy.notCalled).to.equal(true);
+
+        formatCoordinatesStub.restore();
+        coordinatesChangedStub.restore();
+        coordinatesBelongToCityStub.restore();
+        setMarkerSpy.restore();
+
+        done();
+    });
+
+    it("should should try to autodetect the new city in onLocationSuccess", (done) => {
+        const $route = {
+            path: "/map",
+            query: {}
+        };
+
+        const oldCity = testCities[0];
+        const newCity = testCities[1];
+        const newCoordinates = newCity.coordinates.map(c => c + 0.0001);
+
+        let store = {...$store};
+        store.state.cities.selectedCity = oldCity;
+
+        const wrapper = createWrapper({
+            route: $route,
+            store: store
+        });
+
+        wrapper.vm.coordinates = oldCity.coordinates;
+
+        const formatCoordinatesStub = sinon.stub(wrapper.vm, "formatCoordinates").returns(newCoordinates);
+        const coordinatesChangedStub = sinon.stub(wrapper.vm, "coordinatesChanged").returns(true);
+        const coordinatesBelongToCityStub = sinon.stub(wrapper.vm, "coordinatesBelongToCity").returns(false);
+        const setMarkerStub = sinon.stub(wrapper.vm, "setMarker");
+        const autoDetectCityStub = sinon.stub(wrapper.vm, "autoDetectCity").returns(newCity);
+        const selectCityStub = sinon.stub(wrapper.vm, "selectCity");
+
+        wrapper.vm.onLocationSuccess({latitude: newCoordinates[0], longitude: newCoordinates[1]});
+
+        expect(formatCoordinatesStub.calledWith(newCoordinates)).to.equal(true);
+        expect(formatCoordinatesStub.calledOnce).to.equal(true);
+
+        expect(coordinatesChangedStub.calledWith(newCoordinates)).to.equal(true);
+        expect(coordinatesChangedStub.calledOnce).to.equal(true);
+
+        expect(coordinatesBelongToCityStub.calledWith(newCoordinates)).to.equal(true);
+        expect(coordinatesBelongToCityStub.calledOnce).to.equal(true);
+
+        expect(autoDetectCityStub.calledWith(newCoordinates)).to.equal(true);
+        expect(autoDetectCityStub.calledOnce).to.equal(true);
+
+        expect(selectCityStub.calledWith(newCity)).to.equal(true);
+        expect(selectCityStub.calledOnce).to.equal(true);
+
+        expect(wrapper.vm.coordinates).to.equal(newCoordinates);
+
+        expect(setMarkerStub.calledWith(newCoordinates, newCity.id, true)).to.equal(true);
+        expect(setMarkerStub.calledOnce).to.equal(true);
+
+        formatCoordinatesStub.restore();
+        coordinatesChangedStub.restore();
+        coordinatesBelongToCityStub.restore();
+        setMarkerStub.restore();
+        autoDetectCityStub.restore();
+        selectCityStub.restore();
+
+        done();
+    });
+
+    it("should should try to autodetect the new city in onLocationSuccess and show notice that this city is not supported", (done) => {
+        const $route = {
+            path: "/map",
+            query: {}
+        };
+
+        const oldCity = testCities[0];
+        const newCity = testCities[1];
+        const newCoordinates = newCity.coordinates.map(c => c + 0.0001);
+
+        let store = {...$store};
+        store.state.cities.selectedCity = oldCity;
+
+        const wrapper = createWrapper({
+            route: $route,
+            store: store
+        });
+
+        wrapper.vm.coordinates = oldCity.coordinates;
+
+        const formatCoordinatesStub = sinon.stub(wrapper.vm, "formatCoordinates").returns(newCoordinates);
+        const coordinatesChangedStub = sinon.stub(wrapper.vm, "coordinatesChanged").returns(true);
+        const coordinatesBelongToCityStub = sinon.stub(wrapper.vm, "coordinatesBelongToCity").returns(false);
+        const setMarkerSpy = sinon.spy(wrapper.vm, "setMarker");
+        const autoDetectCityStub = sinon.stub(wrapper.vm, "autoDetectCity").returns(undefined);
+        const selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
+        const noticesSpy = sinon.spy(wrapper.vm.noticesService, "info");
+
+        wrapper.vm.onLocationSuccess({latitude: newCoordinates[0], longitude: newCoordinates[1]});
+
+        expect(formatCoordinatesStub.calledWith(newCoordinates)).to.equal(true);
+        expect(formatCoordinatesStub.calledOnce).to.equal(true);
+
+        expect(coordinatesChangedStub.calledWith(newCoordinates)).to.equal(true);
+        expect(coordinatesChangedStub.calledOnce).to.equal(true);
+
+        expect(coordinatesBelongToCityStub.calledWith(newCoordinates)).to.equal(true);
+        expect(coordinatesBelongToCityStub.calledOnce).to.equal(true);
+
+        expect(autoDetectCityStub.calledWith(newCoordinates)).to.equal(true);
+        expect(autoDetectCityStub.calledOnce).to.equal(true);
+
+        expect(selectCitySpy.notCalled).to.equal(true);
+        expect(wrapper.vm.coordinates).to.equal(oldCity.coordinates);
+        expect(setMarkerSpy.notCalled).to.equal(true);
+
+        expect(noticesSpy.calledOnceWith(
+            constants.NOTICES.CITY_NOT_SUPPORTED.title,
+            constants.NOTICES.CITY_NOT_SUPPORTED.message)).to.equal(true);
+
+        formatCoordinatesStub.restore();
+        coordinatesChangedStub.restore();
+        coordinatesBelongToCityStub.restore();
+        autoDetectCityStub.restore();
+        selectCitySpy.restore();
+        setMarkerSpy.restore();
+
+        done();
+    });
+
+    //
+
+    //focusOnCity
+
+    it("should set city coordinates and bounds on map", (done) => {
+        const city = testCities[0];
+
+        const $route = {
+            path: "/map",
+            query: {}
+        };
+
+        const wrapper = createWrapper({route: $route});
+
+        const clearMapStub = sinon.stub(wrapper.vm, "clearMap");
+        const setMaxBoundsStub = sinon.stub(wrapper.vm.map, "setMaxBounds");
+        const setViewStub = sinon.stub(wrapper.vm.map, "setView");
+        const routerStub = sinon.stub(wrapper.vm.$router, "push");
+
+        wrapper.vm.focusOnCity(city);
+
+        expect(wrapper.vm.selectedStreet).to.equal(null);
+        expect(clearMapStub.calledOnce).to.equal(true);
+
+        expect(setMaxBoundsStub.calledWith([city.bounds[0][0], city.bounds[0][2]])).to.equal(true);
+        expect(setMaxBoundsStub.calledOnce).to.equal(true);
+
+        expect(setViewStub.calledWith(new L.LatLng(city.coordinates[0], city.coordinates[1]), wrapper.vm.zoom)).to.equal(true);
+        expect(setViewStub.calledOnce).to.equal(true);
+
+        expect(routerStub.calledWith({query: {cityId: city.id, lat: undefined, lng: undefined, page: undefined}})).to.equal(true);
+
+        clearMapStub.restore();
+        setMaxBoundsStub.restore();
+        setViewStub.restore();
+        routerStub.restore();
+
+        done();
+    });
+
+    //
+
+    //onMapClick
+
+    it("should set coordinates and marker using the data of map click event", (done) => {
+        const $route = {
+            path: "/map",
+            query: {}
+        };
+
+        const clock = sinon.useFakeTimers();
+
+        const wrapper = createWrapper({route: $route});
+
+        const city = testCities[0];
+        const coordinates = city.coordinates.map(c => c + 0.0001);
+
+        const setCoordinatesSpy = sinon.spy(wrapper.vm, "setCoordinates");
+        const clearMapStub = sinon.stub(wrapper.vm, "clearMap");
+        const setMarkerStub = sinon.stub(wrapper.vm, "setMarker");
+
+        wrapper.vm.onMapClick({latlng: {lat: coordinates[0], lng: coordinates[1]}});
+
+        clock.next();
+
+        expect(setCoordinatesSpy.calledOnceWith(coordinates)).to.equal(true);
+        expect(setMarkerStub.calledOnce).to.equal(true);
+
+        setCoordinatesSpy.restore();
+        clearMapStub.restore();
+        setMarkerStub.restore();
+
+        clock.restore();
+
+        done();
+    });
+
+    //
 
     it("should set the coordinates", (done) => {
         let wrapper = createWrapper();
@@ -816,8 +1158,8 @@ describe("CityMap test", () => {
 
         wrapper.vm.setCoordinates(coordinates);
 
-        expect(wrapper.vm.coordinates[0]).to.equal(coordinates[0].toFixed(appConfig.coordinatesPrecision));
-        expect(wrapper.vm.coordinates[1]).to.equal(coordinates[1].toFixed(appConfig.coordinatesPrecision));
+        expect(wrapper.vm.coordinates[0]).to.equal(parseFloat(coordinates[0].toFixed(appConfig.coordinatesPrecision)));
+        expect(wrapper.vm.coordinates[1]).to.equal(parseFloat(coordinates[1].toFixed(appConfig.coordinatesPrecision)));
 
         done();
     });

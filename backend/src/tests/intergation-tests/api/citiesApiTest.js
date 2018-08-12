@@ -167,7 +167,7 @@ describe("cities route", function () {
         let expectedCitiesList = citiesTestData.filter(value => {
             return value.name.startsWith(search);
         });
-        expectedCitiesList = _.sortBy(expectedCitiesList, "name");
+        expectedCitiesList = _.sortBy(expectedCitiesList, "id");
         const limit = 10;
         const expectedLength = expectedCitiesList.length > limit ? limit : expectedCitiesList.length;
 

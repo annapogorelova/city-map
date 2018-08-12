@@ -54,7 +54,6 @@
                                ref="pager"
                                :limit="pageLimit"
                                :count="streetsCount"
-                               v-on:init="preloadData"
                                v-on:paginate="getStreets"></pager>
                     </div>
                 </div>
@@ -120,6 +119,8 @@
     import Autocomplete from "../shared/autocomplete";
     import {optional} from "tooleks";
     import constants from "../../constants";
+    import {mapState} from "vuex";
+    import mutationTypes from "../../store/mutation-types";
 
     export default {
         components: {Autocomplete, Search, CitiesList, Pager, BootstrapModal},
@@ -132,13 +133,19 @@
         },
         data: function () {
             return {
-                cityId: undefined,
                 streets: [],
                 streetsCount: 0,
                 selectedStreet: undefined
             }
         },
         computed: {
+            ...mapState({
+                selectedCity: state => state.cities.selectedCity,
+                cities: state => state.cities.cities
+            }),
+            cityId() {
+                return optional(() => this.selectedCity.id);
+            },
             pager() {
                 return this.$refs.pager;
             },
@@ -149,19 +156,28 @@
                 return this.$refs.search;
             }
         },
-        created: function () {
+        mounted: function () {
+            this.$store.subscribe((mutation) => {
+                if(mutation.type === `cities/${mutationTypes.CITIES.SET_CITIES}` && !this.selectedCity) {
+                    const city = this.cities[0];
+                    this.$store.commit(`cities/${mutationTypes.CITIES.SET_SELECTED_CITY}`, city);
+                    this.$router.push({query: {cityId: city.id}});
+                    this.pager.goToPage(1);
+                } else if(mutation.type === `cities/${mutationTypes.CITIES.SET_SELECTED_CITY}`) {
+                    this.$router.push({query: {cityId: mutation.payload.id}});
+                    this.pager.goToPage(1);
+                }
+            });
+
             if (!isNaN(this.$route.query.cityId)) {
-                this.cityId = parseInt(this.$route.query.cityId);
+                const cityId = parseInt(this.$route.query.cityId);
+                if(!this.selectedCity || this.selectedCity.id !== cityId) {
+                    const city = this.cities.find(city => city.id === cityId);
+                    this.$store.commit(`cities/${mutationTypes.CITIES.SET_SELECTED_CITY}`, city);
+                }
             }
 
-            this.citySelectOff = this.eventBus.on("city-selected", (city) => {
-                this.selectCity(city.id);
-            });
-        },
-        beforeDestroy: function () {
-            if(this.citySelectOff) {
-                this.citySelectOff();
-            }
+            this.preloadData();
         },
         methods: {
             preloadData() {
@@ -182,12 +198,6 @@
                         this.search.clear();
                     }
                 });
-            },
-            selectCity(cityId) {
-                if(this.cityId !== cityId) {
-                    this.cityId = cityId;
-                    this.pager.goToPage(1);
-                }
             },
             edit(street) {
                 if (!street) {

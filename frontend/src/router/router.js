@@ -3,11 +3,13 @@ import VueMeta from "vue-meta";
 import Router from "vue-router";
 import dc from "../dependency-container/index";
 import routes from "./routes";
+import store from "../store/index";
+import {optional} from "tooleks";
 
 Vue.use(Router);
 Vue.use(VueMeta);
 
-let router = new Router({
+const router = new Router({
     mode: "history",
     routes,
     scrollBehavior() {
@@ -27,6 +29,10 @@ router.beforeEach((to, from, next) => {
 
     if(!dc.get("screen").isLarge()) {
         $(".navbar-collapse").collapse("hide");
+    }
+
+    if(to.meta.dependsOnCity && !to.query.cityId) {
+        next({name: to.name, query: {cityId: optional(() => store.state.cities.selectedCity.id)}});
     }
 });
 

@@ -218,6 +218,8 @@
     import Sidebar from "../layout/sidebar";
     import _ from "lodash";
     import Loader from "../shared/loader";
+    import {mapState} from "vuex";
+    import mutationTypes from "../../store/mutation-types";
 
     export default {
         components: {Loader, Sidebar, BasicMap, CitiesList, StreetDescription, Search},
@@ -247,35 +249,20 @@
                 markers: [],
                 selectedStreet: undefined,
                 polyLines: [],
-                city: undefined,
                 coordinates: [],
                 searchInProgress: false
             }
         },
         watch: {
-            "$route.query.cityId": function (cityId) {
-                if (!isNaN(cityId) && (!this.city || this.city.id !== cityId)) {
-                    this.citiesService.getCity(cityId).then(response => {
-                        this.selectCity(response.data);
-                    });
-                }
-            },
-            city: function (city) {
-                this.setCoordinates(optional(() => city.coordinates, []));
-                this.clearMap();
-
-                const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]], []);
-                this.map.setMaxBounds(bounds);
-
-                if (city) {
-                    this.$refs.map.setCenter(city.coordinates[0], city.coordinates[1], this.zoom);
-                }
-            },
             coordinates: function (coordinates) {
                 this.$router.push({query: {...this.$route.query, lat: coordinates[0], lng: coordinates[1]}});
             }
         },
         computed: {
+            ...mapState({
+                selectedCity: state => state.cities.selectedCity,
+                cities: state => state.cities.cities
+            }),
             map: function () {
                 return this.$refs.map.getMap();
             },
@@ -292,13 +279,7 @@
                 return require("../../../static/images/city.png");
             },
             cityId: function () {
-                if (this.city) {
-                    return this.city.id;
-                } else if (!isNaN(this.$route.query.cityId)) {
-                    return this.$route.query.cityId;
-                }
-
-                return null;
+                return optional(() => this.selectedCity.id);
             },
             mapHeight: function () {
                 return window.innerHeight - this.topBarHeight;
@@ -323,11 +304,17 @@
                 this.onSearchStreet(search);
             });
 
-            this.cityDefer = new Defer();
+            this.citiesDefer = new Defer();
 
-            this.citySelectOff = this.eventBus.on("city-selected", (city) => {
-                this.selectCity(city);
-                this.cityDefer.resolve(city);
+            this.$store.subscribe((mutation) => {
+                if (mutation.type === `cities/${mutationTypes.CITIES.SET_CITIES}`) {
+                    this.citiesDefer.resolve(mutation.payload);
+                } else if (mutation.type === `cities/${mutationTypes.CITIES.SET_SELECTED_CITY}`) {
+                    // If new city and route with map is activated
+                    if (this.$route.name === "map") {
+                        this.focusOnCity(this.selectedCity);
+                    }
+                }
             });
         },
         mounted: function () {
@@ -337,35 +324,79 @@
             if (this.searchEventOff) {
                 this.searchEventOff();
             }
-
-            if (this.citySelectOff) {
-                this.citySelectOff();
-            }
         },
         methods: {
             init: function () {
-                return Promise.all([
-                    this.getLocation(),
-                    this.cityDefer.promisify()
-                ]).then((data) => {
-                    this.setCoordinates(data[0]);
-                    this.setMarker(this.coordinates, this.cityId, true);
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        const asyncActions = [this.getLocation()];
+                        if(!this.cities) {
+                            asyncActions.push(this.citiesDefer.promisify());
+                        }
+                        const [coordinates] = await Promise.all(asyncActions);
+
+                        const cityId = parseInt(this.$route.query.cityId);
+                        const cityExists = this.cities.find(city => city.id === cityId);
+
+                        // If there is cityId in query and city with this id exists - select the city by id
+                        // If no city - try to detect it by coordinates
+                        // If no coordinates - select first city
+                        if (!isNaN(cityId) && cityExists) {
+                            const city = this.cities.find(city => city.id === cityId);
+                            if (city) {
+                                this.selectCity(city);
+                            }
+
+                            if (coordinates && this.coordinatesBelongToCity(coordinates, city)) {
+                                this.setCoordinates(coordinates);
+                                this.setMarker(this.coordinates, city.id, true);
+                            } else {
+                                this.setCoordinates([]);
+                            }
+                        } else if (isNaN(cityId) && coordinates) {
+                            const city = this.autoDetectCity(coordinates);
+
+                            if (city) {
+                                this.selectCity(city);
+                                this.setCoordinates(coordinates);
+                                this.setMarker(this.coordinates, city.id, true);
+                            } else {
+                                this.noticesService.info(
+                                    constants.NOTICES.CITY_NOT_SUPPORTED.title,
+                                    constants.NOTICES.CITY_NOT_SUPPORTED.message
+                                );
+                            }
+                        } else if (!coordinates || !cityExists) {
+                            this.selectCity(this.cities[0]);
+                            this.noticesService.info(
+                                constants.NOTICES.DEFAULT_CITY_SELECTED.title,
+                                constants.NOTICES.DEFAULT_CITY_SELECTED.message
+                            );
+                        }
+
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
                 });
             },
+            autoDetectCity: function (coordinates) {
+                return this.cities.find(city => this.coordinatesBelongToCity(coordinates, city));
+            },
             getLocation: function () {
-                return new Promise((resolve, reject) => {
+                return new Promise((resolve) => {
                     if (this.$route.query.lat && this.$route.query.lng) {
                         resolve([parseFloat(this.$route.query.lat), parseFloat(this.$route.query.lng)]);
                     } else {
                         navigator.geolocation.getCurrentPosition((position) => {
                             resolve([position.coords.latitude, position.coords.longitude]);
                         }, () => {
-                            reject();
+                            resolve(null);
                         }, {timeout: this.locationTimeout});
                     }
                 });
             },
-            findClosestStreet: function (coordinates, cityId, isLocated) {
+            findClosestStreet: async function (coordinates, cityId, isLocated) {
                 this.searchInProgress = true;
                 return this.streetsService.getStreetByCoordinates({
                     cityId: cityId,
@@ -379,32 +410,31 @@
                 });
             },
             setMarker: function (coordinates, cityId, isLocated = false) {
-                return new Promise((resolve, reject) => {
+                return new Promise(async (resolve, reject) => {
                     this.selectedStreet = null;
 
-                    this.findClosestStreet(coordinates, cityId, isLocated).then(street => {
-                        try {
-                            this.clearMap();
+                    try {
+                        const street = await this.findClosestStreet(coordinates, cityId, isLocated);
+                        this.clearMap();
 
-                            if (street) {
-                                this.setSelectedStreet(street, coordinates);
-                            } else {
-                                const marker = L.marker(coordinates);
-                                this.markers.push(marker);
+                        if (street) {
+                            this.setSelectedStreet(street, coordinates);
+                        } else {
+                            const marker = L.marker(coordinates);
+                            this.markers.push(marker);
 
-                                marker
-                                    .addTo(this.map)
-                                    .bindPopup(`<b>${constants.NOTICES.NOT_A_STREET.title}</b><br>${constants.NOTICES.NOT_A_STREET.message}`)
-                                    .openPopup();
+                            marker
+                                .addTo(this.map)
+                                .bindPopup(`<b>${constants.NOTICES.NOT_A_STREET.title}</b><br>${constants.NOTICES.NOT_A_STREET.message}`)
+                                .openPopup();
 
-                                this.setMapView(coordinates);
-                            }
-
-                            resolve();
-                        } catch (error) {
-                            reject(error);
+                            this.setMapView(coordinates);
                         }
-                    });
+
+                        resolve();
+                    } catch (error) {
+                        reject(error);
+                    }
                 });
             },
             setSelectedStreet(street, coordinates) {
@@ -414,28 +444,26 @@
                 this.setStreetMarker(coordinates, street);
             },
             drawStreet(street) {
-                street.ways.map(way => {
+                street.ways.forEach(way => {
                     this.polyLines.push(this.drawPolyline(way));
                 });
             },
             setMapView(coordinates) {
                 const currentZoom = this.map.getZoom();
-                this.map.setView(coordinates, currentZoom >= this.focusZoom ? currentZoom : this.focusZoom);
+                this.map.setView(new L.LatLng(coordinates[0], coordinates[1]), currentZoom > this.focusZoom ? currentZoom : this.focusZoom);
             },
             /**
-             * Sets new coordinates if they have changed, returns true if changed, false if not
+             * Sets new coordinates if they have changed
              * @param coordinates
-             * @returns {boolean}
              */
             setCoordinates(coordinates) {
-                const newCoordinates = coordinates.length ?
-                    coordinates.map(c => parseFloat(c).toFixed(appConfig.coordinatesPrecision)) : [];
+                const newCoordinates = coordinates.length ? this.formatCoordinates(coordinates) : [];
                 if (this.coordinatesChanged(newCoordinates, this.coordinates)) {
                     this.coordinates = newCoordinates;
-                    return true;
                 }
-
-                return false;
+            },
+            formatCoordinates(coordinates) {
+                return coordinates.map(c => parseFloat(parseFloat(c).toFixed(appConfig.coordinatesPrecision)));
             },
             coordinatesChanged(newCoordinates, oldCoordinates) {
                 if (!newCoordinates.length && !oldCoordinates.length) {
@@ -465,7 +493,7 @@
                             namedEntities[i],
                             namedEntities.length > 1 ? {"margin-left": `-${i * 50}px`} : null);
 
-                        if(i === 0) {
+                        if (i === 0) {
                             this.bindPopup(street, marker);
                         }
 
@@ -512,13 +540,13 @@
 
                 marker.bindPopup(popupContent, {offset: L.point(7, -15)});
             },
-            addImageMarkerToMap: function(marker) {
+            addImageMarkerToMap: function (marker) {
                 marker.on("click", (event) => {
                     event.target.closePopup();
                     this.sidebar.toggle();
                 }).addTo(this.map);
 
-                if(!this.sidebar.isOpen && !this.sidebar.isSidebarFooterShown()) {
+                if (!this.sidebar.isOpen && !this.sidebar.isSidebarFooterShown()) {
                     marker.openPopup()
                 }
             },
@@ -534,16 +562,30 @@
                 this.setMarker(this.coordinates, this.cityId);
             }, 500),
             selectCity(city) {
-                this.city = city;
-                this.selectedStreet = null;
+                this.$store.commit(`cities/${mutationTypes.CITIES.SET_SELECTED_CITY}`, city);
             },
-            onSearchStreet(streetName) {
-                return new Promise((resolve, reject) => {
+            focusOnCity(city) {
+                this.selectedStreet = null;
+
+                try {
+                    this.clearMap();
+
+                    const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]], []);
+                    this.map.setMaxBounds(bounds);
+                    this.map.setView(new L.LatLng(city.coordinates[0], city.coordinates[1]), this.zoom);
+                    this.$router.push({query: {cityId: city.id, lat: undefined, lng: undefined, page: undefined}});
+                } catch (error) {
+                    // doing this to escape the error
+                }
+            },
+            onSearchStreet: function (streetName) {
+                return new Promise(async (resolve, reject) => {
                     if (!streetName) {
                         reject();
                     }
 
-                    this.streetsService.search({cityId: this.cityId, search: streetName}).then(response => {
+                    try {
+                        const response = await this.streetsService.search({cityId: this.cityId, search: streetName})
                         const street = optional(() => response.data[0], null);
 
                         this.clearMap();
@@ -559,19 +601,45 @@
                                 constants.NOTICES.STREET_NOT_FOUND.message
                             );
                         }
-
-                        resolve();
-                    });
+                        resolve(street);
+                    } catch (error) {
+                        reject(error);
+                    }
                 });
             },
             renderImageMarker({coordinates, imageProps, className} = {}) {
-                let icon = L.divIcon({html: provideImageMarkerHtml(imageProps), className: className});
+                const icon = L.divIcon({html: provideImageMarkerHtml(imageProps), className: className});
                 return L.marker(coordinates, {icon, riseOnHover: true});
             },
+            /**
+             * Map location success handler
+             * Sets marker if coordinates have changed and belong to the selected city.
+             * If coordinates don't belong to the selected city, tries to identify the new city.
+             * If it finds the new city, then selects it and sets the coordinates.
+             * Otherwise - shows notice that city is not supported.
+             * @param event
+             */
             onLocationSuccess(event) {
-                let updated = this.setCoordinates([event.latitude, event.longitude]);
-                if (updated) {
+                const newCoordinates = this.formatCoordinates([event.latitude, event.longitude]);
+                const coordinatesChanged = this.coordinatesChanged(newCoordinates, this.coordinates);
+                const coordinatesBelongToCity = this.selectedCity ?
+                    this.coordinatesBelongToCity(newCoordinates, this.selectedCity) : false;
+
+                if (coordinatesChanged && coordinatesBelongToCity) {
+                    this.coordinates = newCoordinates;
                     this.setMarker(this.coordinates, this.cityId, true);
+                } else if (!coordinatesBelongToCity || !this.selectedCity) {
+                    const newCity = this.autoDetectCity(newCoordinates);
+                    if (newCity) {
+                        this.selectCity(newCity);
+                        this.coordinates = newCoordinates;
+                        this.setMarker(this.coordinates, newCity.id, true);
+                    } else {
+                        this.noticesService.info(
+                            constants.NOTICES.CITY_NOT_SUPPORTED.title,
+                            constants.NOTICES.CITY_NOT_SUPPORTED.message
+                        );
+                    }
                 }
             },
             onLocationError() {
@@ -579,6 +647,13 @@
                     constants.NOTICES.FAILED_TO_GET_LOCATION.title,
                     constants.NOTICES.FAILED_TO_GET_LOCATION.message
                 )
+            },
+            coordinatesBelongToCity(coordinates, city) {
+                let bottomLeft = city.bounds[0][0];
+                let topRight = city.bounds[0][2];
+
+                const bounds = L.bounds(L.point(bottomLeft[0], bottomLeft[1]), L.point(topRight[0], topRight[1]));
+                return bounds.contains(L.point(coordinates));
             }
         }
     }

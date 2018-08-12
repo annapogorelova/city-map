@@ -22,7 +22,7 @@ function makeCityService(db) {
     }
 
     function search(search, isPublished = null, offset = 0, limit = 5) {
-        const selectParams = {offset: offset, limit: limit, order: [["name"]]};
+        const selectParams = {offset: offset, limit: limit, order: [["id"]]};
         if(isPublished !== null) {
             selectParams["where"] = {isPublished: isPublished};
         }

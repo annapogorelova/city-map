@@ -8,12 +8,9 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="citiesDropdown" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        {{city ? city.name : citiesHeader}}
+                        {{selectedCity ? selectedCity.name : citiesHeader}}
                     </a>
-                    <cities-list ref="cities"
-                                 v-on:citySelected="onCitySelected"
-                                 v-bind:preselected-city-id="initialCityId"
-                                 v-bind:preselect-default="true"></cities-list>
+                    <cities-list ref="cities"></cities-list>
                 </li>
                 <li class="nav-item" v-if="isAuthenticated">
                     <router-link class="nav-link" to="/dark/streets">{{streetsHeader}}</router-link>
@@ -46,17 +43,15 @@
     import {optional} from "tooleks";
     import constants from "../../constants";
     import appConfig from "../../app.config";
+    import {mapState} from "vuex";
 
     export default {
         components: {CitiesList},
         mixins: [AuthMixin, EventBusMixin],
-        data: function () {
-            return {
-                city: undefined,
-                initialCityId: undefined
-            }
-        },
         computed: {
+            ...mapState({
+                selectedCity: store => store.cities.selectedCity
+            }),
             appName: () => appConfig.appName,
             citiesHeader: () => constants.HEADERS.CITIES,
             streetsHeader: () => constants.HEADERS.STREETS,
@@ -65,37 +60,6 @@
             aboutHeader: () => constants.HEADERS.ABOUT,
             logo: function () {
                 return require("../../../static/images/logo.png");
-            }
-        },
-        watch: {
-            '$route': function (route) {
-                if(!route.meta.dependsOnCity) {
-                    return;
-                }
-
-                const cityId = parseInt(route.query.cityId);
-                if(this.city && cityId !== this.city.id) {
-                    this.$router.push({query: {cityId: this.city.id, ...route.query}});
-                    this.eventBus.emit("city-selected", this.city);
-                }
-            }
-        },
-        created: function () {
-            if(!isNaN(optional(() => this.$route.query.cityId))) {
-                this.initialCityId = parseInt(this.$route.query.cityId);
-            }
-        },
-        methods: {
-            onCitySelected: function(city) {
-                this.city = city;
-
-                if(this.$route.meta.dependsOnCity) {
-                    let query = {...this.$route.query};
-                    query.cityId = city.id;
-                    query.coordinates = undefined;
-                    this.$router.push({query: query});
-                    this.eventBus.emit("city-selected", city);
-                }
             }
         }
     }

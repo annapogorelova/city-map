@@ -3,10 +3,10 @@ import sinon from "sinon";
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import dc from "../../../src/dependency-container";
-import appConfig from "../../../src/app.config";
+import mutationTypes from "../../../src/store/mutation-types";
 
 describe("CitiesList test", () => {
-    let localVue, router;
+    let localVue, router, $store;
 
     const testCities = [{
         id: 1,
@@ -28,160 +28,71 @@ describe("CitiesList test", () => {
         router = new VueRouter();
         localVue.use(router);
 
+        $store = {
+            subscribe: sinon.stub(),
+            commit: sinon.stub(),
+            state: {
+                cities: {
+                    selectedCity: undefined,
+                    cities: testCities
+                }
+            }
+        };
+
         done();
     });
 
-    it("should load cities on created hook", (done) => {
-        let wrapper = shallowMount(CitiesList, {
-            localVue
-        });
-
-        let getCitiesStub = sinon.stub(wrapper.vm.citiesService, "getCities").resolves({data: testCities});
-
-        expect(getCitiesStub.calledOnceWith({limit: appConfig.defaultCitiesCount}));
-
-        done();
-    });
-
-    it("should load cities", (done) => {
-        (async () => {
-            let wrapper = shallowMount(CitiesList, {
-                localVue
-            });
-
-            let preselectCitySpy = sinon.spy(wrapper.vm, "preselectCity");
-            let getCitiesStub = sinon.stub(wrapper.vm.citiesService, "getCities").resolves({data: testCities});
-
-            await wrapper.vm.loadCities();
-
-            expect(getCitiesStub.calledOnceWith({limit: appConfig.defaultCitiesCount}));
-
-            expect(wrapper.vm.cities).to.equal(testCities);
-            expect(preselectCitySpy.calledOnce).to.equal(true);
-
-            done();
-        })();
-    });
-
-    it("should preselect city by preselectedCityId", (done) => {
-        let wrapper = shallowMount(CitiesList, {
+    it("should subscribe to mutations on created hook", (done) => {
+        const wrapper = shallowMount(CitiesList, {
             localVue,
-            propsData: {
-                preselectedCityId: testCities[1].id
+            mocks: {
+                $store: $store
             }
         });
 
-        let selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
-
-        wrapper.vm.cities = testCities;
-        wrapper.vm.preselectCity();
-
-        expect(selectCitySpy.calledOnceWith(testCities[1])).to.equal(true);
+        expect($store.subscribe.calledOnce).to.equal(true);
 
         done();
     });
 
-    it("should preselect city without preselectedCityId by default city name", (done) => {
-        let wrapper = shallowMount(CitiesList, {
+    it("should select new city", (done) => {
+        const wrapper = shallowMount(CitiesList, {
             localVue,
-            propsData: {
-                preselectDefault: true
+            mocks: {
+                $store: $store
             }
-        });
-
-        const defaultCity = testCities.filter(c => c.name === appConfig.defaultCityName)[0];
-
-        let selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
-
-        wrapper.vm.cities = testCities;
-        wrapper.vm.preselectCity();
-
-        expect(selectCitySpy.calledOnceWith(defaultCity)).to.equal(true);
-
-        done();
-    });
-
-    it("should preselect the first city", (done) => {
-        let wrapper = shallowMount(CitiesList, {
-            localVue,
-            propsData: {
-                preselectDefault: true
-            }
-        });
-
-        sinon.stub(appConfig, "defaultCityName").value(undefined);
-
-        let selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
-
-        wrapper.vm.cities = testCities;
-        wrapper.vm.preselectCity();
-
-        expect(selectCitySpy.calledOnceWith(wrapper.vm.cities[0])).to.equal(true);
-
-        done();
-    });
-
-    it("should not preselect any city", (done) => {
-        let wrapper = shallowMount(CitiesList, {
-            localVue
-        });
-
-        let selectCitySpy = sinon.spy(wrapper.vm, "selectCity");
-
-        wrapper.vm.cities = testCities;
-        wrapper.vm.preselectCity();
-
-        expect(selectCitySpy.notCalled).to.equal(true);
-
-        done();
-    });
-
-    it("should set the selected city", (done) => {
-        let wrapper = shallowMount(CitiesList, {
-            localVue
         });
 
         const city = testCities[0];
-        let emitSpy = sinon.spy(wrapper.vm, "$emit");
+        const isCitySelectedStub = sinon.stub(wrapper.vm, "isCitySelected").returns(false);
 
         wrapper.vm.selectCity(city);
 
-        expect(wrapper.vm.selectedCity).to.equal(city);
-        expect(emitSpy.calledOnceWith("citySelected", wrapper.vm.selectedCity)).to.equal(true);
+        expect(isCitySelectedStub.calledWith(city)).to.equal(true);
+        expect($store.commit.calledWith(`cities/${mutationTypes.CITIES.SET_SELECTED_CITY}`, city)).to.equal(true);
+
+        isCitySelectedStub.restore();
 
         done();
     });
 
-    it("should not set the selected city because it's already selected", (done) => {
-        let wrapper = shallowMount(CitiesList, {
-            localVue
+    it("should not select new city because it's already selected", (done) => {
+        const wrapper = shallowMount(CitiesList, {
+            localVue,
+            mocks: {
+                $store: $store
+            }
         });
 
         const city = testCities[0];
-        let emitSpy = sinon.spy(wrapper.vm, "$emit");
+        const isCitySelectedStub = sinon.stub(wrapper.vm, "isCitySelected").returns(true);
 
-        wrapper.vm.selectedCity = city;
         wrapper.vm.selectCity(city);
 
-        expect(wrapper.vm.selectedCity).to.equal(city);
-        expect(emitSpy.notCalled).to.equal(true);
+        expect(isCitySelectedStub.calledWith(city)).to.equal(true);
+        expect($store.commit.notCalled).to.equal(true);
 
-        done();
-    });
-
-    it("should not set the selected city to undefined", (done) => {
-        let wrapper = shallowMount(CitiesList, {
-            localVue
-        });
-
-        const city = testCities[0];
-        let emitSpy = sinon.spy(wrapper.vm, "$emit");
-
-        wrapper.vm.selectedCity = city;
-        wrapper.vm.selectCity(undefined);
-
-        expect(wrapper.vm.selectedCity).to.equal(city);
-        expect(emitSpy.notCalled).to.equal(true);
+        isCitySelectedStub.restore();
 
         done();
     });

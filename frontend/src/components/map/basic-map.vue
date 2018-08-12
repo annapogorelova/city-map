@@ -49,7 +49,7 @@
                 type: Object,
                 default: () => {
                     return {
-                        attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>',
+                        attribution: "<a href=\"https://wikimediafoundation.org/wiki/Maps_Terms_of_Use\">Wikimedia</a>",
                         minZoom: 1,
                         maxZoom: 19
                     };
@@ -104,33 +104,27 @@
             this.init();
         },
         beforeDestroy: function () {
-            this.destroy();
+            if (this.map) {
+                this.map.remove();
+                this.map = null;
+            }
         },
         methods: {
-            destroy: function () {
-                this.map.remove();
-            },
             getMap() {
                 return this.map;
             },
             init() {
-                this.map = L.map(this.id).setView([this.lat, this.lng], this.zoom);
+                this.map = L.map(this.id);/*.setView([this.lat, this.lng], this.zoom);*/
                 if (this.bounds && this.bounds.length) {
                     this.map.setMaxBounds(this.bounds);
                 }
                 L.tileLayer(this.tileLayerUrl, this.tileLayerOptions).addTo(this.map);
                 this.$emit("init");
             },
-            setCenter(lat, lng, zoom = null) {
-                this.map.setView(new L.LatLng(lat, lng), zoom || this.zoom);
-            },
-            panTo(coordinates, zoom = null) {
-                this.map.panTo(new L.LatLng(coordinates[0], coordinates[1]), zoom || this.zoom);
-            },
             locate() {
                 this.locatingInProgress = true;
 
-                this.map.locate({setView: true, maxZoom: this.focusZoom, timeout: this.locationTimeout})
+                this.map.locate({setView: false, maxZoom: this.focusZoom, timeout: this.locationTimeout})
                     .on("locationfound", (event) => {
                         this.locatingInProgress = false;
                         this.$emit("locationsuccess", event);

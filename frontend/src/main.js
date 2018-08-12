@@ -10,6 +10,7 @@ import "../assets/css/tables.css";
 import dc from "./dependency-container";
 import "./filters/index";
 import "./directives/index";
+import store from "./store";
 
 Vue.config.productionTip = false;
 Vue.prototype.$dc = dc;
@@ -18,6 +19,7 @@ Vue.prototype.$dc = dc;
 new Vue({
     el: "#app",
     router,
+    store,
     components: {App},
     template: "<App/>"
 });

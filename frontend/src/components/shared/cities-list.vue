@@ -26,6 +26,8 @@
     import {optional} from "tooleks";
     import {CitiesServiceMixin} from "../../mixins/index";
     import appConfig from "../../app.config";
+    import {mapState} from "vuex";
+    import mutationTypes from "../../store/mutation-types";
 
     export default {
         props: {
@@ -39,39 +41,30 @@
             }
         },
         mixins: [CitiesServiceMixin],
-        data: function () {
-            return {
-                selectedCity: undefined,
-                cities: []
-            };
+        computed: {
+            ...mapState({
+                selectedCity: state => state.cities.selectedCity,
+                cities: state => state.cities.cities
+            })
         },
         created: function () {
-            this.loadCities();
+            this.$store.subscribe((mutation) => {
+                if (mutation.type === `cities/${mutationTypes.CITIES.SET_SELECTED_CITY}`) {
+                    this.selectCity(mutation.payload);
+                }
+            });
+
+            this.citiesService.getCities({limit: appConfig.defaultCitiesCount}).then(response => {
+                this.$store.commit(`cities/${mutationTypes.CITIES.SET_CITIES}`, response.data);
+            });
         },
         methods: {
             isCitySelected: function (city) {
                 return optional(() => this.selectedCity.id === city.id);
             },
-            loadCities: function () {
-                return this.citiesService.getCities({limit: appConfig.defaultCitiesCount}).then(response => {
-                    this.cities = response.data;
-                    this.preselectCity();
-                });
-            },
-            preselectCity: function () {
-                if(this.preselectedCityId) {
-                    const city = this.cities.filter(c => c.id === this.preselectedCityId)[0];
-                    this.selectCity(city);
-                } else if (this.preselectDefault) {
-                    const defaultCity = optional(() =>
-                        this.cities.find(c => c.name === appConfig.defaultCityName), this.cities[0]);
-                    this.selectCity(defaultCity);
-                }
-            },
             selectCity: function (city) {
                 if(city && !this.isCitySelected(city)) {
-                    this.selectedCity = city;
-                    this.$emit("citySelected", this.selectedCity);
+                    this.$store.commit(`cities/${mutationTypes.CITIES.SET_SELECTED_CITY}`, city);
                 }
             }
         }

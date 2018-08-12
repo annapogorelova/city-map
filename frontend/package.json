@@ -20,15 +20,15 @@
     "css-loader": "^0.28.11",
     "hammerjs": "^2.0.8",
     "jquery": "^3.3.1",
-    "leaflet": "^1.3.1",
-    "leaflet-geosearch": "^2.6.0",
+    "leaflet": "^1.3.3",
     "lodash": "^4.17.10",
     "moment": "^2.22.1",
     "popper.js": "^1.12.9",
     "tooleks": "^1.4.4",
     "vue": "^2.5.16",
     "vue-meta": "^1.5.0",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "@vue/server-test-utils": "^1.0.0-beta.16",
@@ -57,7 +57,7 @@
     "file-loader": "^1.1.4",
     "friendly-errors-webpack-plugin": "^1.6.1",
     "html-webpack-plugin": "^3.2.0",
-    "karma": "^2.0.4",
+    "karma": "^2.0.5",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^1.1.2",

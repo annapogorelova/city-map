@@ -59,14 +59,6 @@
                 type: String,
                 default: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png",
             },
-            lat: {
-                type: Number,
-                default: 49.85
-            },
-            lng: {
-                type: Number,
-                default: 24.0166666667
-            },
             zoom: {
                 type: Number,
                 default: 10,
@@ -114,7 +106,7 @@
                 return this.map;
             },
             init() {
-                this.map = L.map(this.id);/*.setView([this.lat, this.lng], this.zoom);*/
+                this.map = L.map(this.id);
                 if (this.bounds && this.bounds.length) {
                     this.map.setMaxBounds(this.bounds);
                 }

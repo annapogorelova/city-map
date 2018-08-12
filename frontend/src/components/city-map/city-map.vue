@@ -573,7 +573,7 @@
                     const bounds = optional(() => [city.bounds[0][0], city.bounds[0][2]], []);
                     this.map.setMaxBounds(bounds);
                     this.map.setView(new L.LatLng(city.coordinates[0], city.coordinates[1]), this.zoom);
-                    this.$router.push({query: {cityId: city.id, lat: undefined, lng: undefined, page: undefined}});
+                    this.$router.replace({query: {cityId: city.id, lat: undefined, lng: undefined}});
                 } catch (error) {
                     // doing this to escape the error
                 }

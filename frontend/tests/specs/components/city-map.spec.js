@@ -1090,7 +1090,7 @@ describe("CityMap test", () => {
         const clearMapStub = sinon.stub(wrapper.vm, "clearMap");
         const setMaxBoundsStub = sinon.stub(wrapper.vm.map, "setMaxBounds");
         const setViewStub = sinon.stub(wrapper.vm.map, "setView");
-        const routerStub = sinon.stub(wrapper.vm.$router, "push");
+        const routerStub = sinon.stub(wrapper.vm.$router, "replace");
 
         wrapper.vm.focusOnCity(city);
 
@@ -1103,7 +1103,7 @@ describe("CityMap test", () => {
         expect(setViewStub.calledWith(new L.LatLng(city.coordinates[0], city.coordinates[1]), wrapper.vm.zoom)).to.equal(true);
         expect(setViewStub.calledOnce).to.equal(true);
 
-        expect(routerStub.calledWith({query: {cityId: city.id, lat: undefined, lng: undefined, page: undefined}})).to.equal(true);
+        expect(routerStub.calledWith({query: {cityId: city.id, lat: undefined, lng: undefined}})).to.equal(true);
 
         clearMapStub.restore();
         setMaxBoundsStub.restore();

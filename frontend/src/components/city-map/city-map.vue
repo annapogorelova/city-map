@@ -1,6 +1,6 @@
 <template>
     <div class="row page-wrapper">
-        <loader :loading="searchInProgress && !sidebar.isOpen" :delay="200"></loader>
+        <loader :loading="isActionInProgress" :delay="200"></loader>
         <div class="col-12">
             <div id="map-wrapper" class="map-wrapper">
                 <basic-map ref="map"
@@ -250,7 +250,8 @@
                 selectedStreet: undefined,
                 polyLines: [],
                 coordinates: [],
-                searchInProgress: false
+                searchInProgress: false,
+                initInProgress: false
             }
         },
         watch: {
@@ -297,6 +298,9 @@
                 }
 
                 return "";
+            },
+            isActionInProgress: function () {
+                return (this.searchInProgress && !this.sidebar.isOpen) || this.initInProgress;
             }
         },
         created: function () {
@@ -328,6 +332,8 @@
         methods: {
             init: function () {
                 return new Promise(async (resolve, reject) => {
+                    this.initInProgress = true;
+
                     try {
                         const asyncActions = [this.getLocation()];
                         if(!this.cities) {
@@ -374,8 +380,10 @@
                             );
                         }
 
+                        this.initInProgress = false;
                         resolve();
                     } catch (error) {
+                        this.initInProgress = false;
                         reject(error);
                     }
                 });

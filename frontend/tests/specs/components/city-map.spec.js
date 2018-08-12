@@ -73,6 +73,9 @@ describe("CityMap test", () => {
                 $router: router,
                 $store: store || $store
             },
+            stubs: {
+                loader: '<div></div>'
+            },
             attachToDocument: true
         });
     }
@@ -187,12 +190,12 @@ describe("CityMap test", () => {
 
         wrapper.vm.coordinates = testCities[0].coordinates;
 
-        expect(routerPushSpy.withArgs({
+        expect(routerPushSpy.calledOnceWith({
             query: {
                 lat: testCities[0].coordinates[0],
                 lng: testCities[0].coordinates[1]
             }
-        }).calledOnce).to.equal(true);
+        })).to.equal(true);
 
         done();
     });
